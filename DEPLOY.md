@@ -83,4 +83,10 @@ This guide will help you deploy the **Backend** to **Render** and the **Frontend
 >    - Click **Manual Deploy** -> **Deploy latest commit**.
 > 2. Check Render logs to see if the server crashed.
 > 3. Check Vercel logs to see if the rewrite is failing.
-> 4. Ensure the `MONGODB_URI` password is correct.
+> 4. **MongoDB Usage**:
+>    - Go to MongoDB Atlas -> **Network Access**.
+>    - Ensure you see `0.0.0.0/0`.
+>    - If not, click **+ Add IP Address** -> **Allow Access from Anywhere** -> **Confirm**.
+>    - **CRITICAL**: ensure you clicked **Confirm** in the dialog.
+>    - Go to **Database Access**. Ensure your user `hrseungjoo_db_user` exists and has a known password.
+>    - If you are still stuck, please **COPY THE LOGS** from Render and paste them here. We cannot guess the error without logs!
