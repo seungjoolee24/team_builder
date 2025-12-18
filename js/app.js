@@ -67,7 +67,14 @@ class DataService {
         localStorage.removeItem('user');
         this.token = null;
         this.user = null;
-        window.location.reload();
+
+        // Determine root path for redirect
+        const path = window.location.pathname;
+        let rootPath = './';
+        if (path.includes('/auth/') || path.includes('/projects/') || path.includes('/members/')) {
+            rootPath = '../';
+        }
+        window.location.href = rootPath + 'index.html';
     }
 
     getCurrentUser() {
@@ -516,14 +523,15 @@ function loadHeader() {
 
     // Attach logout event
     if (currentUser) {
-        document.getElementById('logoutBtn').addEventListener('click', () => {
-            if (confirm('Are you sure you want to log out?')) {
-                window.db.logout();
-                // Redirect logic is in db.logout or handled here? 
-                // db.logout reloads, but we might want to go to home if on protected page.
-                // For now reload is fine as it clears state.
-            }
-        });
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (confirm('Are you sure you want to log out?')) {
+                    window.db.logout();
+                }
+            });
+        }
     }
 }
 

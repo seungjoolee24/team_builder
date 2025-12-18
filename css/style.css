@@ -371,6 +371,17 @@ button {
     }
 }
 
+.inbox-layout {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    height: calc(100vh - 4rem);
+    background: white;
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+    margin-top: 1rem;
+}
+
 /* Navbar */
 #main-header {
     background: rgba(255, 255, 255, 0.9);
