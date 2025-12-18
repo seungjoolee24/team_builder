@@ -133,18 +133,18 @@
             grid.innerHTML = projects.map(p => `
                 <a href="./detail.html?id=${p.id}" class="card" style="text-decoration: none; color: inherit; display: block;">
                     <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
-                        <span class="badge blue">${p.type}</span>
+                        <span class="badge blue">${p.type || 'Project'}</span>
                         <span style="font-size: 0.8rem; font-weight: 600; color: var(--color-sogang-red);">95% Match</span>
                     </div>
                     <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem; line-height: 1.4;">${p.title}</h3>
                     <p style="color: var(--color-text-secondary); font-size: 0.95rem; margin-bottom: 1.5rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
-                        ${p.summary}
+                        ${p.summary || ''}
                     </p>
                     
                     <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem;">
-                        ${p.roles.map(r => `
+                        ${(p.roles || []).map(r => `
                             <span style="font-size: 0.8rem; background: var(--color-bg-secondary); padding: 2px 8px; border-radius: 4px; color: var(--color-text-secondary);">
-                                ${r.role} (${r.filled}/${r.count})
+                                ${r.role} (${r.filled || 0}/${r.count})
                             </span>
                         `).join('')}
                     </div>

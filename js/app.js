@@ -139,21 +139,21 @@ class DataService {
     async getProjects(filters = {}) {
         try {
             const res = await fetch(`${this.API_URL}/projects`);
+            if (!res.ok) return [];
             let projects = await res.json();
 
-            if (filters.owner) {
-                // This assumes we can filter by owner ID or we need to fetch user details to match email
-                // The current backend Project model stores owner as ObjectId.
-                // The frontend passes email. We need to handle this mismatch.
-                // For now, let's filter client-side if we have the owner's email in the project object?
-                // The backend returns populated owner? No, currently just ObjectId.
-                // We should update the backend to populate owner.
-                // OR, we filter by owner ID if we know it.
+            // Map MongoDB _id to id for frontend compatibility
+            projects = projects.map(p => ({
+                id: p._id,
+                ...p
+            }));
 
-                // Temporary fix: Return all for now, or implement client-side filtering if we fetch users.
+            if (filters.owner) {
+                projects = projects.filter(p => p.owner === filters.owner);
             }
             return projects;
         } catch (err) {
+            console.error('getProjects error:', err);
             return [];
         }
     }
@@ -162,7 +162,9 @@ class DataService {
         try {
             const res = await fetch(`${this.API_URL}/projects/${id}`);
             if (!res.ok) return null;
-            return await res.json();
+            const project = await res.json();
+            // Map MongoDB _id to id for frontend compatibility
+            return { id: project._id, ...project };
         } catch (err) {
             return null;
         }
@@ -219,9 +221,6 @@ class DataService {
         // Note: The backend route requires projectId. 
         // We need to pass projectId to this method or store it in the application object.
         // The frontend currently calls it with just appId.
-        // We might need to change the frontend call or find a way to get projectId.
-        // Let's assume the frontend passes projectId as well, or we change the signature.
-        // Actually, looking at workspace.html, it only passes appId.
         // This is a problem. The backend route is /projects/applications/:projectId/:appId
         // I should probably change the backend route to just /projects/applications/:appId if possible, 
         // but applications are embedded in projects.

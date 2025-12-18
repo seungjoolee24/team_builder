@@ -48,11 +48,11 @@
 
     <script src="../js/app.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             const urlParams = new URLSearchParams(window.location.search);
             const projectId = urlParams.get('id');
 
-            const project = window.db.getProjectById(projectId);
+            const project = await window.db.getProjectById(projectId);
 
             if (!project) {
                 document.getElementById('project-content').innerHTML = `<h2>Project Not Found</h2><a href="./join.html" class="btn btn-primary">Back to List</a>`;
@@ -68,19 +68,19 @@
                 <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 3rem;">
                     
                     <div>
-                        <span class="badge blue" style="margin-bottom: 1rem;">${project.type}</span>
+                        <span class="badge blue" style="margin-bottom: 1rem;">${project.type || 'Project'}</span>
                         <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;">${project.title}</h1>
-                        <p style="font-size: 1.25rem; color: var(--color-text-secondary); margin-bottom: 2rem;">${project.summary}</p>
+                        <p style="font-size: 1.25rem; color: var(--color-text-secondary); margin-bottom: 2rem;">${project.summary || ''}</p>
                         
                         <section class="card" style="margin-bottom: 2rem;">
                             <h3 style="margin-bottom: 1rem;">Project Description</h3>
-                            <p style="white-space: pre-wrap; color: var(--color-text-secondary); line-height: 1.6;">${project.description}</p>
+                            <p style="white-space: pre-wrap; color: var(--color-text-secondary); line-height: 1.6;">${project.description || 'No description provided.'}</p>
                         </section>
 
                         <section class="card">
                             <h3 style="margin-bottom: 1rem;">Domain & Skills</h3>
                             <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-                                <span class="badge purple">${project.domain}</span>
+                                <span class="badge purple">${project.domain || 'General'}</span>
                                 <!-- Mock Skills -->
                                 <span class="badge">React</span>
                                 <span class="badge">Node.js</span>
@@ -93,15 +93,15 @@
                             <h3 style="margin-bottom: 1.5rem;">Recruitment Status</h3>
                             
                             <div style="margin-bottom: 1.5rem;">
-                                ${project.roles.map(r => `
+                                ${(project.roles || []).map(r => `
                                     <div style="display: flex; justify-content: space-between; margin-bottom: 0.75rem; font-size: 0.95rem;">
                                         <span style="font-weight: 500;">${r.role}</span>
-                                        <span style="color: ${r.filled >= r.count ? 'var(--color-text-secondary)' : 'var(--color-sogang-red)'}; font-weight: 600;">
-                                            ${r.filled}/${r.count}
+                                        <span style="color: ${(r.filled || 0) >= r.count ? 'var(--color-text-secondary)' : 'var(--color-sogang-red)'}; font-weight: 600;">
+                                            ${r.filled || 0}/${r.count}
                                         </span>
                                     </div>
                                     <div style="width: 100%; height: 6px; background: var(--color-bg-tertiary); border-radius: 3px; margin-bottom: 1rem;">
-                                        <div style="width: ${(r.filled / r.count) * 100}%; height: 100%; background: var(--color-sogang-red); border-radius: 3px;"></div>
+                                        <div style="width: ${((r.filled || 0) / r.count) * 100}%; height: 100%; background: var(--color-sogang-red); border-radius: 3px;"></div>
                                     </div>
                                 `).join('')}
                             </div>
@@ -134,8 +134,8 @@
                     }
 
                     // Populate Roles
-                    roleSelect.innerHTML = project.roles
-                        .filter(r => r.filled < r.count)
+                    roleSelect.innerHTML = (project.roles || [])
+                        .filter(r => (r.filled || 0) < r.count)
                         .map(r => `<option value="${r.role}">${r.role}</option>`)
                         .join('');
 
@@ -152,11 +152,11 @@
                 modal.style.display = 'none';
             });
 
-            submitBtn.addEventListener('click', () => {
+            submitBtn.addEventListener('click', async () => {
                 const role = document.getElementById('apply-role').value;
                 const msg = document.getElementById('apply-msg').value;
 
-                const result = window.db.createApplication(projectId, role, msg);
+                const result = await window.db.createApplication(projectId, role, msg);
 
                 if (result.success) {
                     alert('Application sent successfully! The team leader will review it.');
