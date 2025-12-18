@@ -93,7 +93,7 @@ class DataService {
     async updateProfile(profileData) {
         try {
             const res = await fetch(`${this.API_URL}/users/profile`, {
-                method: 'PUT',
+                method: 'POST',
                 headers: this._authHeader(),
                 body: JSON.stringify(profileData)
             });
@@ -347,19 +347,14 @@ function loadHeader() {
                     <!-- Notification Bell -->
                     <div style="position: relative; cursor: pointer;" id="notif-btn">
                         <div style="font-size: 1.25rem;">🔔</div>
-                        ${hasUnread ? `<div style="position: absolute; top: -2px; right: -2px; width: 8px; height: 8px; background: red; border-radius: 50%;"></div>` : ''}
+                        <div id="notif-badge" style="display: none; position: absolute; top: -2px; right: -2px; width: 8px; height: 8px; background: red; border-radius: 50%;"></div>
                         
                         <!-- Dropdown -->
                         <div id="notif-dropdown" style="display: none; position: absolute; top: 100%; right: 0; width: 300px; background: white; border: 1px solid var(--color-border); border-radius: 8px; box-shadow: var(--shadow-md); z-index: 100; max-height: 400px; overflow-y: auto;">
                             <div style="padding: 0.75rem; border-bottom: 1px solid var(--color-border); font-weight: 600; font-size: 0.9rem;">Notifications</div>
-                            ${notifications.length === 0 ? `
-                                <div style="padding: 1rem; text-align: center; color: var(--color-text-secondary); font-size: 0.85rem;">No new notifications</div>
-                            ` : notifications.map(n => `
-                                <a href="${rootPath + n.link}" style="display: block; padding: 0.75rem; border-bottom: 1px solid var(--color-border); text-decoration: none; color: inherit; transition: bg 0.2s;">
-                                    <div style="font-size: 0.85rem; font-weight: 600; margin-bottom: 0.25rem;">${n.title}</div>
-                                    <div style="font-size: 0.8rem; color: var(--color-text-secondary);">${n.message}</div>
-                                </a>
-                            `).join('')}
+                            <div id="notif-list">
+                                <div style="padding: 1rem; text-align: center; color: var(--color-text-secondary); font-size: 0.85rem;">Loading...</div>
+                            </div>
                         </div>
                     </div>
 
@@ -374,6 +369,27 @@ function loadHeader() {
             </div>
         </div>
     `;
+
+    // Handle Notifications Asynchronously
+    if (currentUser) {
+        window.db.getNotifications().then(notifications => {
+            const badge = document.getElementById('notif-badge');
+            const list = document.getElementById('notif-list');
+            if (notifications.length > 0) {
+                if (badge) badge.style.display = 'block';
+                if (list) {
+                    list.innerHTML = notifications.map(n => `
+                        <a href="${rootPath + n.link}" style="display: block; padding: 0.75rem; border-bottom: 1px solid var(--color-border); text-decoration: none; color: inherit; transition: bg 0.2s;">
+                            <div style="font-size: 0.85rem; font-weight: 600; margin-bottom: 0.25rem;">${n.title}</div>
+                            <div style="font-size: 0.8rem; color: var(--color-text-secondary);">${n.message}</div>
+                        </a>
+                    `).join('');
+                }
+            } else {
+                if (list) list.innerHTML = '<div style="padding: 1rem; text-align: center; color: var(--color-text-secondary); font-size: 0.85rem;">No new notifications</div>';
+            }
+        });
+    }
 
     // Dropdown Toggle
     const notifBtn = document.getElementById('notif-btn');
