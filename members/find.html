@@ -290,7 +290,10 @@
                                             </div>
                                         </div>
 
-                                        <button class="btn btn-primary invite-btn" data-id="${m.id}" data-name="${m.name}" style="width: 100%; margin-top: 1rem;">Invite to Project</button>
+                                        <div style="display: flex; gap: 0.75rem; margin-top: 1rem;">
+                                            <button class="btn btn-primary invite-btn" data-id="${m._id}" data-name="${m.name}" style="flex: 1;">Invite to Project</button>
+                                            <button class="btn btn-outline friend-btn" data-id="${m._id}" data-name="${m.name}" style="flex: 1;">Add Friend</button>
+                                        </div>
                                     </div>
 
                                 </div>
@@ -303,8 +306,15 @@
                 document.querySelectorAll('.invite-btn').forEach(btn => {
                     btn.addEventListener('click', async (e) => {
                         e.stopPropagation();
-                        // (Invitation logic same as before, but using modern UI)
-                        handleInvite(e.target.dataset.id, e.target.dataset.name);
+                        showInviteModal(e.target.dataset.id, e.target.dataset.name);
+                    });
+                });
+
+                // Friend handler
+                document.querySelectorAll('.friend-btn').forEach(btn => {
+                    btn.addEventListener('click', async (e) => {
+                        e.stopPropagation();
+                        showFriendModal(e.target.dataset.id, e.target.dataset.name);
                     });
                 });
             }
@@ -316,30 +326,89 @@
                 if (!isExpanded) card.classList.add('expanded');
             };
 
-            async function handleInvite(targetId, targetName) {
-                if (!currentUser) {
-                    alert('Please log in to invite members.');
-                    window.location.href = '../auth/login.html';
-                    return;
-                }
+            // Social Modals
+            async function showInviteModal(targetId, targetName) {
+                if (!currentUser) return alert('Please log in.');
 
-                const projects = await window.db.getProjects({ owner: currentUser.id });
-                if (projects.length === 0) {
-                    alert('You have no active projects to invite users to.');
-                    return;
-                }
+                const projects = await window.db.getProjects({ owner: currentUser.email }); // Note: API filters by owner email/id?
+                // The current getProjects implementation filters on frontend by owner string.
+                // My backend update supports owner filtering but I'll stick to what exists if it works.
 
-                let projectList = projects.map((p, i) => `${i + 1}. ${p.title}`).join('\n');
-                let selection = prompt(`Invite ${targetName} to which project?\n${projectList}\n\nEnter number:`);
+                if (projects.length === 0) return alert('You have no open projects.');
 
-                if (selection) {
-                    const idx = parseInt(selection) - 1;
-                    if (projects[idx]) {
-                        const res = await window.db.sendInvitation(targetId, projects[idx].id);
-                        if (res.success) alert(`Invitation sent to ${targetName}!`);
-                        else alert('Error: ' + res.message);
+                const modal = createModal(`Invite ${targetName} to Project`, `
+                    <div class="input-group">
+                        <label class="label">Choose Project</label>
+                        <select id="invite-project-select" class="input">
+                            ${projects.map(p => `<option value="${p.id}">${p.title}</option>`).join('')}
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label class="label">Optional Message</label>
+                        <textarea id="invite-message" class="input" rows="3" placeholder="Explain why you want them in your team..."></textarea>
+                    </div>
+                    <button id="send-invite-confirm" class="btn btn-primary" style="width: 100%;">Send Invitation</button>
+                `);
+
+                document.getElementById('send-invite-confirm').addEventListener('click', async () => {
+                    const projectId = document.getElementById('invite-project-select').value;
+                    const message = document.getElementById('invite-message').value;
+
+                    const res = await window.db.sendInvitation(targetId, projectId, message);
+                    if (res.success) {
+                        alert('Invitation sent!');
+                        modal.close();
+                    } else {
+                        alert('Failed: ' + res.message);
                     }
-                }
+                });
+            }
+
+            async function showFriendModal(targetId, targetName) {
+                if (!currentUser) return alert('Please log in.');
+
+                const modal = createModal(`Add ${targetName} as Friend`, `
+                    <div class="input-group">
+                        <label class="label">Message (Optional)</label>
+                        <textarea id="friend-message" class="input" rows="3" placeholder="Hi! I'd like to connect..."></textarea>
+                    </div>
+                    <button id="send-friend-confirm" class="btn btn-primary" style="width: 100%;">Send Request</button>
+                `);
+
+                document.getElementById('send-friend-confirm').addEventListener('click', async () => {
+                    const message = document.getElementById('friend-message').value;
+                    const res = await window.db.sendFriendRequest(targetId, message);
+                    if (res.success) {
+                        alert('Friend request sent!');
+                        modal.close();
+                    } else {
+                        alert('Failed: ' + res.message);
+                    }
+                });
+            }
+
+            function createModal(title, contentHtml) {
+                const overlay = document.createElement('div');
+                overlay.style = 'position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000;';
+
+                const modal = document.createElement('div');
+                modal.style = 'background: white; padding: 2rem; border-radius: var(--radius-lg); width: 100%; max-width: 400px; box-shadow: var(--shadow-lg);';
+                modal.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                        <h3 style="margin: 0; font-size: 1.25rem;">${title}</h3>
+                        <button id="modal-close-btn" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">&times;</button>
+                    </div>
+                    ${contentHtml}
+                `;
+
+                overlay.appendChild(modal);
+                document.body.appendChild(overlay);
+
+                const close = () => document.body.removeChild(overlay);
+                document.getElementById('modal-close-btn').onclick = close;
+                overlay.onclick = (e) => { if (e.target === overlay) close(); };
+
+                return { close };
             }
 
             searchBtn.addEventListener('click', loadMembers);

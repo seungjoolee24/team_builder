@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inbox - Sogang Team Building</title>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body style="height: 100vh; overflow: hidden; display: flex; flex-direction: column;">
+
+    <header id="main-header"></header>
+
+    <main class="container" style="flex: 1; padding: 0 1rem;">
+
+        <div class="inbox-layout">
+
+            <!-- Sidebar: Threads -->
+            <div class="thread-list">
+                <div style="padding: 1.25rem; border-bottom: 1px solid var(--color-border); background: white;">
+                    <h2 style="font-size: 1.25rem; margin: 0;">Messages</h2>
+                </div>
+                <div id="thread-items-container">
+                    <p style="padding: 2rem; text-align: center; color: var(--color-text-tertiary);">No threads yet.</p>
+                </div>
+            </div>
+
+            <!-- Main: Chat Window -->
+            <div class="chat-window">
+                <div id="no-thread-selected"
+                    style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--color-text-tertiary); text-align: center;">
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">💬</div>
+                    <p>Select a conversation to start chatting.</p>
+                </div>
+
+                <div id="active-chat" style="display: none; flex-direction: column; height: 100%;">
+                    <!-- Chat Header -->
+                    <div
+                        style="padding: 1rem 1.5rem; border-bottom: 1px solid var(--color-border); display: flex; align-items: center; justify-content: space-between; background: white;">
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <div id="thread-avatar"
+                                style="width: 40px; height: 40px; border-radius: 50%; background: #EEE; overflow: hidden;">
+                            </div>
+                            <div>
+                                <h3 id="thread-title" style="margin: 0; font-size: 1.1rem;">Thread Title</h3>
+                                <p id="thread-status"
+                                    style="margin: 0; font-size: 0.8rem; color: var(--color-text-tertiary);">Direct
+                                    Message</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Messages -->
+                    <div id="chat-messages" class="chat-messages">
+                        <!-- Messages go here -->
+                    </div>
+
+                    <!-- Input -->
+                    <form id="chat-form" class="chat-input-area">
+                        <input type="text" id="chat-input" class="input" placeholder="Type a message..." required
+                            autocomplete="off">
+                        <button type="submit" class="btn btn-primary">Send</button>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <script src="./js/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const threadContainer = document.getElementById('thread-items-container');
+            const chatMessages = document.getElementById('chat-messages');
+            const chatForm = document.getElementById('chat-form');
+            const chatInput = document.getElementById('chat-input');
+            const noThreadView = document.getElementById('no-thread-selected');
+            const activeChatView = document.getElementById('active-chat');
+            const currentUser = window.db.getCurrentUser();
+
+            let activeThreadId = null;
+
+            if (!currentUser) {
+                window.location.href = './auth/login.html';
+                return;
+            }
+
+            async function loadThreads() {
+                const threads = await window.db.getInbox();
+                if (threads.length === 0) return;
+
+                threadContainer.innerHTML = threads.map(t => {
+                    const isDM = t.type === 'dm';
+                    // Find other user in DM
+                    const otherUser = isDM ? t.users.find(u => u._id !== currentUser.id) : null;
+                    const title = isDM ? (otherUser ? otherUser.name : 'Unknown') : t.project.title;
+                    const lastMsg = t.lastMessage ? t.lastMessage.text : 'No messages yet';
+                    const time = t.lastMessageAt ? new Date(t.lastMessageAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+
+                    return `
+                        <div class="thread-item ${t._id === activeThreadId ? 'active' : ''}" onclick="selectThread('${t._id}')">
+                            <div style="display: flex; gap: 0.75rem;">
+                                <div style="width: 48px; height: 48px; border-radius: 50%; background: #EEE; overflow: hidden; flex-shrink: 0;">
+                                    <img src="https://api.dicebear.com/7.x/${isDM ? 'avataaars' : 'shapes'}/svg?seed=${title}" style="width: 100%; height: 100%;">
+                                </div>
+                                <div style="flex: 1; min-width: 0;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
+                                        <h4 style="margin: 0; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${title}</h4>
+                                        <span style="font-size: 0.7rem; color: var(--color-text-tertiary);">${time}</span>
+                                    </div>
+                                    <p style="margin: 0; font-size: 0.85rem; color: var(--color-text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                        ${lastMsg}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            window.selectThread = async (id) => {
+                activeThreadId = id;
+                noThreadView.style.display = 'none';
+                activeChatView.style.display = 'flex';
+
+                // Update UI selection
+                document.querySelectorAll('.thread-item').forEach(el => el.classList.remove('active'));
+
+                // Fetch Thread Info for Header
+                const threads = await window.db.getInbox();
+                const thread = threads.find(t => t._id === id);
+                if (thread) {
+                    const isDM = thread.type === 'dm';
+                    const otherUser = isDM ? thread.users.find(u => u._id !== currentUser.id) : null;
+                    const title = isDM ? (otherUser ? otherUser.name : 'Unknown') : thread.project.title;
+
+                    document.getElementById('thread-title').textContent = title;
+                    document.getElementById('thread-status').textContent = isDM ? 'Direct Message' : 'Project Chat';
+                    document.getElementById('thread-avatar').innerHTML = `<img src="https://api.dicebear.com/7.x/${isDM ? 'avataaars' : 'shapes'}/svg?seed=${title}" style="width: 100%; height: 100%;">`;
+                }
+
+                loadMessages(id);
+                loadThreads(); // Refresh list to show active state
+            };
+
+            async function loadMessages(id) {
+                const messages = await window.db.getThreadMessages(id);
+                chatMessages.innerHTML = messages.map(m => `
+                    <div class="message ${m.sender._id === currentUser.id ? 'sent' : 'received'}">
+                        ${m.text}
+                        <div style="font-size: 0.65rem; opacity: 0.7; margin-top: 0.25rem; text-align: right;">
+                            ${new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </div>
+                    </div>
+                `).join('');
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+
+            chatForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const text = chatInput.value.trim();
+                if (!text || !activeThreadId) return;
+
+                const res = await window.db.sendMessage(activeThreadId, text);
+                if (!res.error) {
+                    chatInput.value = '';
+                    loadMessages(activeThreadId);
+                    loadThreads();
+                } else {
+                    alert('Error: ' + res.error);
+                }
+            });
+
+            loadThreads();
+
+            // Poll for new messages every 5 seconds
+            setInterval(() => {
+                if (activeThreadId) loadMessages(activeThreadId);
+                loadThreads();
+            }, 5000);
+        });
+    </script>
+</body>
+
+</html>

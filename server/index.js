@@ -26,12 +26,18 @@ const userRoutes = require('./routes/users');
 const projectRoutes = require('./routes/projects');
 const notificationRoutes = require('./routes/notifications');
 const chatRoutes = require('./routes/chats');
+const invitationRoutes = require('./routes/invitations');
+const friendRoutes = require('./routes/friends');
+const inboxRoutes = require('./routes/inbox');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/chats', chatRoutes);
+app.use('/api/invitations', invitationRoutes);
+app.use('/api/friends', friendRoutes);
+app.use('/api/inbox', inboxRoutes);
 
 // Start Server
 app.listen(PORT, () => {
