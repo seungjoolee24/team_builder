@@ -31,8 +31,8 @@ router.get('/', auth, async (req, res) => {
 
         res.json(threads);
     } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Server Error');
+        console.error('Fetch Inbox Error:', err.message);
+        res.status(500).json({ msg: 'Server error fetching inbox' });
     }
 });
 
@@ -60,8 +60,8 @@ router.get('/thread/:id', auth, async (req, res) => {
 
         res.json(messages);
     } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Server Error');
+        console.error('Fetch Messages Error:', err.message);
+        res.status(500).json({ msg: 'Server error fetching messages' });
     }
 });
 
@@ -88,8 +88,8 @@ router.post('/thread/:id', auth, async (req, res) => {
 
         res.json(message);
     } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Server Error');
+        console.error('Send Message Error:', err.message);
+        res.status(500).json({ msg: 'Server error sending message' });
     }
 });
 
@@ -115,8 +115,8 @@ router.post('/dm/:userId', auth, async (req, res) => {
 
         res.json(thread);
     } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Server Error');
+        console.error('DM Thread Error:', err.message);
+        res.status(500).json({ msg: 'Server error initializing DM' });
     }
 });
 

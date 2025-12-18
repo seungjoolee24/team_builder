@@ -50,8 +50,8 @@ router.post('/register', async (req, res) => {
             }
         );
     } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Server error');
+        console.error('Registration Error:', err.message);
+        res.status(500).json({ msg: 'Server error during registration' });
     }
 });
 
@@ -90,8 +90,8 @@ router.post('/login', async (req, res) => {
             }
         );
     } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Server error');
+        console.error('Login Error:', err.message);
+        res.status(500).json({ msg: 'Server error during login' });
     }
 });
 
@@ -103,8 +103,8 @@ router.get('/me', auth, async (req, res) => {
         const user = await User.findById(req.user.id).select('-password');
         res.json(user);
     } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Server Error');
+        console.error('Auth Me Error:', err.message);
+        res.status(500).json({ msg: 'Server error fetching user data' });
     }
 });
 
