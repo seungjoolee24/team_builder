@@ -10,6 +10,20 @@
         href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;700;800&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="./css/style.css">
+    <style>
+        /* Extra Helper for specific layouts */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 600px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 
 <body>
@@ -20,11 +34,11 @@
 
         <div style="display: grid; grid-template-columns: 280px 1fr; gap: 2rem; align-items: start;">
 
-            <!-- Sidebar: Avatar & Basic Info -->
-            <div class="card" style="text-align: center; padding: 2rem;">
+            <!-- Sidebar -->
+            <div class="card" style="text-align: center; padding: 2rem; position: sticky; top: 6rem;">
                 <div
                     style="width: 120px; height: 120px; margin: 0 auto 1.5rem; background: #f0f0f0; border-radius: 50%; overflow: hidden; border: 4px solid white; box-shadow: var(--shadow-md);">
-                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="Profile"
+                    <img id="profile-avatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="Profile"
                         style="width: 100%; height: 100%;">
                 </div>
                 <h2 id="display-name" style="font-size: 1.5rem; margin-bottom: 0.25rem;">Student Name</h2>
@@ -42,73 +56,295 @@
             </div>
 
             <!-- Main Content: Profile Form -->
-            <div class="card">
+            <div>
                 <div
-                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; border-bottom: 1px solid var(--color-border); padding-bottom: 1rem;">
-                    <h2 style="font-size: 1.5rem;">Profile Settings</h2>
-                    <button id="save-btn" class="btn btn-primary">Save Changes</button>
+                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; padding: 0 0.5rem;">
+                    <div>
+                        <h2 style="font-size: 1.8rem;">Profile Settings</h2>
+                        <p style="color: var(--color-text-secondary); font-size: 0.95rem;">Build your identity to find
+                            the perfect team.</p>
+                    </div>
+                    <button id="save-btn" class="btn btn-primary" style="padding-left: 2rem; padding-right: 2rem;">Save
+                        Changes</button>
                 </div>
 
                 <form id="profile-form">
-                    <section style="margin-bottom: 2.5rem;">
-                        <h3 style="font-size: 1.1rem; margin-bottom: 1rem;">Academic Info</h3>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+
+                    <!-- 1. Academic & Bio (Required) -->
+                    <div class="accordion active">
+                        <div class="accordion-header">
+                            <h3>Academic & Basic Info <span class="section-tag required">Required</span></h3>
+                            <span class="accordion-icon">▼</span>
+                        </div>
+                        <div class="accordion-content">
+                            <div class="grid-2">
+                                <div class="input-group">
+                                    <label class="label">College</label>
+                                    <select id="college" class="input">
+                                        <option value="">Select College</option>
+                                        <option value="engineering">Engineering</option>
+                                        <option value="science">Natural Sciences</option>
+                                        <option value="economics">Economics/Business</option>
+                                        <option value="social_sciences">Social Sciences</option>
+                                        <option value="media_art">Media, Arts & Science (Art&Tech)</option>
+                                        <option value="humanities">Humanities</option>
+                                        <option value="global">Global Korean Studies</option>
+                                    </select>
+                                </div>
+                                <div class="input-group">
+                                    <label class="label">Major</label>
+                                    <input type="text" id="major" class="input" placeholder="e.g. Computer Science">
+                                </div>
+                            </div>
                             <div class="input-group">
-                                <label class="label">College</label>
-                                <select id="college" class="input">
-                                    <option value="">Select College</option>
-                                    <option value="engineering">Engineering</option>
-                                    <option value="science">Natural Sciences</option>
-                                    <option value="economics">Economics</option>
-                                    <option value="social_sciences">Social Sciences</option>
-                                    <option value="media_art">Media & Arts</option>
-                                    <option value="humanities">Humanities</option>
+                                <label class="label">Bio / Introduction</label>
+                                <textarea id="bio" class="input" rows="3"
+                                    placeholder="Briefly introduce yourself..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. Roles & Skills (Required) -->
+                    <div class="accordion active">
+                        <div class="accordion-header">
+                            <h3>Roles & Skills <span class="section-tag required">Required</span></h3>
+                            <span class="accordion-icon">▼</span>
+                        </div>
+                        <div class="accordion-content">
+                            <div class="input-group">
+                                <label class="label">Primary Role</label>
+                                <select id="primaryRole" class="input" required>
+                                    <option value="">Choose your main strength</option>
+                                    <option value="planner">Planner (PM)</option>
+                                    <option value="designer">Designer (UI/UX)</option>
+                                    <option value="frontend">Frontend Developer</option>
+                                    <option value="backend">Backend Developer</option>
+                                    <option value="data">Data/AI Engineer</option>
+                                    <option value="media">Media/Video Artist</option>
                                 </select>
                             </div>
+
                             <div class="input-group">
-                                <label class="label">Major</label>
-                                <input type="text" id="major" class="input" placeholder="e.g. Computer Science">
+                                <label class="label">Other Roles (Optional)</label>
+                                <div class="checkbox-group" id="otherRoles-group">
+                                    <label class="checkbox-item"><input type="checkbox" value="planner"> PM</label>
+                                    <label class="checkbox-item"><input type="checkbox" value="designer">
+                                        Designer</label>
+                                    <label class="checkbox-item"><input type="checkbox" value="frontend">
+                                        Frontend</label>
+                                    <label class="checkbox-item"><input type="checkbox" value="backend"> Backend</label>
+                                    <label class="checkbox-item"><input type="checkbox" value="data"> AI/Data</label>
+                                    <label class="checkbox-item"><input type="checkbox" value="media"> Media/Art</label>
+                                </div>
+                            </div>
+
+                            <div class="input-group" style="margin-top: 2rem;">
+                                <label class="label">Skills Registry</label>
+                                <p style="font-size: 0.85rem; color: var(--color-text-tertiary); margin-bottom: 1rem;">
+                                    Select your skills to define your proficiency.</p>
+
+                                <div id="skills-list">
+                                    <!-- Dynamic entry rows will go here -->
+                                </div>
+
+                                <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+                                    <select id="skill-category-add" class="input" style="flex: 1;">
+                                        <option value="Programming">Programming Languages</option>
+                                        <option value="Frameworks">Frameworks/Libraries</option>
+                                        <option value="Design">Design Tools</option>
+                                        <option value="Other">Other Tools</option>
+                                    </select>
+                                    <input type="text" id="skill-name-add" class="input" style="flex: 1.5;"
+                                        placeholder="Enter skill name (e.g. Python, React)">
+                                    <button type="button" id="add-skill-btn" class="btn btn-secondary">Add
+                                        Skill</button>
+                                </div>
+                                <div id="skill-suggestions"
+                                    style="margin-top: 0.5rem; display: flex; flex-wrap: wrap; gap: 0.4rem;">
+                                    <!-- Suggestions based on category -->
+                                </div>
                             </div>
                         </div>
-                    </section>
+                    </div>
 
-                    <section style="margin-bottom: 2.5rem;">
-                        <h3 style="font-size: 1.1rem; margin-bottom: 1rem;">Roles & Skills</h3>
-                        <div class="input-group">
-                            <label class="label">Primary Role</label>
-                            <select id="primary-role" class="input">
-                                <option value="">Select Role</option>
-                                <option value="planner">Planner (PM)</option>
-                                <option value="designer">Designer (UI/UX)</option>
-                                <option value="frontend">Frontend Developer</option>
-                                <option value="backend">Backend Developer</option>
-                                <option value="data">Data/AI Engineer</option>
-                                <option value="media">Media/Video Artist</option>
-                            </select>
+                    <!-- 3. Links (Optional) -->
+                    <div class="accordion">
+                        <div class="accordion-header">
+                            <h3>Links <span class="section-tag optional">Optional</span></h3>
+                            <span class="accordion-icon">▼</span>
                         </div>
+                        <div class="accordion-content">
+                            <div class="grid-2">
+                                <div class="input-group">
+                                    <label class="label">GitHub</label>
+                                    <input type="text" id="link-github" class="input"
+                                        placeholder="https://github.com/...">
+                                </div>
+                                <div class="input-group">
+                                    <label class="label">Portfolio</label>
+                                    <input type="text" id="link-portfolio" class="input"
+                                        placeholder="Personal website link">
+                                </div>
+                                <div class="input-group">
+                                    <label class="label">YouTube</label>
+                                    <input type="text" id="link-youtube" class="input"
+                                        placeholder="YouTube channel link">
+                                </div>
+                                <div class="input-group">
+                                    <label class="label">Instagram</label>
+                                    <input type="text" id="link-instagram" class="input" placeholder="@handle or link">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-                        <div class="input-group">
-                            <label class="label">Skills (comma separated)</label>
-                            <input type="text" id="skills" class="input"
-                                placeholder="e.g. React, Python, Figma, Premiere Pro">
-                            <p style="font-size: 0.8rem; color: var(--color-text-secondary); margin-top: 0.5rem;">These
-                                will appear as tags on your profile.</p>
+                    <!-- 4. Interests & Preferences (Optional) -->
+                    <div class="accordion">
+                        <div class="accordion-header">
+                            <h3>Interests & Preferences <span class="section-tag optional">Optional</span></h3>
+                            <span class="accordion-icon">▼</span>
                         </div>
-                    </section>
+                        <div class="accordion-content">
+                            <div class="input-group">
+                                <label class="label">Interest Domains</label>
+                                <div class="checkbox-group" id="interestDomains-group">
+                                    <label class="checkbox-item"><input type="checkbox" value="Web/App"> Web/App</label>
+                                    <label class="checkbox-item"><input type="checkbox" value="AI/Data"> AI/Data</label>
+                                    <label class="checkbox-item"><input type="checkbox" value="Fintech"> Fintech</label>
+                                    <label class="checkbox-item"><input type="checkbox" value="E-commerce">
+                                        E-commerce</label>
+                                    <label class="checkbox-item"><input type="checkbox" value="Game"> Game</label>
+                                    <label class="checkbox-item"><input type="checkbox" value="BlockChain">
+                                        Blockchain</label>
+                                </div>
+                                <input type="text" id="custom-domain" class="input" style="margin-top: 0.75rem;"
+                                    placeholder="Add custom domain (comma separated)">
+                            </div>
 
-                    <section>
-                        <h3 style="font-size: 1.1rem; margin-bottom: 1rem;">Hashtags & Interests</h3>
-                        <div class="input-group">
-                            <label class="label">Hashtags (#)</label>
-                            <input type="text" id="hashtags" class="input"
-                                placeholder="#NightOwl #WeekendWarrior #Startup">
+                            <div class="input-group">
+                                <label class="label">Preferred Project Types</label>
+                                <div class="checkbox-group" id="projectTypes-group">
+                                    <label class="checkbox-item"><input type="checkbox" value="Competition">
+                                        Competition</label>
+                                    <label class="checkbox-item"><input type="checkbox" value="Side Project"> Side
+                                        Project</label>
+                                    <label class="checkbox-item"><input type="checkbox" value="Study"> Study</label>
+                                    <label class="checkbox-item"><input type="checkbox" value="Startup"> Startup</label>
+                                </div>
+                            </div>
+
+                            <div class="input-group">
+                                <label class="label">Topic Tags (Press Enter to add)</label>
+                                <input type="text" id="topic-tag-input" class="input"
+                                    placeholder="e.g. No-Sleep, High-Quality, Fun-First">
+                                <div id="topic-tags-container" class="chips-container"></div>
+                            </div>
                         </div>
-                        <div class="input-group">
-                            <label class="label">Bio / Introduction</label>
-                            <textarea id="bio" class="input" rows="4"
-                                placeholder="Briefly introduce yourself and what kind of projects you are looking for..."></textarea>
+                    </div>
+
+                    <!-- 5. Collaboration & Availability (Optional) -->
+                    <div class="accordion">
+                        <div class="accordion-header">
+                            <h3>Collaboration & Availability <span class="section-tag optional">Optional</span></h3>
+                            <span class="accordion-icon">▼</span>
                         </div>
-                    </section>
+                        <div class="accordion-content">
+                            <div class="grid-2">
+                                <div class="input-group">
+                                    <label class="label">Weekly Hours</label>
+                                    <select id="collab-hours" class="input">
+                                        <option value="<5h">Less than 5 hours</option>
+                                        <option value="5-10h">5 - 10 hours</option>
+                                        <option value="10-20h">10 - 20 hours</option>
+                                        <option value="20h+">Full committed (20h+)</option>
+                                    </select>
+                                </div>
+                                <div class="input-group">
+                                    <label class="label">Preferred Duration</label>
+                                    <select id="collab-duration" class="input">
+                                        <option value="short">Short term (1-4 weeks)</option>
+                                        <option value="medium">Medium term (1-3 months)</option>
+                                        <option value="long">Long term (3+ months)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="input-group">
+                                <label class="label">Time Slots (Select multiple)</label>
+                                <div class="checkbox-group" id="timeSlots-group">
+                                    <label class="checkbox-item"><input type="checkbox" value="weekday-day"> Weekday
+                                        Day</label>
+                                    <label class="checkbox-item"><input type="checkbox" value="weekday-evening"> Weekday
+                                        Evening</label>
+                                    <label class="checkbox-item"><input type="checkbox" value="weekend-day"> Weekend
+                                        Day</label>
+                                    <label class="checkbox-item"><input type="checkbox" value="weekend-evening"> Weekend
+                                        Evening</label>
+                                </div>
+                            </div>
+
+                            <div class="grid-2">
+                                <div class="input-group">
+                                    <label class="label">Work Mode</label>
+                                    <select id="collab-mode" class="input">
+                                        <option value="online">Online Only</option>
+                                        <option value="offline">Offline Preferred</option>
+                                        <option value="hybrid">Hybrid</option>
+                                    </select>
+                                </div>
+                                <div class="input-group">
+                                    <label class="label">Preferred Places</label>
+                                    <input type="text" id="collab-places" class="input"
+                                        placeholder="e.g. Arrupe Hall, Sinchon Cafe">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 6. Goals & Motivation (Optional) -->
+                    <div class="accordion">
+                        <div class="accordion-header">
+                            <h3>Goals & Motivation <span class="section-tag optional">Optional</span></h3>
+                            <span class="accordion-icon">▼</span>
+                        </div>
+                        <div class="accordion-content">
+                            <div class="input-group">
+                                <label class="label">Purposes</label>
+                                <div class="checkbox-group" id="goals-purposes-group">
+                                    <label class="checkbox-item"><input type="checkbox" value="award"> Winning
+                                        Awards</label>
+                                    <label class="checkbox-item"><input type="checkbox" value="portfolio"> Building
+                                        Portfolio</label>
+                                    <label class="checkbox-item"><input type="checkbox" value="networking">
+                                        Networking</label>
+                                    <label class="checkbox-item"><input type="checkbox" value="learning"> Pure
+                                        Learning</label>
+                                </div>
+                            </div>
+
+                            <div class="input-group">
+                                <label class="label">Top Priorities (Rank 1-3)</label>
+                                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                    <input type="text" id="priority-1" class="input" style="width: auto;"
+                                        placeholder="1st Priority">
+                                    <input type="text" id="priority-2" class="input" style="width: auto;"
+                                        placeholder="2nd Priority">
+                                    <input type="text" id="priority-3" class="input" style="width: auto;"
+                                        placeholder="3rd Priority">
+                                </div>
+                            </div>
+
+                            <div class="input-group">
+                                <label class="label">Award Preference</label>
+                                <select id="award-pref" class="input">
+                                    <option value="highly-desired">Must win! (High pressure)</option>
+                                    <option value="moderate">Good if we win (Moderate)</option>
+                                    <option value="low">Experience matters more (Low)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
                 </form>
             </div>
         </div>
@@ -118,7 +354,18 @@
 
     <script src="./js/app.js"></script>
     <script>
-        // Init Profile Logic
+        const SKILL_SUGGESTIONS = {
+            'Programming': ['Python', 'C/C++', 'Java', 'JavaScript', 'TypeScript', 'Swift', 'Kotlin', 'Go', 'Rust'],
+            'Frameworks': ['React', 'Node.js', 'Django', 'Spring Boot', 'Vue.js', 'Next.js', 'Flutter', 'PyTorch'],
+            'Design': ['Figma', 'Adobe XD', 'Photoshop', 'Illustrator', 'Premiere Pro', 'After Effects', 'Blender'],
+            'Other': ['Git/GitHub', 'Notion', 'Slack', 'Jira', 'Trello', 'Docker', 'AWS']
+        };
+
+        const state = {
+            skills: [],
+            topicTags: []
+        };
+
         document.addEventListener('DOMContentLoaded', async () => {
             const currentUser = window.db.getCurrentUser();
             if (!currentUser) {
@@ -128,48 +375,272 @@
 
             document.getElementById('display-email').textContent = currentUser.email;
             document.getElementById('display-name').textContent = currentUser.name;
+            document.getElementById('profile-avatar').src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${currentUser.name}`;
 
-            // Load saved data
-            const savedProfile = await window.db.getProfile();
-            if (savedProfile) {
-                if (savedProfile.college) document.getElementById('college').value = savedProfile.college;
-                if (savedProfile.major) {
-                    document.getElementById('major').value = savedProfile.major;
-                    document.getElementById('display-major').textContent = savedProfile.major;
-                }
-                if (savedProfile.primaryRole) document.getElementById('primary-role').value = savedProfile.primaryRole;
-                if (savedProfile.skills) document.getElementById('skills').value = savedProfile.skills;
-                if (savedProfile.hashtags) document.getElementById('hashtags').value = savedProfile.hashtags;
-                if (savedProfile.bio) document.getElementById('bio').value = savedProfile.bio;
+            // --- UI Initialize ---
+            setupAccordions();
+            setupSkillSystem();
+            setupTagSystem();
+
+            // --- Load Data ---
+            const profile = await window.db.getProfile();
+            if (profile) {
+                fillFormData(profile);
             }
 
-            // Save Handler
-            document.getElementById('save-btn').addEventListener('click', async () => {
-                const profileData = {
-                    college: document.getElementById('college').value,
-                    major: document.getElementById('major').value,
-                    primaryRole: document.getElementById('primary-role').value,
-                    skills: document.getElementById('skills').value,
-                    hashtags: document.getElementById('hashtags').value,
-                    bio: document.getElementById('bio').value
-                };
+            // --- Save Handler ---
+            document.getElementById('save-btn').addEventListener('click', async (e) => {
+                e.preventDefault();
+                const profileData = collectFormData();
 
-                await window.db.updateProfile(profileData);
+                const result = await window.db.updateProfile(profileData);
 
-                // Update UI Feedback
-                const btn = document.getElementById('save-btn');
-                const originalText = btn.textContent;
-                btn.textContent = 'Saved!';
-                btn.style.backgroundColor = 'var(--color-accent-teal)';
-                setTimeout(() => {
-                    btn.textContent = originalText;
-                    btn.style.backgroundColor = '';
-                }, 2000);
-
-                // Update display immediately
-                document.getElementById('display-major').textContent = profileData.major || 'Major Undefined';
+                if (result.success) {
+                    showSuccessFeedback();
+                    document.getElementById('display-major').textContent = profileData.major || 'Major Undefined';
+                } else {
+                    alert('Failed to save: ' + result.message);
+                }
             });
         });
+
+        function setupAccordions() {
+            document.querySelectorAll('.accordion-header').forEach(header => {
+                header.addEventListener('click', () => {
+                    header.parentElement.classList.toggle('active');
+                });
+            });
+        }
+
+        function setupSkillSystem() {
+            const addBtn = document.getElementById('add-skill-btn');
+            const categorySelect = document.getElementById('skill-category-add');
+            const nameInput = document.getElementById('skill-name-add');
+            const suggestionsDiv = document.getElementById('skill-suggestions');
+
+            const refreshSuggestions = () => {
+                const cat = categorySelect.value;
+                suggestionsDiv.innerHTML = SKILL_SUGGESTIONS[cat].map(s =>
+                    `<span class="badge" style="cursor:pointer;" onclick="setSkillName('${s}')">${s}</span>`
+                ).join('');
+            };
+
+            categorySelect.addEventListener('change', refreshSuggestions);
+            refreshSuggestions();
+
+            window.setSkillName = (name) => { nameInput.value = name; };
+
+            addBtn.addEventListener('click', () => {
+                const category = categorySelect.value;
+                const name = nameInput.value.trim();
+                if (!name) return;
+
+                if (state.skills.some(s => s.name.toLowerCase() === name.toLowerCase())) {
+                    alert('Skill already added!');
+                    return;
+                }
+
+                addSkillToUI({ category, name, level: 'intermediate', experience: 'class-only' });
+                nameInput.value = '';
+            });
+        }
+
+        function addSkillToUI(skill) {
+            state.skills.push(skill);
+            const container = document.getElementById('skills-list');
+            const row = document.createElement('div');
+            row.className = 'skill-detail-card';
+            row.innerHTML = `
+                <div>
+                    <div style="font-weight: 600;">${skill.name}</div>
+                    <div style="font-size: 0.75rem; color: var(--color-text-tertiary);">${skill.category}</div>
+                </div>
+                <select class="input skill-level" style="font-size: 0.8rem;">
+                    <option value="beginner" ${skill.level === 'beginner' ? 'selected' : ''}>Beginner</option>
+                    <option value="intermediate" ${skill.level === 'intermediate' ? 'selected' : ''}>Intermediate</option>
+                    <option value="advanced" ${skill.level === 'advanced' ? 'selected' : ''}>Advanced</option>
+                </select>
+                <select class="input skill-exp" style="font-size: 0.8rem;">
+                    <option value="class-only" ${skill.experience === 'class-only' ? 'selected' : ''}>Class-only</option>
+                    <option value="club-or-contest" ${skill.experience === 'club-or-contest' ? 'selected' : ''}>Club/Contest</option>
+                    <option value="internship-or-real" ${skill.experience === 'internship-or-real' ? 'selected' : ''}>Intern/Pro</option>
+                </select>
+                <button type="button" class="btn btn-outline" style="padding: 0.2rem; color: var(--color-sogang-red);" onclick="removeSkill(this, '${skill.name}')">&times;</button>
+            `;
+            container.appendChild(row);
+
+            // Sync with state on change
+            row.querySelector('.skill-level').addEventListener('change', (e) => { skill.level = e.target.value; });
+            row.querySelector('.skill-exp').addEventListener('change', (e) => { skill.experience = e.target.value; });
+        }
+
+        window.removeSkill = (btn, name) => {
+            state.skills = state.skills.filter(s => s.name !== name);
+            btn.closest('.skill-detail-card').remove();
+        };
+
+        function setupTagSystem() {
+            const input = document.getElementById('topic-tag-input');
+            const container = document.getElementById('topic-tags-container');
+
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const tag = input.value.trim().replace(/^#/, '');
+                    if (tag && !state.topicTags.includes(tag)) {
+                        addTag(tag);
+                        input.value = '';
+                    }
+                }
+            });
+        }
+
+        function addTag(tag) {
+            state.topicTags.push(tag);
+            const container = document.getElementById('topic-tags-container');
+            const chip = document.createElement('div');
+            chip.className = 'chip';
+            chip.innerHTML = `<span>#${tag}</span><span class="remove-chip" onclick="removeTag(this, '${tag}')">&times;</span>`;
+            container.appendChild(chip);
+        }
+
+        window.removeTag = (btn, tag) => {
+            state.topicTags = state.topicTags.filter(t => t !== tag);
+            btn.parentElement.remove();
+        };
+
+        function collectFormData() {
+            const getChecked = (selector) => Array.from(document.querySelectorAll(`${selector} input:checked`)).map(i => i.value);
+
+            return {
+                college: document.getElementById('college').value,
+                major: document.getElementById('major').value,
+                bio: document.getElementById('bio').value,
+                primaryRole: document.getElementById('primaryRole').value,
+                otherRoles: getChecked('#otherRoles-group'),
+                skills: state.skills,
+                links: {
+                    github: document.getElementById('link-github').value,
+                    portfolio: document.getElementById('link-portfolio').value,
+                    youtube: document.getElementById('link-youtube').value,
+                    instagram: document.getElementById('link-instagram').value
+                },
+                interestDomains: [...getChecked('#interestDomains-group'), ...document.getElementById('custom-domain').value.split(',').map(s => s.trim()).filter(s => s)],
+                preferredProjectTypes: getChecked('#projectTypes-group'),
+                topicTags: state.topicTags,
+                collaboration: {
+                    weeklyHours: document.getElementById('collab-hours').value,
+                    timeSlots: getChecked('#timeSlots-group'),
+                    duration: document.getElementById('collab-duration').value,
+                    workMode: document.getElementById('collab-mode').value,
+                    preferredPlaces: document.getElementById('collab-places').value.split(',').map(s => s.trim()).filter(s => s)
+                },
+                goals: {
+                    purposes: getChecked('#goals-purposes-group'),
+                    priorities: [
+                        document.getElementById('priority-1').value,
+                        document.getElementById('priority-2').value,
+                        document.getElementById('priority-3').value
+                    ].filter(s => s.trim()),
+                    awardPreference: document.getElementById('award-pref').value
+                }
+            };
+        }
+
+        function fillFormData(p) {
+            // Basic
+            if (p.college) document.getElementById('college').value = p.college;
+            if (p.major) {
+                document.getElementById('major').value = p.major;
+                document.getElementById('display-major').textContent = p.major;
+            }
+            if (p.bio) document.getElementById('bio').value = p.bio;
+
+            // Roles
+            if (p.primaryRole) document.getElementById('primaryRole').value = p.primaryRole;
+            if (p.otherRoles) {
+                p.otherRoles.forEach(val => {
+                    const cb = document.querySelector(`#otherRoles-group input[value="${val}"]`);
+                    if (cb) cb.checked = true;
+                });
+            }
+
+            // Skills
+            if (p.skills && Array.isArray(p.skills)) {
+                p.skills.forEach(s => addSkillToUI(s));
+            } else if (typeof p.skills === 'string' && p.skills) {
+                // Backward compatibility for old string-based skills
+                p.skills.split(',').map(s => s.trim()).forEach(s => {
+                    if (s) addSkillToUI({ category: 'Other', name: s, level: 'beginner', experience: 'class-only' });
+                });
+            }
+
+            // Links
+            if (p.links) {
+                document.getElementById('link-github').value = p.links.github || '';
+                document.getElementById('link-portfolio').value = p.links.portfolio || '';
+                document.getElementById('link-youtube').value = p.links.youtube || '';
+                document.getElementById('link-instagram').value = p.links.instagram || '';
+            }
+
+            // Interests
+            if (p.interestDomains) {
+                p.interestDomains.forEach(val => {
+                    const cb = document.querySelector(`#interestDomains-group input[value="${val}"]`);
+                    if (cb) cb.checked = true;
+                });
+            }
+            if (p.preferredProjectTypes) {
+                p.preferredProjectTypes.forEach(val => {
+                    const cb = document.querySelector(`#projectTypes-group input[value="${val}"]`);
+                    if (cb) cb.checked = true;
+                });
+            }
+            if (p.topicTags) {
+                p.topicTags.forEach(t => addTag(t));
+            }
+
+            // Collab
+            if (p.collaboration) {
+                document.getElementById('collab-hours').value = p.collaboration.weeklyHours || '';
+                document.getElementById('collab-duration').value = p.collaboration.duration || '';
+                document.getElementById('collab-mode').value = p.collaboration.workMode || '';
+                document.getElementById('collab-places').value = (p.collaboration.preferredPlaces || []).join(', ');
+                if (p.collaboration.timeSlots) {
+                    p.collaboration.timeSlots.forEach(val => {
+                        const cb = document.querySelector(`#timeSlots-group input[value="${val}"]`);
+                        if (cb) cb.checked = true;
+                    });
+                }
+            }
+
+            // Goals
+            if (p.goals) {
+                if (p.goals.purposes) {
+                    p.goals.purposes.forEach(val => {
+                        const cb = document.querySelector(`#goals-purposes-group input[value="${val}"]`);
+                        if (cb) cb.checked = true;
+                    });
+                }
+                if (p.goals.priorities) {
+                    if (p.goals.priorities[0]) document.getElementById('priority-1').value = p.goals.priorities[0];
+                    if (p.goals.priorities[1]) document.getElementById('priority-2').value = p.goals.priorities[1];
+                    if (p.goals.priorities[2]) document.getElementById('priority-3').value = p.goals.priorities[2];
+                }
+                if (p.goals.awardPreference) document.getElementById('award-pref').value = p.goals.awardPreference;
+            }
+        }
+
+        function showSuccessFeedback() {
+            const btn = document.getElementById('save-btn');
+            const originalText = btn.textContent;
+            btn.textContent = 'Saved!';
+            btn.style.backgroundColor = 'var(--color-accent-teal)';
+            setTimeout(() => {
+                btn.textContent = originalText;
+                btn.style.backgroundColor = '';
+            }, 2000);
+        }
     </script>
 </body>
 

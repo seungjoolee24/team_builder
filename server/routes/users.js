@@ -50,21 +50,41 @@ router.post('/profile', auth, async (req, res) => {
     const {
         college,
         major,
-        primaryRole,
-        skills,
+        bio,
         hashtags,
-        bio
+        primaryRole,
+        otherRoles,
+        skills,
+        links,
+        interestDomains,
+        preferredProjectTypes,
+        topicTags,
+        collaboration,
+        goals
     } = req.body;
 
     // Build profile object
     const profileFields = {};
     profileFields.user = req.user.id;
+
+    // Direct fields
     if (college) profileFields.college = college;
     if (major) profileFields.major = major;
-    if (primaryRole) profileFields.primaryRole = primaryRole;
-    if (skills) profileFields.skills = skills;
-    if (hashtags) profileFields.hashtags = hashtags;
     if (bio) profileFields.bio = bio;
+    if (hashtags) profileFields.hashtags = hashtags;
+    if (primaryRole) profileFields.primaryRole = primaryRole;
+    if (otherRoles) profileFields.otherRoles = otherRoles;
+    if (skills) profileFields.skills = skills;
+    if (interestDomains) profileFields.interestDomains = interestDomains;
+    if (preferredProjectTypes) profileFields.preferredProjectTypes = preferredProjectTypes;
+    if (topicTags) profileFields.topicTags = topicTags;
+
+    // Nested objects
+    if (links) profileFields.links = links;
+    if (collaboration) profileFields.collaboration = collaboration;
+    if (goals) profileFields.goals = goals;
+
+    profileFields.updatedAt = Date.now();
 
     try {
         let profile = await Profile.findOne({ user: req.user.id });
