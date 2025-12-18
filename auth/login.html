@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Sogang Team Building</title>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        .auth-container {
+            min-height: calc(100vh - 4rem - 200px);
+            /* rough estimate to center vertically */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1rem;
+        }
+
+        .auth-card {
+            width: 100%;
+            max-width: 400px;
+            background: white;
+            padding: 2.5rem;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--color-border);
+            box-shadow: var(--shadow-lg);
+        }
+    </style>
+</head>
+
+<body>
+
+    <header id="main-header"></header>
+
+    <main class="auth-container">
+        <div class="auth-card">
+            <div style="text-align: center; margin-bottom: 2rem;">
+                <!-- Logo Icon -->
+                <div
+                    style="width: 48px; height: 48px; background: var(--color-sogang-red); border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; color: white; font-weight: 900; font-family: var(--font-heading); font-size: 1.5rem; margin-bottom: 1rem;">
+                    S</div>
+                <h1 style="font-size: 1.5rem;">Welcome Back</h1>
+                <p style="color: var(--color-text-secondary);">Log in to access your projects</p>
+            </div>
+
+            <form id="loginForm">
+                <div class="input-group">
+                    <label class="label" for="email">School Email</label>
+                    <input type="email" id="email" class="input" placeholder="student@sogang.ac.kr" required>
+                </div>
+
+                <div class="input-group">
+                    <label class="label" for="password">Password</label>
+                    <input type="password" id="password" class="input" placeholder="••••••••" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Log In</button>
+            </form>
+
+            <div
+                style="text-align: center; margin-top: 1.5rem; font-size: 0.875rem; color: var(--color-text-secondary);">
+                Don't have an account? <a href="./register.html"
+                    style="color: var(--color-sogang-red); font-weight: 600;">Sign up</a>
+            </div>
+        </div>
+    </main>
+
+    <script src="../js/app.js"></script>
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            const result = window.db.login(email, password);
+
+            if (result.success) {
+                // Redirect
+                window.location.href = '../index.html';
+            } else {
+                alert('Login Failed: ' + result.message);
+            }
+        });
+    </script>
+</body>
+
+</html>

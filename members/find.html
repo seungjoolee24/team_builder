@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find Members - Sogang Team Building</title>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        .search-bar {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            max-width: 600px;
+        }
+
+        .member-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header id="main-header"></header>
+
+    <main class="container" style="padding: 3rem 1rem;">
+
+        <div style="text-align: center; margin-bottom: 3rem;">
+            <h1 style="font-size: 2.5rem; margin-bottom: 1rem;">Find Your Perfect Teammate</h1>
+
+            <div
+                style="background: white; padding: 1.5rem; border-radius: var(--radius-lg); border: 1px solid var(--color-border); max-width: 800px; margin: 0 auto; box-shadow: var(--shadow-md); text-align: left;">
+                <label class="label">Search by Hashtag or Skill</label>
+                <div class="search-bar" style="margin-bottom: 0;">
+                    <input type="text" id="member-search" class="input"
+                        placeholder="e.g. #InteractiveArt, React, Backend">
+                    <button class="btn btn-primary">Search</button>
+                </div>
+                <div style="margin-top: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                    <span style="font-size: 0.85rem; color: var(--color-text-secondary);">Trending:</span>
+                    <a href="#" class="badge red">#Hackathon</a>
+                    <a href="#" class="badge blue">#Startup</a>
+                    <a href="#" class="badge purple">#MediaArt</a>
+                </div>
+            </div>
+        </div>
+
+        <div id="members-grid" class="member-grid">
+            <!-- Mock Members -->
+        </div>
+
+    </main>
+
+    <footer id="main-footer"></footer>
+
+    <script src="../js/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const currentUser = window.db.getCurrentUser();
+            const grid = document.getElementById('members-grid');
+            let allUsers = [];
+
+            // Fetch Users
+            async function loadUsers() {
+                const users = await window.db.getUsers();
+                // Filter out current user
+                allUsers = users.filter(u => !currentUser || u.email !== currentUser.email).map(u => {
+                    const p = u.profile || {};
+                    return {
+                        email: u.email,
+                        name: u.name,
+                        major: p.major || 'Major Undefined',
+                        role: p.primaryRole ? capitalize(p.primaryRole) : 'No Role',
+                        skills: p.skills ? p.skills.split(',').map(s => s.trim()) : [],
+                        tags: p.hashtags ? p.hashtags.split(' ').filter(t => t.startsWith('#')) : []
+                    };
+                });
+                render(allUsers);
+            }
+
+            function capitalize(str) {
+                return str.charAt(0).toUpperCase() + str.slice(1);
+            }
+
+            function render(members) {
+                if (members.length === 0) {
+                    grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--color-text-secondary);">No members found.</p>';
+                    return;
+                }
+
+                grid.innerHTML = members.map(m => `
+                    <div class="card" style="text-align: center;">
+                        <div style="width: 80px; height: 80px; margin: 0 auto 1rem; background: #f0f0f0; border-radius: 50%; overflow: hidden;">
+                             <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=${m.name}" alt="User" style="width: 100%; height: 100%;">
+                        </div>
+                        <h3 style="font-size: 1.25rem;">${m.name}</h3>
+                        <p style="color: var(--color-text-secondary); font-size: 0.9rem; margin-bottom: 0.5rem;">${m.major} | ${m.role}</p>
+                        
+                        <div style="display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap; margin-bottom: 1.5rem;">
+                            ${m.tags.map(t => `<span class="badge" style="font-size: 0.75rem;">${t}</span>`).join('')}
+                        </div>
+
+                        <button class="btn btn-outline invite-btn" data-email="${m.email}" data-name="${m.name}" style="width: 100%;">Invite to Project</button>
+                    </div>
+                `).join('');
+
+                // Attach Event Listeners
+                document.querySelectorAll('.invite-btn').forEach(btn => {
+                    btn.addEventListener('click', handleInvite);
+                });
+            }
+
+            async function handleInvite(e) {
+                if (!currentUser) {
+                    alert('Please log in to invite members.');
+                    window.location.href = '../auth/login.html';
+                    return;
+                }
+
+                const targetEmail = e.target.dataset.email;
+                const targetName = e.target.dataset.name;
+
+                // Get my hosted projects
+                const projects = await window.db.getProjects({ owner: currentUser.email });
+                if (projects.length === 0) {
+                    alert('You have no hosted projects to invite users to. Please create a project first.');
+                    return;
+                }
+
+                // Simple Prompt for Project Selection (MVP)
+                // In a real app, use a modal.
+                let projectList = projects.map((p, index) => `${index + 1}. ${p.title}`).join('\n');
+                let selection = prompt(`Select a project to invite ${targetName} to:\n${projectList}\n\nEnter the number:`);
+
+                if (selection) {
+                    const index = parseInt(selection) - 1;
+                    if (index >= 0 && index < projects.length) {
+                        const project = projects[index];
+                        const result = await window.db.sendInvitation(targetEmail, project.id);
+                        if (result.success) {
+                            alert(`Invitation sent to ${targetName} for "${project.title}"!`);
+                        } else {
+                            alert('Failed to send invitation: ' + result.message);
+                        }
+                    } else {
+                        alert('Invalid selection.');
+                    }
+                }
+            }
+
+            loadUsers();
+
+            // Search Logic
+            document.querySelector('.btn-primary').addEventListener('click', () => {
+                const query = document.getElementById('member-search').value.toLowerCase();
+                if (!query) return render(allUsers);
+
+                const filtered = allUsers.filter(m =>
+                    m.name.toLowerCase().includes(query) ||
+                    m.role.toLowerCase().includes(query) ||
+                    m.tags.some(t => t.toLowerCase().includes(query)) ||
+                    m.skills.some(s => s.toLowerCase().includes(query))
+                );
+                render(filtered);
+            });
+        });
+    </script>
+</body>
+
+</html>

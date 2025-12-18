@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workspace - Sogang Team Building</title>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="./css/style.css">
+    <style>
+        .workspace-grid {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 2rem;
+            height: calc(100vh - 4rem - 6rem);
+            /* header + footer + padding */
+            min-height: 600px;
+        }
+
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            background: white;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--color-border);
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .chat-messages {
+            flex-grow: 1;
+            padding: 1.5rem;
+            overflow-y: auto;
+            background: var(--color-bg-secondary);
+        }
+
+        .message-bubble {
+            max-width: 80%;
+            padding: 0.75rem 1rem;
+            border-radius: 1rem;
+            margin-bottom: 0.75rem;
+            font-size: 0.95rem;
+        }
+
+        .msg-received {
+            background: white;
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .msg-sent {
+            background: var(--color-sogang-red);
+            color: white;
+            align-self: flex-end;
+            margin-left: auto;
+            border-bottom-right-radius: 4px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header id="main-header"></header>
+
+    <main class="container" style="padding: 3rem 1rem;">
+
+        <div style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <span class="badge blue" id="project-type">Project Type</span>
+                <h1 id="project-title" style="font-size: 1.75rem; margin-top: 0.5rem;">Project Title</h1>
+            </div>
+            <div style="display: flex; gap: 1rem;">
+                <!-- <button class="btn btn-outline">Schedule</button> -->
+                <button class="btn btn-secondary" onclick="alert('Manage Settings mock')">Settings</button>
+            </div>
+        </div>
+
+        <div class="workspace-grid">
+
+            <!-- Sidebar: Members & Applications -->
+            <div class="card" style="display: flex; flex-direction: column; overflow-y: auto;">
+                <div style="margin-bottom: 2rem;">
+                    <h3
+                        style="font-size: 1rem; text-transform: uppercase; color: var(--color-text-secondary); letter-spacing: 0.05em; margin-bottom: 1rem;">
+                        Team Members</h3>
+                    <div id="members-list" style="display: flex; flex-direction: column; gap: 1rem;">
+                        <!-- Mock Members -->
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <div
+                                style="width: 32px; height: 32px; background: #eee; border-radius: 50%; overflow: hidden;">
+                                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=You" style="width: 100%">
+                            </div>
+                            <span style="font-size: 0.9rem; font-weight: 500;">You (Leader)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="applications-section" style="border-top: 1px solid var(--color-border); padding-top: 1.5rem;">
+                    <h3
+                        style="font-size: 1rem; text-transform: uppercase; color: var(--color-text-secondary); letter-spacing: 0.05em; margin-bottom: 1rem;">
+                        Applications</h3>
+                    <div id="applications-list">
+                        <p style="font-size: 0.85rem; color: var(--color-text-secondary);">No pending applications.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Area -->
+            <div class="chat-container">
+                <div style="padding: 1rem; border-bottom: 1px solid var(--color-border); font-weight: 600;">
+                    Project General Chat
+                </div>
+
+                <div id="chat-messages" class="chat-messages">
+                    <!-- Messages injected here -->
+                    <div class="message-bubble msg-received">
+                        <div style="font-size: 0.75rem; color: var(--color-text-secondary); margin-bottom: 0.25rem;">
+                            System</div>
+                        Welcome to your new project workspace!
+                    </div>
+                </div>
+
+                <div
+                    style="padding: 1rem; background: white; border-top: 1px solid var(--color-border); display: flex; gap: 1rem;">
+                    <input type="text" id="chat-input" class="input" placeholder="Type a message..."
+                        style="flex-grow: 1;">
+                    <button id="send-btn" class="btn btn-primary">Send</button>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <footer id="main-footer"></footer>
+
+    <script src="./js/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const projectId = urlParams.get('id');
+            const currentUser = window.db.getCurrentUser();
+
+            if (!currentUser) {
+                window.location.href = './auth/login.html';
+                return;
+            }
+
+            const project = await window.db.getProjectById(projectId);
+
+            if (project) {
+                document.getElementById('project-title').textContent = project.title;
+                document.getElementById('project-type').textContent = project.type;
+            } else {
+                document.getElementById('project-title').textContent = "Project Not Found";
+                return;
+            }
+
+            // Real Chat Logic
+            const chatMessages = document.getElementById('chat-messages');
+            const chatInput = document.getElementById('chat-input');
+            const sendBtn = document.getElementById('send-btn');
+
+            function renderMessage(chat) {
+                const isMyMessage = chat.senderEmail === currentUser.email;
+                const div = document.createElement('div');
+                div.className = `message-bubble ${isMyMessage ? 'msg-sent' : 'msg-received'}`;
+
+                if (!isMyMessage) {
+                    div.innerHTML = `
+                        <div style="font-size: 0.75rem; color: var(--color-text-secondary); margin-bottom: 0.25rem;">
+                            ${chat.senderName}
+                        </div>
+                        ${chat.message}
+                    `;
+                } else {
+                    div.textContent = chat.message;
+                }
+                chatMessages.appendChild(div);
+            }
+
+            // Load existing chats
+            const existingChats = await window.db.getChats(projectId);
+            if (existingChats.length === 0) {
+                // Show welcome message if empty
+                const welcomeDiv = document.createElement('div');
+                welcomeDiv.className = 'message-bubble msg-received';
+                welcomeDiv.innerHTML = `<div style="font-size: 0.75rem; color: var(--color-text-secondary); margin-bottom: 0.25rem;">System</div>Welcome to the <strong>${project.title}</strong> workspace! Start collaborating.`;
+                chatMessages.appendChild(welcomeDiv);
+            } else {
+                existingChats.forEach(renderMessage);
+            }
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            // Send Message Handler
+            sendBtn.addEventListener('click', async () => {
+                const text = chatInput.value.trim();
+                if (text) {
+                    const result = await window.db.sendChat(projectId, text);
+                    if (result.success) {
+                        renderMessage(result.chat);
+                        chatInput.value = '';
+                        chatMessages.scrollTop = chatMessages.scrollHeight;
+                    } else {
+                        alert('Failed to send message: ' + result.message);
+                    }
+                }
+            });
+
+            document.getElementById('chat-input').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') sendBtn.click();
+            });
+
+            // Real Applications Logic
+            // Only show applications if the current user is the owner
+            // Note: project.owner might be an object if populated, or string ID.
+            // Our backend getProjectById returns owner as ObjectId string (unpopulated) usually, 
+            // but let's be safe.
+            const ownerId = (typeof project.owner === 'object') ? project.owner._id : project.owner;
+
+            if (ownerId === currentUser.id || ownerId === currentUser._id) {
+                const apps = await window.db.getApplications({ projectId: projectId });
+                const appList = document.getElementById('applications-list');
+
+                const pendingApps = apps.filter(a => a.status === 'PENDING');
+
+                if (pendingApps.length === 0) {
+                    appList.innerHTML = `<p style="font-size: 0.85rem; color: var(--color-text-secondary);">No pending applications.</p>`;
+                } else {
+                    appList.innerHTML = pendingApps.map(app => `
+                        <div class="card" style="padding: 0.75rem; font-size: 0.85rem; margin-bottom: 0.5rem; border: 1px solid var(--color-border);" id="app-card-${app.id}">
+                            <div style="font-weight: 600; margin-bottom: 0.25rem;">${app.applicantName} (${app.role})</div>
+                            <p style="color: var(--color-text-secondary); margin-bottom: 0.5rem;">"${app.message}"</p>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <button class="btn btn-primary btn-accept" data-id="${app.id}" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">Accept</button>
+                                <button class="btn btn-secondary btn-reject" data-id="${app.id}" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">Reject</button>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+
+                // Event Delegation for Buttons
+                appList.addEventListener('click', async (e) => {
+                    if (e.target.classList.contains('btn-accept')) {
+                        const appId = e.target.getAttribute('data-id');
+                        await window.db.updateApplicationStatusWithProject(projectId, appId, 'ACCEPTED');
+                        document.getElementById(`app-card-${appId}`).remove();
+                        alert('Applicant Accepted!');
+                        // Optional: Reload or update UI count
+                    }
+                    if (e.target.classList.contains('btn-reject')) {
+                        const appId = e.target.getAttribute('data-id');
+                        await window.db.updateApplicationStatusWithProject(projectId, appId, 'REJECTED');
+                        document.getElementById(`app-card-${appId}`).remove();
+                        alert('Applicant Rejected.');
+                    }
+                });
+            } else {
+                // If not owner, hide applications section or show "My Application Status"
+                document.getElementById('applications-section').innerHTML = `
+                    <h3 style="font-size: 1rem; text-transform: uppercase; color: var(--color-text-secondary); letter-spacing: 0.05em; margin-bottom: 1rem;">
+                        Project Status
+                    </h3>
+                    <p style="font-size: 0.9rem; color: var(--color-text-secondary);">You are viewing this project as a member/guest.</p>
+                 `;
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sogang Team Building - Connect & Collaborate</title>
+
+    <!-- Fonts: Inter & Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;700;800&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body>
+
+    <header id="main-header"></header>
+
+    <main>
+        <!-- Hero Section -->
+        <!-- Hero Section -->
+        <section class="hero hero-bg" style="padding: 8rem 0 6rem; text-align: center;">
+            <div class="container fade-in">
+                <span class="badge red" style="margin-bottom: 1.5rem; font-size: 0.9rem; padding: 0.5rem 1rem;">For
+                    Sogang Students</span>
+                <h1 style="font-size: 4rem; margin-bottom: 1.5rem; letter-spacing: -0.03em; line-height: 1.1;">
+                    Build Your Dream Team <br>
+                    <span style="color: var(--color-sogang-red); position: relative;">
+                        Within Sogang
+                        <svg width="120" height="12" viewBox="0 0 120 12" fill="none"
+                            style="position: absolute; bottom: -5px; left: 0; width: 100%; opacity: 0.3;">
+                            <path d="M2 10C20 4 50 2 118 2" stroke="currentColor" stroke-width="4"
+                                stroke-linecap="round" />
+                        </svg>
+                    </span>
+                </h1>
+                <p
+                    style="font-size: 1.35rem; color: var(--color-text-secondary); max-width: 640px; margin: 0 auto 3rem; line-height: 1.6;">
+                    The integrated platform for class projects, hackathons, and startup teams.
+                    Find teammates who match your skills and passion.
+                </p>
+                <div style="display: flex; gap: 1rem; justify-content: center;">
+                    <a href="./projects/join.html" class="btn btn-primary"
+                        style="padding: 1rem 2.5rem; font-size: 1.15rem;">Explore Projects</a>
+                    <a href="./projects/open.html" class="btn btn-secondary"
+                        style="padding: 1rem 2.5rem; font-size: 1.15rem;">Open a Project</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Core Features -->
+        <section class="features" style="padding: 4rem 0;">
+            <div class="container">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
+
+                    <!-- Feature 1: Open Project -->
+                    <a href="./projects/open.html" class="card" style="text-decoration: none;">
+                        <div
+                            style="width: 48px; height: 48px; background: rgba(176, 28, 46, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem; color: var(--color-sogang-red);">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M5 12h14" />
+                                <path d="M12 5v14" />
+                            </svg>
+                        </div>
+                        <h3 style="font-size: 1.5rem; margin-bottom: 0.5rem;">Open Project</h3>
+                        <p style="color: var(--color-text-secondary);">Recruit members for your class project,
+                            competition, or startup idea. Manage applications easily.</p>
+                    </a>
+
+                    <!-- Feature 2: Join Project -->
+                    <a href="./projects/join.html" class="card" style="text-decoration: none;">
+                        <div
+                            style="width: 48px; height: 48px; background: rgba(0, 122, 255, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem; color: var(--color-accent-blue);">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="11" cy="11" r="8" />
+                                <path d="m21 21-4.3-4.3" />
+                            </svg>
+                        </div>
+                        <h3 style="font-size: 1.5rem; margin-bottom: 0.5rem;">Join Project</h3>
+                        <p style="color: var(--color-text-secondary);">Browse recommended projects based on your major
+                            and skills. Apply with one click.</p>
+                    </a>
+
+                    <!-- Feature 3: Find Members -->
+                    <a href="./members/find.html" class="card" style="text-decoration: none;">
+                        <div
+                            style="width: 48px; height: 48px; background: rgba(142, 68, 173, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem; color: var(--color-accent-purple);">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                                <circle cx="9" cy="7" r="4" />
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                            </svg>
+                        </div>
+                        <h3 style="font-size: 1.5rem; margin-bottom: 0.5rem;">Find Members</h3>
+                        <p style="color: var(--color-text-secondary);">Search for talent by hashtag, skill, or major.
+                            Invite them to your team directly.</p>
+                    </a>
+
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer id="main-footer"></footer>
+
+    <script src="./js/app.js"></script>
+</body>
+
+</html>

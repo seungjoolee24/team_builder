@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Open Project - Sogang Team Building</title>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        .role-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 40px;
+            gap: 1rem;
+            align-items: end;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header id="main-header"></header>
+
+    <main class="container" style="padding: 3rem 1rem; max-width: 800px;">
+        <div style="margin-bottom: 2rem;">
+            <h1 style="font-size: 2rem;">Open a New Project</h1>
+            <p style="color: var(--color-text-secondary);">Recruit the best teammates from Sogang.</p>
+        </div>
+
+        <form id="open-project-form" class="card">
+
+            <!-- Basic Info -->
+            <section style="margin-bottom: 2rem;">
+                <h3 style="margin-bottom: 1rem; border-bottom: 1px solid var(--color-border); padding-bottom: 0.5rem;">
+                    Basic Information</h3>
+
+                <div class="input-group">
+                    <label class="label">Project Title</label>
+                    <input type="text" id="title" class="input" placeholder="e.g. AI-based Schedule Optimizer" required>
+                </div>
+
+                <div class="input-group">
+                    <label class="label">One-line Description</label>
+                    <input type="text" id="summary" class="input" placeholder="Short and catchy summary..." required>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="input-group">
+                        <label class="label">Project Type</label>
+                        <select id="type" class="input" required>
+                            <option value="class">Class Project</option>
+                            <option value="competition">Competition/Hackathon</option>
+                            <option value="side">Side Project</option>
+                            <option value="startup">Startup</option>
+                            <option value="club">Club Activity</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label class="label">Domain/Field</label>
+                        <select id="domain" class="input" required>
+                            <option value="web">Web/App Service</option>
+                            <option value="ai">AI/Data Science</option>
+                            <option value="game">Game Dev</option>
+                            <option value="media">Media Art/Video</option>
+                            <option value="hardware">Hardware/IoT</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label class="label">Detailed Description</label>
+                    <textarea id="description" class="input" rows="5"
+                        placeholder="Describe the goal, timeline, and what you are looking for..."></textarea>
+                </div>
+            </section>
+
+            <!-- Recruitment -->
+            <section style="margin-bottom: 2rem;">
+                <h3 style="margin-bottom: 1rem; border-bottom: 1px solid var(--color-border); padding-bottom: 0.5rem;">
+                    Recruitment</h3>
+
+                <div id="roles-container">
+                    <div class="role-row">
+                        <div>
+                            <label class="label">Role</label>
+                            <select class="input role-select">
+                                <option value="frontend">Frontend Developer</option>
+                                <option value="backend">Backend Developer</option>
+                                <option value="designer">Designer</option>
+                                <option value="planner">Planner (PM)</option>
+                                <option value="data">AI/Data</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="label">Count</label>
+                            <input type="number" class="input role-count" value="1" min="1">
+                        </div>
+                        <button type="button" class="btn btn-outline" style="padding: 0.5rem;" disabled>
+                            &times;
+                        </button>
+                    </div>
+                </div>
+
+                <button type="button" id="add-role-btn" class="btn btn-secondary" style="font-size: 0.9rem;">+ Add
+                    Another Role</button>
+            </section>
+
+            <div style="text-align: right;">
+                <button type="submit" class="btn btn-primary" style="padding-left: 3rem; padding-right: 3rem;">Create
+                    Project</button>
+            </div>
+        </form>
+    </main>
+
+    <footer id="main-footer"></footer>
+
+    <script src="../js/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const rolesContainer = document.getElementById('roles-container');
+            const addRoleBtn = document.getElementById('add-role-btn');
+
+            addRoleBtn.addEventListener('click', () => {
+                const row = document.createElement('div');
+                row.className = 'role-row';
+                row.innerHTML = `
+                    <div>
+                        <select class="input role-select">
+                            <option value="frontend">Frontend Developer</option>
+                            <option value="backend">Backend Developer</option>
+                            <option value="designer">Designer</option>
+                            <option value="planner">Planner (PM)</option>
+                            <option value="data">AI/Data</option>
+                        </select>
+                    </div>
+                    <div>
+                        <input type="number" class="input role-count" value="1" min="1">
+                    </div>
+                    <button type="button" class="btn btn-outline remove-role-btn" style="padding: 0.5rem; color: var(--color-sogang-red);">
+                        &times;
+                    </button>
+                `;
+                rolesContainer.appendChild(row);
+
+                row.querySelector('.remove-role-btn').addEventListener('click', () => {
+                    row.remove();
+                });
+            });
+
+            document.getElementById('open-project-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                // Collect Data
+                const title = document.getElementById('title').value;
+                const summary = document.getElementById('summary').value;
+                const type = document.getElementById('type').value;
+                const domain = document.getElementById('domain').value;
+                const description = document.getElementById('description').value;
+
+                const roles = [];
+                document.querySelectorAll('.role-row').forEach(row => {
+                    roles.push({
+                        role: row.querySelector('.role-select').value,
+                        count: parseInt(row.querySelector('.role-count').value),
+                        filled: 0 // initial state
+                    });
+                });
+
+                const currentUser = window.db.getCurrentUser();
+                if (!currentUser) {
+                    alert('You must be logged in to create a project.');
+                    window.location.href = '../auth/login.html';
+                    return;
+                }
+
+                const newProjectData = {
+                    owner: currentUser.email,
+                    title,
+                    summary,
+                    type,
+                    domain,
+                    description,
+                    roles
+                };
+
+                const result = await window.db.createProject(newProjectData);
+
+                if (result.success) {
+                    alert('Project Created Successfully!');
+                    window.location.href = './hosted.html';
+                } else {
+                    alert('Failed to create project.');
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Details - Sogang Team Building</title>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+
+<body>
+
+    <header id="main-header"></header>
+
+    <main class="container" style="padding: 3rem 1rem;">
+
+        <div id="project-content">
+            <!-- Loading -->
+        </div>
+
+    </main>
+
+    <footer id="main-footer"></footer>
+
+    <!-- Application Modal -->
+    <div id="apply-modal"
+        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center;">
+        <div class="card" style="width: 100%; max-width: 500px; padding: 2rem;">
+            <h3 style="margin-bottom: 1rem;">Apply to Project</h3>
+            <div class="input-group">
+                <label class="label">Select Role</label>
+                <select id="apply-role" class="input"></select>
+            </div>
+            <div class="input-group">
+                <label class="label">Motivation / Introduction</label>
+                <textarea id="apply-msg" class="input" rows="4" placeholder="Why do you want to join?"></textarea>
+            </div>
+            <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                <button id="cancel-apply" class="btn btn-secondary">Cancel</button>
+                <button id="submit-apply" class="btn btn-primary">Submit Application</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const projectId = urlParams.get('id');
+
+            const project = window.db.getProjectById(projectId);
+
+            if (!project) {
+                document.getElementById('project-content').innerHTML = `<h2>Project Not Found</h2><a href="./join.html" class="btn btn-primary">Back to List</a>`;
+                return;
+            }
+
+            // Render Content
+            document.getElementById('project-content').innerHTML = `
+                <div style="margin-bottom: 2rem;">
+                    <a href="./join.html" style="color: var(--color-text-secondary); font-size: 0.9rem;">&larr; Back to Projects</a>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 3rem;">
+                    
+                    <div>
+                        <span class="badge blue" style="margin-bottom: 1rem;">${project.type}</span>
+                        <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;">${project.title}</h1>
+                        <p style="font-size: 1.25rem; color: var(--color-text-secondary); margin-bottom: 2rem;">${project.summary}</p>
+                        
+                        <section class="card" style="margin-bottom: 2rem;">
+                            <h3 style="margin-bottom: 1rem;">Project Description</h3>
+                            <p style="white-space: pre-wrap; color: var(--color-text-secondary); line-height: 1.6;">${project.description}</p>
+                        </section>
+
+                        <section class="card">
+                            <h3 style="margin-bottom: 1rem;">Domain & Skills</h3>
+                            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                                <span class="badge purple">${project.domain}</span>
+                                <!-- Mock Skills -->
+                                <span class="badge">React</span>
+                                <span class="badge">Node.js</span>
+                            </div>
+                        </section>
+                    </div>
+
+                    <aside>
+                        <div class="card" style="position: sticky; top: 6rem;">
+                            <h3 style="margin-bottom: 1.5rem;">Recruitment Status</h3>
+                            
+                            <div style="margin-bottom: 1.5rem;">
+                                ${project.roles.map(r => `
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.75rem; font-size: 0.95rem;">
+                                        <span style="font-weight: 500;">${r.role}</span>
+                                        <span style="color: ${r.filled >= r.count ? 'var(--color-text-secondary)' : 'var(--color-sogang-red)'}; font-weight: 600;">
+                                            ${r.filled}/${r.count}
+                                        </span>
+                                    </div>
+                                    <div style="width: 100%; height: 6px; background: var(--color-bg-tertiary); border-radius: 3px; margin-bottom: 1rem;">
+                                        <div style="width: ${(r.filled / r.count) * 100}%; height: 100%; background: var(--color-sogang-red); border-radius: 3px;"></div>
+                                    </div>
+                                `).join('')}
+                            </div>
+
+                            <button id="apply-btn" class="btn btn-primary" style="width: 100%;">Apply Now</button>
+                            <p style="text-align: center; font-size: 0.8rem; color: var(--color-text-tertiary); margin-top: 1rem;">
+                                Leader: ${project.owner}
+                            </p>
+                        </div>
+                    </aside>
+
+                </div>
+            `;
+
+            // Apply Modal Logic
+            const modal = document.getElementById('apply-modal');
+            const applyBtn = document.getElementById('apply-btn');
+            const cancelBtn = document.getElementById('cancel-apply');
+            const submitBtn = document.getElementById('submit-apply');
+            const roleSelect = document.getElementById('apply-role');
+
+            if (applyBtn) {
+                applyBtn.addEventListener('click', () => {
+                    // Check auth first
+                    const currentUser = window.db.getCurrentUser();
+                    if (!currentUser) {
+                        alert('Please log in to apply.');
+                        window.location.href = '../auth/login.html';
+                        return;
+                    }
+
+                    // Populate Roles
+                    roleSelect.innerHTML = project.roles
+                        .filter(r => r.filled < r.count)
+                        .map(r => `<option value="${r.role}">${r.role}</option>`)
+                        .join('');
+
+                    if (roleSelect.options.length === 0) {
+                        alert('This project is full!');
+                        return;
+                    }
+
+                    modal.style.display = 'flex';
+                });
+            }
+
+            cancelBtn.addEventListener('click', () => {
+                modal.style.display = 'none';
+            });
+
+            submitBtn.addEventListener('click', () => {
+                const role = document.getElementById('apply-role').value;
+                const msg = document.getElementById('apply-msg').value;
+
+                const result = window.db.createApplication(projectId, role, msg);
+
+                if (result.success) {
+                    alert('Application sent successfully! The team leader will review it.');
+                    modal.style.display = 'none';
+                } else {
+                    alert('Application Failed: ' + result.message);
+                    modal.style.display = 'none';
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
