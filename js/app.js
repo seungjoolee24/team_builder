@@ -93,7 +93,7 @@ class DataService {
     async updateProfile(profileData) {
         try {
             const res = await fetch(`${this.API_URL}/users/profile`, {
-                method: 'POST',
+                method: 'PUT',
                 headers: this._authHeader(),
                 body: JSON.stringify(profileData)
             });

@@ -71,13 +71,13 @@
 
     <script src="../js/app.js"></script>
     <script>
-        document.getElementById('loginForm').addEventListener('submit', (e) => {
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
 
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
 
-            const result = window.db.login(email, password);
+            const result = await window.db.login(email, password);
 
             if (result.success) {
                 // Redirect
