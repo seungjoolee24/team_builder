@@ -33,8 +33,8 @@ router.get('/', async (req, res) => {
 
         res.json(usersWithProfiles);
     } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Server Error');
+        console.error('Get Users Error:', err.message);
+        res.status(500).json({ msg: 'Server error fetching users' });
     }
 });
 
@@ -49,8 +49,8 @@ router.get('/profile', auth, async (req, res) => {
         }
         res.json(profile);
     } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Server Error');
+        console.error('Get Profile Error:', err.message);
+        res.status(500).json({ msg: 'Server error fetching profile' });
     }
 });
 
@@ -115,8 +115,8 @@ router.post('/profile', auth, async (req, res) => {
         await profile.save();
         res.json(profile);
     } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Server Error');
+        console.error('Update Profile Error:', err.message);
+        res.status(500).json({ msg: 'Server error updating profile' });
     }
 });
 

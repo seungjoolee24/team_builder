@@ -8,7 +8,7 @@ const ProfileSchema = new mongoose.Schema({
     hashtags: { type: String }, // Keep for backward compatibility or simple tags
 
     // Roles & Skills
-    primaryRole: { type: String, required: true },
+    primaryRole: { type: String },
     otherRoles: [{ type: String }],
     skills: [{
         category: { type: String },
