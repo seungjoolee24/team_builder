@@ -11,16 +11,16 @@ class DataService {
         // However, since this is a vanilla JS app often run from file:// or generic server, we might need a fallback.
         // But for this User Request "deploy this website", we optimize for the deployed state.
         // Vercel will serve frontend and proxy /api to backend.
-        
+
         // Smart URL detection:
         // If we are on localhost, we might be running frontend on 5500 and backend on 5000.
         // If we are on production, we use relative path.
         const isLocalhost = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost';
-        
-        // IMPORTANT: For local development WITHOUT a proxy setup (like Live Server), 
-        // we must point directly to the backend. 
-        // But in production (Vercel), we want relative paths to use the Rewrite rule.
-        this.API_URL = isLocalhost ? 'http://localhost:5000/api' : '/api';
+
+        // IMPORTANT: If the Vercel rewrite (/api) is failing, we use the absolute URL for production.
+        // CORS is enabled on your backend, so this will work perfectly.
+        this.API_URL = isLocalhost ? 'http://localhost:5000/api' : 'https://sogang-teambuilder-backend.onrender.com/api';
+
 
         this.token = localStorage.getItem('token');
         this.user = JSON.parse(localStorage.getItem('user') || 'null');
