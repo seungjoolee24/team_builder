@@ -11,17 +11,86 @@
         rel="stylesheet">
     <link rel="stylesheet" href="../css/style.css">
     <style>
-        .search-bar {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 2rem;
-            max-width: 600px;
+        .filter-header {
+            background: white;
+            padding: 2rem;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--color-border);
+            margin-bottom: 3rem;
+            box-shadow: var(--shadow-sm);
         }
 
-        .member-grid {
+        .filter-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)) 120px;
+            gap: 1rem;
+            align-items: end;
+        }
+
+        .member-list {
+            display: flex;
+            flex-direction: column;
             gap: 1.5rem;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .member-card {
+            background: white;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--color-border);
+            overflow: hidden;
+            transition: all var(--transition-normal);
+            cursor: pointer;
+        }
+
+        .member-card:hover {
+            border-color: var(--color-sogang-red);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .member-main {
+            padding: 1.5rem;
+            display: grid;
+            grid-template-columns: 80px 1fr 150px;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        .member-detail {
+            display: none;
+            padding: 2rem;
+            background: var(--color-bg-secondary);
+            border-top: 1px solid var(--color-border);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .member-card.expanded .member-detail {
+            display: block;
+        }
+
+        .member-card.expanded .expand-icon {
+            transform: rotate(180deg);
+        }
+
+        .expand-icon {
+            transition: transform 0.3s ease;
+            font-size: 0.8rem;
+            color: var(--color-text-tertiary);
+        }
+
+        .info-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .info-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--color-text-tertiary);
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+            display: block;
         }
     </style>
 </head>
@@ -33,27 +102,48 @@
     <main class="container" style="padding: 3rem 1rem;">
 
         <div style="text-align: center; margin-bottom: 3rem;">
-            <h1 style="font-size: 2.5rem; margin-bottom: 1rem;">Find Your Perfect Teammate</h1>
+            <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;">Find Your Perfect Teammate</h1>
+            <p style="color: var(--color-text-secondary);">Browse Sogang students by college, major, and role.</p>
+        </div>
 
-            <div
-                style="background: white; padding: 1.5rem; border-radius: var(--radius-lg); border: 1px solid var(--color-border); max-width: 800px; margin: 0 auto; box-shadow: var(--shadow-md); text-align: left;">
-                <label class="label">Search by Hashtag or Skill</label>
-                <div class="search-bar" style="margin-bottom: 0;">
-                    <input type="text" id="member-search" class="input"
-                        placeholder="e.g. #InteractiveArt, React, Backend">
-                    <button class="btn btn-primary">Search</button>
+        <!-- Filter UI -->
+        <div class="filter-header">
+            <div class="filter-grid">
+                <div class="input-group" style="margin-bottom: 0;">
+                    <label class="label">College</label>
+                    <select id="filter-college" class="input">
+                        <option value="All">All Colleges</option>
+                        <option value="engineering">Engineering</option>
+                        <option value="science">Natural Sciences</option>
+                        <option value="economics">Economics/Business</option>
+                        <option value="social_sciences">Social Sciences</option>
+                        <option value="media_art">Media & Arts</option>
+                        <option value="humanities">Humanities</option>
+                    </select>
                 </div>
-                <div style="margin-top: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                    <span style="font-size: 0.85rem; color: var(--color-text-secondary);">Trending:</span>
-                    <a href="#" class="badge red">#Hackathon</a>
-                    <a href="#" class="badge blue">#Startup</a>
-                    <a href="#" class="badge purple">#MediaArt</a>
+                <div class="input-group" style="margin-bottom: 0;">
+                    <label class="label">Major</label>
+                    <input type="text" id="filter-major" class="input" placeholder="e.g. Art&Tech">
                 </div>
+                <div class="input-group" style="margin-bottom: 0;">
+                    <label class="label">Primary Role</label>
+                    <select id="filter-role" class="input">
+                        <option value="All">All Roles</option>
+                        <option value="planner">Planner (PM)</option>
+                        <option value="designer">Designer (UI/UX)</option>
+                        <option value="frontend">Frontend Developer</option>
+                        <option value="backend">Backend Developer</option>
+                        <option value="data">Data/AI Engineer</option>
+                        <option value="media">Media Artist</option>
+                    </select>
+                </div>
+                <button type="button" id="search-btn" class="btn btn-primary" style="width: 100%;">Search</button>
             </div>
         </div>
 
-        <div id="members-grid" class="member-grid">
-            <!-- Mock Members -->
+        <!-- Results -->
+        <div id="members-list" class="member-list">
+            <p style="text-align: center; color: var(--color-text-secondary);">Loading members...</p>
         </div>
 
     </main>
@@ -63,113 +153,197 @@
     <script src="../js/app.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            const listContainer = document.getElementById('members-list');
+            const searchBtn = document.getElementById('search-btn');
             const currentUser = window.db.getCurrentUser();
-            const grid = document.getElementById('members-grid');
-            let allUsers = [];
 
-            // Fetch Users
-            async function loadUsers() {
-                const users = await window.db.getUsers();
-                // Filter out current user
-                allUsers = users.filter(u => !currentUser || u.email !== currentUser.email).map(u => {
-                    const p = u.profile || {};
-                    return {
-                        email: u.email,
-                        name: u.name,
-                        major: p.major || 'Major Undefined',
-                        role: p.primaryRole ? capitalize(p.primaryRole) : 'No Role',
-                        skills: p.skills ? p.skills.split(',').map(s => s.trim()) : [],
-                        tags: p.hashtags ? p.hashtags.split(' ').filter(t => t.startsWith('#')) : []
-                    };
-                });
-                render(allUsers);
+            async function loadMembers() {
+                listContainer.innerHTML = '<p style="text-align: center; color: var(--color-text-secondary);">Searching...</p>';
+
+                const filters = {
+                    college: document.getElementById('filter-college').value,
+                    major: document.getElementById('filter-major').value.trim(),
+                    primaryRole: document.getElementById('filter-role').value
+                };
+
+                const users = await window.db.getUsers(filters);
+
+                // Shuffle and filter self
+                let members = users
+                    .filter(u => !currentUser || u.id !== currentUser.id)
+                    .sort(() => Math.random() - 0.5);
+
+                renderMembers(members);
             }
 
-            function capitalize(str) {
-                return str.charAt(0).toUpperCase() + str.slice(1);
-            }
-
-            function render(members) {
+            function renderMembers(members) {
                 if (members.length === 0) {
-                    grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--color-text-secondary);">No members found.</p>';
+                    listContainer.innerHTML = '<p style="text-align: center; color: var(--color-text-secondary); padding: 3rem;">No members found matching your criteria.</p>';
                     return;
                 }
 
-                grid.innerHTML = members.map(m => `
-                    <div class="card" style="text-align: center;">
-                        <div style="width: 80px; height: 80px; margin: 0 auto 1rem; background: #f0f0f0; border-radius: 50%; overflow: hidden;">
-                             <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=${m.name}" alt="User" style="width: 100%; height: 100%;">
-                        </div>
-                        <h3 style="font-size: 1.25rem;">${m.name}</h3>
-                        <p style="color: var(--color-text-secondary); font-size: 0.9rem; margin-bottom: 0.5rem;">${m.major} | ${m.role}</p>
-                        
-                        <div style="display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap; margin-bottom: 1.5rem;">
-                            ${m.tags.map(t => `<span class="badge" style="font-size: 0.75rem;">${t}</span>`).join('')}
-                        </div>
+                listContainer.innerHTML = members.map(m => {
+                    const p = m.profile || {};
+                    const skills = p.skills || [];
+                    const topSkills = skills.slice(0, 3);
+                    const bio = p.bio || 'Highly motivated Sogang student looking for a team.';
 
-                        <button class="btn btn-outline invite-btn" data-email="${m.email}" data-name="${m.name}" style="width: 100%;">Invite to Project</button>
-                    </div>
-                `).join('');
+                    return `
+                        <div class="member-card" onclick="toggleExpand(this)">
+                            <div class="member-main">
+                                <div style="width: 70px; height: 70px; border-radius: 50%; overflow: hidden; background: #f0f0f0; border: 2px solid white; box-shadow: var(--shadow-sm);">
+                                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=${m.name}" alt="Avatar" style="width: 100%; height: 100%;">
+                                </div>
+                                
+                                <div>
+                                    <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.25rem;">
+                                        <h3 style="font-size: 1.25rem; margin: 0;">${m.name}</h3>
+                                        <span class="badge blue" style="font-size: 0.7rem;">${p.primaryRole || 'Member'}</span>
+                                    </div>
+                                    <p style="font-size: 0.9rem; color: var(--color-text-secondary); margin-bottom: 0.5rem;">
+                                        ${p.college || 'Sogang'} | ${p.major || 'Major Undefined'}
+                                    </p>
+                                    <p style="font-size: 0.85rem; color: var(--color-text-tertiary); display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden;">
+                                        ${bio}
+                                    </p>
+                                </div>
 
-                // Attach Event Listeners
+                                <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 0.5rem;">
+                                    <div style="display: flex; gap: 0.35rem; flex-wrap: wrap; justify-content: flex-end;">
+                                        ${topSkills.map(s => `<span class="badge" style="background: var(--color-bg-tertiary);">${s.name}</span>`).join('')}
+                                        ${skills.length > 3 ? `<span class="badge">+${skills.length - 3}</span>` : ''}
+                                    </div>
+                                    <div class="expand-icon">View Profile ▼</div>
+                                </div>
+                            </div>
+
+                            <div class="member-detail" onclick="event.stopPropagation()">
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 3rem;">
+                                    
+                                    <!-- Left Column -->
+                                    <div>
+                                        <div class="info-section">
+                                            <span class="info-label">Full Introduction</span>
+                                            <p style="font-size: 0.95rem; line-height: 1.6; color: var(--color-text-secondary); white-space: pre-wrap;">${p.bio || 'No intro provided.'}</p>
+                                        </div>
+
+                                        <div class="info-section">
+                                            <span class="info-label">Skills & Proficiency</span>
+                                            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                                                ${(p.skills || []).map(s => `
+                                                    <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem;">
+                                                        <span style="font-weight: 500;">${s.name} <small style="color: var(--color-text-tertiary); font-weight: normal;">(${s.category})</small></span>
+                                                        <div style="display: flex; gap: 0.5rem; align-items: center;">
+                                                            <span class="badge ${s.level === 'advanced' ? 'red' : s.level === 'intermediate' ? 'blue' : ''}" style="font-size: 0.7rem;">${s.level}</span>
+                                                            <span style="font-size: 0.7rem; color: var(--color-text-tertiary);">${s.experience}</span>
+                                                        </div>
+                                                    </div>
+                                                `).join('') || '<p style="font-size: 0.85rem; color: var(--color-text-tertiary);">No skills registered.</p>'}
+                                            </div>
+                                        </div>
+
+                                        <div class="info-section">
+                                            <span class="info-label">Social & Links</span>
+                                            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                                                ${p.links?.github ? `<a href="${p.links.github}" target="_blank" class="btn btn-outline" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">GitHub</a>` : ''}
+                                                ${p.links?.portfolio ? `<a href="${p.links.portfolio}" target="_blank" class="btn btn-outline" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">Portfolio</a>` : ''}
+                                                ${p.links?.instagram ? `<a href="${p.links.instagram}" target="_blank" class="btn btn-outline" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">Instagram</a>` : ''}
+                                                ${(!p.links?.github && !p.links?.portfolio) ? '<p style="font-size: 0.85rem; color: var(--color-text-tertiary);">No links provided.</p>' : ''}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Right Column -->
+                                    <div>
+                                        <div class="info-section">
+                                            <span class="info-label">Interests & Tags</span>
+                                            <div style="margin-bottom: 0.75rem;">
+                                                ${(p.interestDomains || []).map(d => `<span class="badge purple" style="margin-right: 0.35rem; margin-bottom: 0.35rem;">${d}</span>`).join('')}
+                                            </div>
+                                            <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
+                                                ${(p.topicTags || []).map(t => `<span class="chip" style="font-size: 0.75rem;">#${t}</span>`).join('')}
+                                            </div>
+                                        </div>
+
+                                        <div class="info-section">
+                                            <span class="info-label">Collaboration Mode</span>
+                                            <div style="background: white; padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--color-border);">
+                                                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.85rem;">
+                                                    <span style="color: var(--color-text-tertiary);">Commitment:</span>
+                                                    <span style="font-weight: 600;">${p.collaboration?.weeklyHours || 'N/A'}</span>
+                                                </div>
+                                                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.85rem;">
+                                                    <span style="color: var(--color-text-tertiary);">Duration:</span>
+                                                    <span style="font-weight: 600;">${p.collaboration?.duration || 'N/A'}</span>
+                                                </div>
+                                                <div style="display: flex; justify-content: space-between; font-size: 0.85rem;">
+                                                    <span style="color: var(--color-text-tertiary);">Mode:</span>
+                                                    <span style="font-weight: 600;">${p.collaboration?.workMode || 'N/A'}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="info-section">
+                                            <span class="info-label">Project Selection</span>
+                                            <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
+                                                ${(p.preferredProjectTypes || []).map(t => `<span class="badge" style="background: white; border: 1px solid var(--color-border);">${t}</span>`).join('')}
+                                            </div>
+                                        </div>
+
+                                        <button class="btn btn-primary invite-btn" data-id="${m.id}" data-name="${m.name}" style="width: 100%; margin-top: 1rem;">Invite to Project</button>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                // Invite handler
                 document.querySelectorAll('.invite-btn').forEach(btn => {
-                    btn.addEventListener('click', handleInvite);
+                    btn.addEventListener('click', async (e) => {
+                        e.stopPropagation();
+                        // (Invitation logic same as before, but using modern UI)
+                        handleInvite(e.target.dataset.id, e.target.dataset.name);
+                    });
                 });
             }
 
-            async function handleInvite(e) {
+            window.toggleExpand = (card) => {
+                const isExpanded = card.classList.contains('expanded');
+                // Close others
+                document.querySelectorAll('.member-card').forEach(c => c.classList.remove('expanded'));
+                if (!isExpanded) card.classList.add('expanded');
+            };
+
+            async function handleInvite(targetId, targetName) {
                 if (!currentUser) {
                     alert('Please log in to invite members.');
                     window.location.href = '../auth/login.html';
                     return;
                 }
 
-                const targetEmail = e.target.dataset.email;
-                const targetName = e.target.dataset.name;
-
-                // Get my hosted projects
-                const projects = await window.db.getProjects({ owner: currentUser.email });
+                const projects = await window.db.getProjects({ owner: currentUser.id });
                 if (projects.length === 0) {
-                    alert('You have no hosted projects to invite users to. Please create a project first.');
+                    alert('You have no active projects to invite users to.');
                     return;
                 }
 
-                // Simple Prompt for Project Selection (MVP)
-                // In a real app, use a modal.
-                let projectList = projects.map((p, index) => `${index + 1}. ${p.title}`).join('\n');
-                let selection = prompt(`Select a project to invite ${targetName} to:\n${projectList}\n\nEnter the number:`);
+                let projectList = projects.map((p, i) => `${i + 1}. ${p.title}`).join('\n');
+                let selection = prompt(`Invite ${targetName} to which project?\n${projectList}\n\nEnter number:`);
 
                 if (selection) {
-                    const index = parseInt(selection) - 1;
-                    if (index >= 0 && index < projects.length) {
-                        const project = projects[index];
-                        const result = await window.db.sendInvitation(targetEmail, project.id);
-                        if (result.success) {
-                            alert(`Invitation sent to ${targetName} for "${project.title}"!`);
-                        } else {
-                            alert('Failed to send invitation: ' + result.message);
-                        }
-                    } else {
-                        alert('Invalid selection.');
+                    const idx = parseInt(selection) - 1;
+                    if (projects[idx]) {
+                        const res = await window.db.sendInvitation(targetId, projects[idx].id);
+                        if (res.success) alert(`Invitation sent to ${targetName}!`);
+                        else alert('Error: ' + res.message);
                     }
                 }
             }
 
-            loadUsers();
-
-            // Search Logic
-            document.querySelector('.btn-primary').addEventListener('click', () => {
-                const query = document.getElementById('member-search').value.toLowerCase();
-                if (!query) return render(allUsers);
-
-                const filtered = allUsers.filter(m =>
-                    m.name.toLowerCase().includes(query) ||
-                    m.role.toLowerCase().includes(query) ||
-                    m.tags.some(t => t.toLowerCase().includes(query)) ||
-                    m.skills.some(s => s.toLowerCase().includes(query))
-                );
-                render(filtered);
-            });
+            searchBtn.addEventListener('click', loadMembers);
+            loadMembers(); // Initial load
         });
     </script>
 </body>

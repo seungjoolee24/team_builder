@@ -125,9 +125,14 @@ class DataService {
         }
     }
 
-    async getUsers() {
+    async getUsers(filters = {}) {
         try {
-            const res = await fetch(`${this.API_URL}/users`);
+            const params = new URLSearchParams();
+            if (filters.college) params.append('college', filters.college);
+            if (filters.major) params.append('major', filters.major);
+            if (filters.primaryRole) params.append('primaryRole', filters.primaryRole);
+
+            const res = await fetch(`${this.API_URL}/users?${params.toString()}`);
             return await res.json();
         } catch (err) {
             return [];

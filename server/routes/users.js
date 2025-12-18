@@ -5,20 +5,31 @@ const User = require('../models/User');
 const Profile = require('../models/Profile');
 
 // @route   GET api/users
-// @desc    Get all users (with profiles)
+// @desc    Get all users (with optional filters)
 // @access  Public
 router.get('/', async (req, res) => {
+    const { college, major, primaryRole } = req.query;
+
     try {
+        // Find users
         const users = await User.find().select('-password');
-        const profiles = await Profile.find();
+
+        // Build Profile Filter
+        const profileQuery = {};
+        if (college && college !== 'All') profileQuery.college = college;
+        if (major && major !== 'All') profileQuery.major = new RegExp(major, 'i');
+        if (primaryRole && primaryRole !== 'All') profileQuery.primaryRole = primaryRole;
+
+        const profiles = await Profile.find(profileQuery);
 
         const usersWithProfiles = users.map(user => {
             const profile = profiles.find(p => p.user.toString() === user.id);
+            if (!profile && Object.keys(profileQuery).length > 0) return null; // Filtered out
             return {
                 ...user._doc,
                 profile: profile || {}
             };
-        });
+        }).filter(u => u !== null);
 
         res.json(usersWithProfiles);
     } catch (err) {
