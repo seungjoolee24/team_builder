@@ -12,14 +12,8 @@ class DataService {
         // But for this User Request "deploy this website", we optimize for the deployed state.
         // Vercel will serve frontend and proxy /api to backend.
 
-        // Smart URL detection:
-        // If we are on localhost, we might be running frontend on 5500 and backend on 5000.
-        // If we are on production, we use relative path.
-        const isLocalhost = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost';
-
-        // IMPORTANT: If the Vercel rewrite (/api) is failing, we use the absolute URL for production.
-        // CORS is enabled on your backend, so this will work perfectly.
-        this.API_URL = isLocalhost ? 'http://localhost:5000/api' : 'https://sogang-teambuilder-backend.onrender.com/api';
+        // For verification, force localhost:5000
+        this.API_URL = 'http://localhost:5000/api';
 
 
         this.token = localStorage.getItem('token');
@@ -194,6 +188,20 @@ class DataService {
             return { success: true, project };
         } catch (err) {
             return { success: false, message: err.message };
+        }
+    }
+
+    async getJoinedProjects() {
+        try {
+            const projects = await this.getProjects();
+            const userId = this.user?.id;
+            if (!userId) return [];
+
+            return projects.filter(p =>
+                p.members && p.members.some(m => m.user === userId || (typeof m.user === 'object' && m.user._id === userId))
+            );
+        } catch (err) {
+            return [];
         }
     }
 

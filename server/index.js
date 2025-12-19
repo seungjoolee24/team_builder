@@ -16,9 +16,9 @@ mongoose.connect(process.env.MONGODB_URI)
     .catch(err => console.error('MongoDB Connection Error:', err));
 
 // Routes (Placeholders for now)
-app.get('/', (req, res) => {
-    res.send('Sogang Team Builder API is running');
-});
+// Serve static files from the root directory
+const path = require('path');
+app.use(express.static(path.join(__dirname, '../')));
 
 // Import Routes
 const authRoutes = require('./routes/auth');
