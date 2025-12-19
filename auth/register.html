@@ -82,10 +82,10 @@
         document.getElementById('registerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            const name = document.getElementById('name').value;
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const passwordConfirm = document.getElementById('password_confirm').value;
+            const name = document.getElementById('name').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const passwordConfirm = document.getElementById('password_confirm').value.trim();
 
             if (password !== passwordConfirm) {
                 alert('Passwords do not match!');
