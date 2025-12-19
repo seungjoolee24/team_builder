@@ -155,11 +155,11 @@
                 e.preventDefault();
 
                 // Collect Data
-                const title = document.getElementById('title').value;
-                const summary = document.getElementById('summary').value;
+                const title = document.getElementById('title').value.trim();
+                const summary = document.getElementById('summary').value.trim();
                 const type = document.getElementById('type').value;
                 const domain = document.getElementById('domain').value;
-                const description = document.getElementById('description').value;
+                const description = document.getElementById('description').value.trim();
 
                 const roles = [];
                 document.querySelectorAll('.role-row').forEach(row => {
@@ -177,23 +177,24 @@
                     return;
                 }
 
+                // Don't include owner - backend sets it from auth token
                 const newProjectData = {
-                    owner: currentUser.email,
                     title,
-                    summary,
+                    oneLineDescription: summary, // Backend expects this field name
                     type,
                     domain,
                     description,
-                    roles
+                    roles,
+                    status: 'OPEN'
                 };
 
                 const result = await window.db.createProject(newProjectData);
 
                 if (result.success) {
                     alert('Project Created Successfully!');
-                    window.location.href = './hosted.html';
+                    window.location.href = './my.html'; // Changed to go to "My Projects"
                 } else {
-                    alert('Failed to create project.');
+                    alert('Failed to create project: ' + (result.message || 'Unknown error'));
                 }
             });
         });
