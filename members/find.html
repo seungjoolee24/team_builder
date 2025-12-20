@@ -256,7 +256,19 @@
             setupTagSuggestions();
 
             async function loadMembers() {
-                listContainer.innerHTML = '<p style="text-align: center; color: var(--color-text-secondary);">Searching...</p>';
+                // Skeleton Loading
+                listContainer.innerHTML = Array(5).fill(0).map(() => `
+                    <div class="member-card">
+                        <div class="member-main">
+                            <div class="skeleton skeleton-circle" style="width: 70px; height: 70px;"></div>
+                            <div style="flex: 1;">
+                                <div class="skeleton skeleton-title" style="width: 40%; height: 1.2rem; margin-bottom: 0.5rem;"></div>
+                                <div class="skeleton skeleton-text" style="width: 60%;"></div>
+                                <div class="skeleton skeleton-text" style="width: 30%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
 
                 const filters = {
                     college: document.getElementById('filter-college').value,
