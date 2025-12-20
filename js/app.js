@@ -562,15 +562,31 @@ function loadHeader() {
                     document.querySelectorAll('.notif-action-btn').forEach(btn => {
                         btn.addEventListener('click', async (e) => {
                             e.preventDefault();
-                            const { id, type, action } = e.target.dataset;
-                            // Mark as read immediately when action taken
-                            await window.db.markNotificationRead(id);
+                            const { id, type, action, related } = e.target.dataset;
+                            // Call backend API based on type
+                            try {
+                                let res;
+                                // Mark as read first
+                                await window.db.markNotificationRead(id);
 
-                            // Here we would ideally call the API to accept/decline logic
-                            // For this scope, verified logic handles the backend, we just simulate the UI update
-                            // Reload to see changes (or use smarter DOM update)
-                            alert(`Action ${action}ed`);
-                            window.location.reload();
+                                if (type === 'invitation') {
+                                    const status = action === 'accept' ? 'accepted' : 'declined';
+                                    res = await window.db.respondToInvitation(related, status);
+                                } else if (type === 'request') {
+                                    const status = action === 'accept' ? 'accepted' : 'declined';
+                                    res = await window.db.respondToFriendRequest(related, status);
+                                }
+
+                                if (res && res.success) {
+                                    alert(`Successfully ${action}ed!`);
+                                    window.location.reload();
+                                } else {
+                                    alert(`Failed to ${action}: ` + (res ? res.message : 'Unknown error'));
+                                }
+                            } catch (err) {
+                                console.error(err);
+                                alert('An error occurred while processing your request.');
+                            }
                         });
                     });
                 }
