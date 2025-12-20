@@ -137,6 +137,10 @@
                         <option value="media">Media Artist</option>
                     </select>
                 </div>
+                <div class="input-group" style="margin-bottom: 0;">
+                    <label class="label">Tags (AND logic)</label>
+                    <input type="text" id="filter-tags" class="input" placeholder="e.g. Web, Startup">
+                </div>
                 <button type="button" id="search-btn" class="btn btn-primary" style="width: 100%;">Search</button>
             </div>
         </div>
@@ -163,7 +167,8 @@
                 const filters = {
                     college: document.getElementById('filter-college').value,
                     major: document.getElementById('filter-major').value.trim(),
-                    primaryRole: document.getElementById('filter-role').value
+                    primaryRole: document.getElementById('filter-role').value,
+                    tags: document.getElementById('filter-tags').value.trim()
                 };
 
                 const users = await window.db.getUsers(filters);
@@ -187,6 +192,7 @@
                     const skills = p.skills || [];
                     const topSkills = skills.slice(0, 3);
                     const bio = p.bio || 'Highly motivated Sogang student looking for a team.';
+                    const tags = m.tags || [];
 
                     return `
                         <div class="member-card" onclick="toggleExpand(this)">
@@ -203,6 +209,9 @@
                                     <p style="font-size: 0.9rem; color: var(--color-text-secondary); margin-bottom: 0.5rem;">
                                         ${p.college || 'Sogang'} | ${p.major || 'Major Undefined'}
                                     </p>
+                                    <div style="display: flex; flex-wrap: wrap; gap: 0.25rem; margin-bottom: 0.5rem;">
+                                        ${tags.map(t => `<span style="font-size: 0.7rem; color: var(--color-text-secondary); background: #eee; padding: 0 6px; border-radius: 4px;">#${t}</span>`).join('')}
+                                    </div>
                                     <p style="font-size: 0.85rem; color: var(--color-text-tertiary); display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden;">
                                         ${bio}
                                     </p>
@@ -256,32 +265,21 @@
                                     <!-- Right Column -->
                                     <div>
                                         <div class="info-section">
-                                            <span class="info-label">Interests & Tags</span>
-                                            <div style="margin-bottom: 0.75rem;">
-                                                ${(p.interestDomains || []).map(d => `<span class="badge purple" style="margin-right: 0.35rem; margin-bottom: 0.35rem;">${d}</span>`).join('')}
-                                            </div>
+                                            <span class="info-label">Tags</span>
                                             <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
-                                                ${(p.topicTags || []).map(t => `<span class="chip" style="font-size: 0.75rem;">#${t}</span>`).join('')}
+                                                ${tags.map(t => `<span class="badge purple" style="margin-right: 0.35rem; margin-bottom: 0.35rem;">${t}</span>`).join('')}
                                             </div>
                                         </div>
-
-                                        <div class="info-section">
-                                            <span class="info-label">Collaboration Mode</span>
-                                            <div style="background: white; padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--color-border);">
-                                                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.85rem;">
-                                                    <span style="color: var(--color-text-tertiary);">Commitment:</span>
-                                                    <span style="font-weight: 600;">${p.collaboration?.weeklyHours || 'N/A'}</span>
-                                                </div>
-                                                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.85rem;">
-                                                    <span style="color: var(--color-text-tertiary);">Duration:</span>
-                                                    <span style="font-weight: 600;">${p.collaboration?.duration || 'N/A'}</span>
-                                                </div>
-                                                <div style="display: flex; justify-content: space-between; font-size: 0.85rem;">
-                                                    <span style="color: var(--color-text-tertiary);">Mode:</span>
-                                                    <span style="font-weight: 600;">${p.collaboration?.workMode || 'N/A'}</span>
+                                        
+                                        <!-- Legacy Data Display (if any) -->
+                                        ${(p.interestDomains && p.interestDomains.length > 0) ? `
+                                            <div class="info-section">
+                                                <span class="info-label">Interests (Archive)</span>
+                                                <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
+                                                    ${p.interestDomains.map(d => `<span class="badge" style="background:var(--color-bg-secondary);">${d}</span>`).join('')}
                                                 </div>
                                             </div>
-                                        </div>
+                                        ` : ''}
 
                                         <div class="info-section">
                                             <span class="info-label">Project Selection</span>
@@ -289,8 +287,8 @@
                                                 ${(p.preferredProjectTypes || []).map(t => `<span class="badge" style="background: white; border: 1px solid var(--color-border);">${t}</span>`).join('')}
                                             </div>
                                         </div>
-
-                                        <div style="display: flex; gap: 0.75rem; margin-top: 1rem;">
+                                    </div>
+     <div style="display: flex; gap: 0.75rem; margin-top: 1rem;">
                                             <button class="btn btn-primary invite-btn" data-id="${m._id}" data-name="${m.name}" style="flex: 1;">Invite to Project</button>
                                             <button class="btn btn-outline friend-btn" data-id="${m._id}" data-name="${m.name}" style="flex: 1;">Add Friend</button>
                                         </div>

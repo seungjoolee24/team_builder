@@ -198,149 +198,32 @@
                         </div>
                     </div>
 
-                    <!-- 4. Interests & Preferences (Optional) -->
-                    <div class="accordion">
+                    <!-- 4. Detailed Tags (Unified System) -->
+                    <div class="accordion active">
                         <div class="accordion-header">
-                            <h3>Interests & Preferences <span class="section-tag optional">Optional</span></h3>
+                            <h3>Detailed Profile Tags <span class="section-tag required">Recommended</span></h3>
                             <span class="accordion-icon">▼</span>
                         </div>
                         <div class="accordion-content">
-                            <div class="input-group">
-                                <label class="label">Interest Domains</label>
-                                <div class="checkbox-group" id="interestDomains-group">
-                                    <label class="checkbox-item"><input type="checkbox" value="Web/App"> Web/App</label>
-                                    <label class="checkbox-item"><input type="checkbox" value="AI/Data"> AI/Data</label>
-                                    <label class="checkbox-item"><input type="checkbox" value="Fintech"> Fintech</label>
-                                    <label class="checkbox-item"><input type="checkbox" value="E-commerce">
-                                        E-commerce</label>
-                                    <label class="checkbox-item"><input type="checkbox" value="Game"> Game</label>
-                                    <label class="checkbox-item"><input type="checkbox" value="BlockChain">
-                                        Blockchain</label>
+                            <p style="color: var(--color-text-secondary); margin-bottom: 1.5rem; font-size: 0.9rem;">
+                                Select tags that describe your interests, work style, and goals. These tags are used to
+                                recommend you to teammates.
+                            </p>
+
+                            <!-- Selected Tags Display -->
+                            <div style="margin-bottom: 2rem;">
+                                <label class="label">My Tags</label>
+                                <div id="my-tags-container" class="chips-container"
+                                    style="min-height: 40px; padding: 0.5rem; background: #f8f9fa; border: 1px solid var(--color-border); border-radius: 8px;">
+                                    <!-- Selected tags go here -->
                                 </div>
-                                <input type="text" id="custom-domain" class="input" style="margin-top: 0.75rem;"
-                                    placeholder="Add custom domain (comma separated)">
+                                <input type="text" id="manual-tag-input" class="input" style="margin-top: 0.5rem;"
+                                    placeholder="Type custom tag and press Enter...">
                             </div>
 
-                            <div class="input-group">
-                                <label class="label">Preferred Project Types</label>
-                                <div class="checkbox-group" id="projectTypes-group">
-                                    <label class="checkbox-item"><input type="checkbox" value="Competition">
-                                        Competition</label>
-                                    <label class="checkbox-item"><input type="checkbox" value="Side Project"> Side
-                                        Project</label>
-                                    <label class="checkbox-item"><input type="checkbox" value="Study"> Study</label>
-                                    <label class="checkbox-item"><input type="checkbox" value="Startup"> Startup</label>
-                                </div>
-                            </div>
-
-                            <div class="input-group">
-                                <label class="label">Topic Tags (Press Enter to add)</label>
-                                <input type="text" id="topic-tag-input" class="input"
-                                    placeholder="e.g. No-Sleep, High-Quality, Fun-First">
-                                <div id="topic-tags-container" class="chips-container"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 5. Collaboration & Availability (Optional) -->
-                    <div class="accordion">
-                        <div class="accordion-header">
-                            <h3>Collaboration & Availability <span class="section-tag optional">Optional</span></h3>
-                            <span class="accordion-icon">▼</span>
-                        </div>
-                        <div class="accordion-content">
-                            <div class="grid-2">
-                                <div class="input-group">
-                                    <label class="label">Weekly Hours</label>
-                                    <select id="collab-hours" class="input">
-                                        <option value="<5h">Less than 5 hours</option>
-                                        <option value="5-10h">5 - 10 hours</option>
-                                        <option value="10-20h">10 - 20 hours</option>
-                                        <option value="20h+">Full committed (20h+)</option>
-                                    </select>
-                                </div>
-                                <div class="input-group">
-                                    <label class="label">Preferred Duration</label>
-                                    <select id="collab-duration" class="input">
-                                        <option value="short">Short term (1-4 weeks)</option>
-                                        <option value="medium">Medium term (1-3 months)</option>
-                                        <option value="long">Long term (3+ months)</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div class="input-group">
-                                <label class="label">Time Slots (Select multiple)</label>
-                                <div class="checkbox-group" id="timeSlots-group">
-                                    <label class="checkbox-item"><input type="checkbox" value="weekday-day"> Weekday
-                                        Day</label>
-                                    <label class="checkbox-item"><input type="checkbox" value="weekday-evening"> Weekday
-                                        Evening</label>
-                                    <label class="checkbox-item"><input type="checkbox" value="weekend-day"> Weekend
-                                        Day</label>
-                                    <label class="checkbox-item"><input type="checkbox" value="weekend-evening"> Weekend
-                                        Evening</label>
-                                </div>
-                            </div>
-
-                            <div class="grid-2">
-                                <div class="input-group">
-                                    <label class="label">Work Mode</label>
-                                    <select id="collab-mode" class="input">
-                                        <option value="online">Online Only</option>
-                                        <option value="offline">Offline Preferred</option>
-                                        <option value="hybrid">Hybrid</option>
-                                    </select>
-                                </div>
-                                <div class="input-group">
-                                    <label class="label">Preferred Places</label>
-                                    <input type="text" id="collab-places" class="input"
-                                        placeholder="e.g. Arrupe Hall, Sinchon Cafe">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 6. Goals & Motivation (Optional) -->
-                    <div class="accordion">
-                        <div class="accordion-header">
-                            <h3>Goals & Motivation <span class="section-tag optional">Optional</span></h3>
-                            <span class="accordion-icon">▼</span>
-                        </div>
-                        <div class="accordion-content">
-                            <div class="input-group">
-                                <label class="label">Purposes</label>
-                                <div class="checkbox-group" id="goals-purposes-group">
-                                    <label class="checkbox-item"><input type="checkbox" value="award"> Winning
-                                        Awards</label>
-                                    <label class="checkbox-item"><input type="checkbox" value="portfolio"> Building
-                                        Portfolio</label>
-                                    <label class="checkbox-item"><input type="checkbox" value="networking">
-                                        Networking</label>
-                                    <label class="checkbox-item"><input type="checkbox" value="learning"> Pure
-                                        Learning</label>
-                                </div>
-                            </div>
-
-                            <div class="input-group">
-                                <label class="label">Top Priorities (Rank 1-3)</label>
-                                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                                    <input type="text" id="priority-1" class="input" style="width: auto;"
-                                        placeholder="1st Priority">
-                                    <input type="text" id="priority-2" class="input" style="width: auto;"
-                                        placeholder="2nd Priority">
-                                    <input type="text" id="priority-3" class="input" style="width: auto;"
-                                        placeholder="3rd Priority">
-                                </div>
-                            </div>
-
-                            <div class="input-group">
-                                <label class="label">Award Preference</label>
-                                <select id="award-pref" class="input">
-                                    <option value="highly-desired">Must win! (High pressure)</option>
-                                    <option value="moderate">Good if we win (Moderate)</option>
-                                    <option value="low">Experience matters more (Low)</option>
-                                </select>
+                            <!-- Predefined Categories -->
+                            <div id="predefined-tags-area">
+                                <!-- Injected via JS -->
                             </div>
                         </div>
                     </div>
@@ -354,162 +237,117 @@
 
     <script src="./js/app.js"></script>
     <script>
-        const SKILL_SUGGESTIONS = {
-            'Programming': ['Python', 'C/C++', 'Java', 'JavaScript', 'TypeScript', 'Swift', 'Kotlin', 'Go', 'Rust'],
-            'Frameworks': ['React', 'Node.js', 'Django', 'Spring Boot', 'Vue.js', 'Next.js', 'Flutter', 'PyTorch'],
-            'Design': ['Figma', 'Adobe XD', 'Photoshop', 'Illustrator', 'Premiere Pro', 'After Effects', 'Blender'],
-            'Other': ['Git/GitHub', 'Notion', 'Slack', 'Jira', 'Trello', 'Docker', 'AWS']
+        const PREDEFINED_TAG_CATEGORIES = {
+            'Interest': ['Web/App', 'AI/Data', 'Fintech', 'Game', 'Blockchain', 'E-commerce', 'IoT', 'Metaverse'],
+            'Preference': ['Competition', 'Side Project', 'Startup', 'Study', 'Hackathon'],
+            'Collaboration': ['Less than 5h', '10h+', 'Online', 'Offline', 'Hybrid', 'Short-term', 'Long-term'],
+            'Availability': ['Weekday Day', 'Weekday Night', 'Weekend'],
+            'Goals': ['Award', 'Portfolio', 'Networking', 'Learning', 'Fun'],
+            'Motivation': ['High Passion', 'Just Experience', 'Serious', 'Chill']
         };
 
         const state = {
             skills: [],
-            topicTags: []
+            tags: new Set()
         };
 
-        document.addEventListener('DOMContentLoaded', async () => {
-            const currentUser = window.db.getCurrentUser();
-            if (!currentUser) {
-                window.location.href = './auth/login.html';
-                return;
+        // ... existing setup ...
+
+        // --- UI Initialize ---
+        setupAccordions();
+        setupSkillSystem();
+        setupTagSystem();
+
+        // --- Load Data ---
+        const profileData = await window.db.getProfile();
+        if (profileData) {
+            fillFormData(profileData);
+        }
+
+        // ... save handler ...
+        document.getElementById('save-btn').addEventListener('click', async (e) => {
+            e.preventDefault();
+            const formData = collectFormData();
+            const result = await window.db.updateProfile(formData);
+            if (result.success) {
+                showSuccessFeedback();
+                document.getElementById('display-major').textContent = formData.major || 'Major Undefined';
+            } else {
+                alert('Failed to save: ' + result.message);
             }
-
-            document.getElementById('display-email').textContent = currentUser.email;
-            document.getElementById('display-name').textContent = currentUser.name;
-            document.getElementById('profile-avatar').src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${currentUser.name}`;
-
-            // --- UI Initialize ---
-            setupAccordions();
-            setupSkillSystem();
-            setupTagSystem();
-
-            // --- Load Data ---
-            const profile = await window.db.getProfile();
-            if (profile) {
-                fillFormData(profile);
-            }
-
-            // --- Save Handler ---
-            document.getElementById('save-btn').addEventListener('click', async (e) => {
-                e.preventDefault();
-                const profileData = collectFormData();
-
-                const result = await window.db.updateProfile(profileData);
-
-                if (result.success) {
-                    showSuccessFeedback();
-                    document.getElementById('display-major').textContent = profileData.major || 'Major Undefined';
-                } else {
-                    alert('Failed to save: ' + result.message);
-                }
-            });
         });
 
-        function setupAccordions() {
-            document.querySelectorAll('.accordion-header').forEach(header => {
-                header.addEventListener('click', () => {
-                    header.parentElement.classList.toggle('active');
-                });
-            });
-        }
-
-        function setupSkillSystem() {
-            const addBtn = document.getElementById('add-skill-btn');
-            const categorySelect = document.getElementById('skill-category-add');
-            const nameInput = document.getElementById('skill-name-add');
-            const suggestionsDiv = document.getElementById('skill-suggestions');
-
-            const refreshSuggestions = () => {
-                const cat = categorySelect.value;
-                suggestionsDiv.innerHTML = SKILL_SUGGESTIONS[cat].map(s =>
-                    `<span class="badge" style="cursor:pointer;" onclick="setSkillName('${s}')">${s}</span>`
-                ).join('');
-            };
-
-            categorySelect.addEventListener('change', refreshSuggestions);
-            refreshSuggestions();
-
-            window.setSkillName = (name) => { nameInput.value = name; };
-
-            addBtn.addEventListener('click', () => {
-                const category = categorySelect.value;
-                const name = nameInput.value.trim();
-                if (!name) return;
-
-                if (state.skills.some(s => s.name.toLowerCase() === name.toLowerCase())) {
-                    alert('Skill already added!');
-                    return;
-                }
-
-                addSkillToUI({ category, name, level: 'intermediate', experience: 'class-only' });
-                nameInput.value = '';
-            });
-        }
-
-        function addSkillToUI(skill) {
-            state.skills.push(skill);
-            const container = document.getElementById('skills-list');
-            const row = document.createElement('div');
-            row.className = 'skill-detail-card';
-            row.innerHTML = `
-                <div>
-                    <div style="font-weight: 600;">${skill.name}</div>
-                    <div style="font-size: 0.75rem; color: var(--color-text-tertiary);">${skill.category}</div>
-                </div>
-                <select class="input skill-level" style="font-size: 0.8rem;">
-                    <option value="beginner" ${skill.level === 'beginner' ? 'selected' : ''}>Beginner</option>
-                    <option value="intermediate" ${skill.level === 'intermediate' ? 'selected' : ''}>Intermediate</option>
-                    <option value="advanced" ${skill.level === 'advanced' ? 'selected' : ''}>Advanced</option>
-                </select>
-                <select class="input skill-exp" style="font-size: 0.8rem;">
-                    <option value="class-only" ${skill.experience === 'class-only' ? 'selected' : ''}>Class-only</option>
-                    <option value="club-or-contest" ${skill.experience === 'club-or-contest' ? 'selected' : ''}>Club/Contest</option>
-                    <option value="internship-or-real" ${skill.experience === 'internship-or-real' ? 'selected' : ''}>Intern/Pro</option>
-                </select>
-                <button type="button" class="btn btn-outline" style="padding: 0.2rem; color: var(--color-sogang-red);" onclick="removeSkill(this, '${skill.name}')">&times;</button>
-            `;
-            container.appendChild(row);
-
-            // Sync with state on change
-            row.querySelector('.skill-level').addEventListener('change', (e) => { skill.level = e.target.value; });
-            row.querySelector('.skill-exp').addEventListener('change', (e) => { skill.experience = e.target.value; });
-        }
-
-        window.removeSkill = (btn, name) => {
-            state.skills = state.skills.filter(s => s.name !== name);
-            btn.closest('.skill-detail-card').remove();
-        };
+        // ... setupAccordions, setupSkillSystem ...
 
         function setupTagSystem() {
-            const input = document.getElementById('topic-tag-input');
-            const container = document.getElementById('topic-tags-container');
+            const container = document.getElementById('predefined-tags-area');
+            const myTagsContainer = document.getElementById('my-tags-container');
+            const input = document.getElementById('manual-tag-input');
 
+            // Render Predefined Categories
+            Object.entries(PREDEFINED_TAG_CATEGORIES).forEach(([category, tags]) => {
+                const group = document.createElement('div');
+                group.style.marginBottom = '1.5rem';
+                group.innerHTML = `<h4 style="font-size:0.9rem; margin-bottom:0.5rem; color:var(--color-text-secondary);">${category}</h4>`;
+
+                const chipsDiv = document.createElement('div');
+                chipsDiv.style.display = 'flex';
+                chipsDiv.style.flexWrap = 'wrap';
+                chipsDiv.style.gap = '0.5rem';
+
+                tags.forEach(tag => {
+                    const chip = document.createElement('span');
+                    chip.className = 'badge'; // Reuse badge style
+                    chip.style.cursor = 'pointer';
+                    chip.style.background = 'white';
+                    chip.style.border = '1px solid var(--color-border)';
+                    chip.style.color = 'var(--color-text-primary)';
+                    chip.textContent = tag;
+                    chip.onclick = () => addTag(tag);
+                    chipsDiv.appendChild(chip);
+                });
+
+                group.appendChild(chipsDiv);
+                container.appendChild(group);
+            });
+
+            // Manual Input
             input.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter') {
                     e.preventDefault();
-                    const tag = input.value.trim().replace(/^#/, '');
-                    if (tag && !state.topicTags.includes(tag)) {
-                        addTag(tag);
-                        input.value = '';
-                    }
+                    addTag(input.value.trim());
+                    input.value = '';
                 }
             });
         }
 
         function addTag(tag) {
-            state.topicTags.push(tag);
-            const container = document.getElementById('topic-tags-container');
-            const chip = document.createElement('div');
-            chip.className = 'chip';
-            chip.innerHTML = `<span>#${tag}</span><span class="remove-chip" onclick="removeTag(this, '${tag}')">&times;</span>`;
-            container.appendChild(chip);
+            if (!tag) return;
+            if (state.tags.has(tag)) return;
+
+            state.tags.add(tag);
+            renderMyTags();
         }
 
-        window.removeTag = (btn, tag) => {
-            state.topicTags = state.topicTags.filter(t => t !== tag);
-            btn.parentElement.remove();
-        };
+        function removeTag(tag) {
+            state.tags.delete(tag);
+            renderMyTags();
+        }
+
+        function renderMyTags() {
+            const container = document.getElementById('my-tags-container');
+            container.innerHTML = '';
+            state.tags.forEach(tag => {
+                const chip = document.createElement('div');
+                chip.className = 'chip';
+                chip.style.background = 'var(--color-bg-tertiary)';
+                chip.innerHTML = `<span>${tag}</span><span class="remove-chip" style="cursor:pointer; margin-left:0.5rem;" onclick="removeTag('${tag}')">&times;</span>`;
+                container.appendChild(chip);
+            });
+        }
 
         function collectFormData() {
+            // ... existing skills ...
             const getChecked = (selector) => Array.from(document.querySelectorAll(`${selector} input:checked`)).map(i => i.value);
 
             return {
@@ -525,39 +363,21 @@
                     youtube: document.getElementById('link-youtube').value,
                     instagram: document.getElementById('link-instagram').value
                 },
-                interestDomains: [...getChecked('#interestDomains-group'), ...document.getElementById('custom-domain').value.split(',').map(s => s.trim()).filter(s => s)],
-                preferredProjectTypes: getChecked('#projectTypes-group'),
-                topicTags: state.topicTags,
-                collaboration: {
-                    weeklyHours: document.getElementById('collab-hours').value,
-                    timeSlots: getChecked('#timeSlots-group'),
-                    duration: document.getElementById('collab-duration').value,
-                    workMode: document.getElementById('collab-mode').value,
-                    preferredPlaces: document.getElementById('collab-places').value.split(',').map(s => s.trim()).filter(s => s)
-                },
-                goals: {
-                    purposes: getChecked('#goals-purposes-group'),
-                    priorities: [
-                        document.getElementById('priority-1').value,
-                        document.getElementById('priority-2').value,
-                        document.getElementById('priority-3').value
-                    ].filter(s => s.trim()),
-                    awardPreference: document.getElementById('award-pref').value
-                }
+                tags: Array.from(state.tags) // Send tags array
             };
         }
 
         function fillFormData(p) {
-            // Basic
+            // ... basics ...
             if (p.college) document.getElementById('college').value = p.college;
             if (p.major) {
                 document.getElementById('major').value = p.major;
                 document.getElementById('display-major').textContent = p.major;
             }
             if (p.bio) document.getElementById('bio').value = p.bio;
-
-            // Roles
             if (p.primaryRole) document.getElementById('primaryRole').value = p.primaryRole;
+
+            // ... checkboxes logic ...
             if (p.otherRoles) {
                 p.otherRoles.forEach(val => {
                     const cb = document.querySelector(`#otherRoles-group input[value="${val}"]`);
@@ -568,11 +388,6 @@
             // Skills
             if (p.skills && Array.isArray(p.skills)) {
                 p.skills.forEach(s => addSkillToUI(s));
-            } else if (typeof p.skills === 'string' && p.skills) {
-                // Backward compatibility for old string-based skills
-                p.skills.split(',').map(s => s.trim()).forEach(s => {
-                    if (s) addSkillToUI({ category: 'Other', name: s, level: 'beginner', experience: 'class-only' });
-                });
             }
 
             // Links
@@ -583,51 +398,10 @@
                 document.getElementById('link-instagram').value = p.links.instagram || '';
             }
 
-            // Interests
-            if (p.interestDomains) {
-                p.interestDomains.forEach(val => {
-                    const cb = document.querySelector(`#interestDomains-group input[value="${val}"]`);
-                    if (cb) cb.checked = true;
-                });
-            }
-            if (p.preferredProjectTypes) {
-                p.preferredProjectTypes.forEach(val => {
-                    const cb = document.querySelector(`#projectTypes-group input[value="${val}"]`);
-                    if (cb) cb.checked = true;
-                });
-            }
-            if (p.topicTags) {
-                p.topicTags.forEach(t => addTag(t));
-            }
-
-            // Collab
-            if (p.collaboration) {
-                document.getElementById('collab-hours').value = p.collaboration.weeklyHours || '';
-                document.getElementById('collab-duration').value = p.collaboration.duration || '';
-                document.getElementById('collab-mode').value = p.collaboration.workMode || '';
-                document.getElementById('collab-places').value = (p.collaboration.preferredPlaces || []).join(', ');
-                if (p.collaboration.timeSlots) {
-                    p.collaboration.timeSlots.forEach(val => {
-                        const cb = document.querySelector(`#timeSlots-group input[value="${val}"]`);
-                        if (cb) cb.checked = true;
-                    });
-                }
-            }
-
-            // Goals
-            if (p.goals) {
-                if (p.goals.purposes) {
-                    p.goals.purposes.forEach(val => {
-                        const cb = document.querySelector(`#goals-purposes-group input[value="${val}"]`);
-                        if (cb) cb.checked = true;
-                    });
-                }
-                if (p.goals.priorities) {
-                    if (p.goals.priorities[0]) document.getElementById('priority-1').value = p.goals.priorities[0];
-                    if (p.goals.priorities[1]) document.getElementById('priority-2').value = p.goals.priorities[1];
-                    if (p.goals.priorities[2]) document.getElementById('priority-3').value = p.goals.priorities[2];
-                }
-                if (p.goals.awardPreference) document.getElementById('award-pref').value = p.goals.awardPreference;
+            // Tags (from backend User model via getProfile proxy)
+            if (p.tags && Array.isArray(p.tags)) {
+                p.tags.forEach(t => state.tags.add(t));
+                renderMyTags();
             }
         }
 

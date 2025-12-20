@@ -47,11 +47,20 @@ router.get('/contacts', auth, async (req, res) => {
 // @desc    Get all users (with optional filters)
 // @access  Public
 router.get('/', async (req, res) => {
-    const { college, major, primaryRole } = req.query;
+    const { college, major, primaryRole, tags } = req.query;
 
     try {
-        // Find users
-        const users = await User.find().select('-password');
+        // Build User Query (Tags)
+        const userQuery = {};
+        if (tags) {
+            const tagList = Array.isArray(tags) ? tags : tags.split(',').filter(t => t.trim());
+            if (tagList.length > 0) {
+                userQuery.tags = { $all: tagList };
+            }
+        }
+
+        // Find users matching tags
+        const users = await User.find(userQuery).select('-password');
 
         // Build Profile Filter
         const profileQuery = {};
@@ -63,9 +72,15 @@ router.get('/', async (req, res) => {
 
         const usersWithProfiles = users.map(user => {
             const profile = profiles.find(p => p.user.toString() === user.id);
-            if (!profile && Object.keys(profileQuery).length > 0) return null; // Filtered out
+            if (!profile && Object.keys(profileQuery).length > 0) return null; // Filtered out by profile stats
+
+            // If no profile but user matched tags, we still return user (unless profile query was active)
+            // But requirement says: "user must satisfy the existing search filters AND the tag filter."
+            // Existing filters (college/major) depend on Profile.
+            // So if Profile doesn't match, we drop.
+
             return {
-                ...user._doc,
+                ...user._doc, // Includes tags
                 profile: profile || {}
             };
         }).filter(u => u !== null);
@@ -83,10 +98,21 @@ router.get('/', async (req, res) => {
 router.get('/profile', auth, async (req, res) => {
     try {
         const profile = await Profile.findOne({ user: req.user.id });
+        const user = await User.findById(req.user.id).select('tags');
+
         if (!profile) {
+            // Even if no profile, we should return empty structure with tags if possible, 
+            // but standard behavior is 400 or empty. 
+            // Let's return minimal object if profile missing but user exists? 
+            // The frontend logic checks 'if (profile)'. 
+            // Better to return 400 as before or empty JSON.
+            // Keeping original behavior but extracting tags if profile exists.
             return res.status(400).json({ msg: 'There is no profile for this user' });
         }
-        res.json(profile);
+
+        // Merge tags into response
+        const responseProxy = { ...profile._doc, tags: user ? user.tags : [] };
+        res.json(responseProxy);
     } catch (err) {
         console.error('Get Profile Error:', err.message);
         res.status(500).json({ msg: 'Server error fetching profile' });
@@ -98,26 +124,31 @@ router.get('/profile', auth, async (req, res) => {
 // @access  Private
 router.post('/profile', auth, async (req, res) => {
     const {
-        college,
-        major,
-        bio,
-        hashtags,
-        primaryRole,
-        otherRoles,
-        skills,
-        links,
-        interestDomains,
-        preferredProjectTypes,
-        topicTags,
-        collaboration,
-        goals
+        college, major, bio, hashtags, primaryRole, otherRoles, skills, links,
+        // The following are now 'tags' in UI but kept in Profile for legacy? 
+        // Prompt says: "Category info (interest/preference/etc.) may remain UI-only. Minimum requirement is a unified tags array."
+        // And "Convert only these six sections into a Tag-based system".
+        // It implies we might not need to store them in Profile anymore if they are all in User.tags.
+        // However, keeping them in Profile won't hurt, but the prompt says: "Store in the User model as: tags: string[]"
+        // I will extract 'tags' from body and save to User.
+        tags,
+        // I will still allow saving other fields if sent, but Profile Edit will mainly send 'tags'.
+        interestDomains, preferredProjectTypes, topicTags, collaboration, goals
     } = req.body;
+
+    // Save Tags to User Model
+    if (tags) {
+        try {
+            await User.findByIdAndUpdate(req.user.id, { tags: tags });
+        } catch (err) {
+            console.error('Error updating user tags:', err);
+        }
+    }
 
     // Build profile object
     const profileFields = {};
     profileFields.user = req.user.id;
 
-    // Direct fields
     if (college) profileFields.college = college;
     if (major) profileFields.major = major;
     if (bio) profileFields.bio = bio;
@@ -125,12 +156,13 @@ router.post('/profile', auth, async (req, res) => {
     if (primaryRole) profileFields.primaryRole = primaryRole;
     if (otherRoles) profileFields.otherRoles = otherRoles;
     if (skills) profileFields.skills = skills;
+    if (links) profileFields.links = links;
+
+    // Optional fields - if still sent, we save them. If not, we don't.
+    // The new frontend might not send them, effectively 'deprecating' them in Profile.
     if (interestDomains) profileFields.interestDomains = interestDomains;
     if (preferredProjectTypes) profileFields.preferredProjectTypes = preferredProjectTypes;
     if (topicTags) profileFields.topicTags = topicTags;
-
-    // Nested objects
-    if (links) profileFields.links = links;
     if (collaboration) profileFields.collaboration = collaboration;
     if (goals) profileFields.goals = goals;
 
@@ -146,13 +178,17 @@ router.post('/profile', auth, async (req, res) => {
                 { $set: profileFields },
                 { new: true }
             );
-            return res.json(profile);
+            // Return profile + tags
+            const user = await User.findById(req.user.id).select('tags');
+            return res.json({ ...profile._doc, tags: user ? user.tags : [] });
         }
 
         // Create
         profile = new Profile(profileFields);
         await profile.save();
-        res.json(profile);
+
+        const user = await User.findById(req.user.id).select('tags');
+        res.json({ ...profile._doc, tags: user ? user.tags : [] });
     } catch (err) {
         console.error('Update Profile Error:', err.message);
         res.status(500).json({ msg: 'Server error updating profile' });
