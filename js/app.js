@@ -342,6 +342,18 @@ class DataService {
         }
     }
 
+    async getApplicationDetails(appId) {
+        try {
+            const res = await fetch(`${this.API_URL}/projects/application-details/${appId}`, {
+                headers: this._authHeader()
+            });
+            if (!res.ok) return null;
+            return await res.json();
+        } catch (err) {
+            return null;
+        }
+    }
+
     async getInvitation(id) {
         try {
             const res = await fetch(`${this.API_URL}/invitations/project/${id}`, {
@@ -620,7 +632,7 @@ function loadHeader() {
                             </div>
                             <div style="font-size: 0.8rem; color: var(--color-text-secondary); margin-bottom: 0.5rem;">${n.message}</div>
                             
-                            ${n.type === 'invitation' || n.type === 'request' ? `
+                            ${n.type === 'invitation' || n.type === 'request' || n.type === 'project_application' ? `
                                 <div style="display: flex; gap: 0.5rem;">
                                     ${n.isRead ? '<span style="font-size:0.75rem; color:green;">Response Sent</span>' : `
                                         <button class="btn btn-primary notif-action-btn" data-id="${n._id}" data-type="${n.type}" data-related="${n.relatedId}" data-action="accept" style="padding: 0.25rem 0.6rem; font-size: 0.75rem;">Accept</button>
@@ -651,7 +663,31 @@ function loadHeader() {
                                 // Mark as read first
                                 await window.db.markNotificationRead(id);
 
-                                if (type === 'invitation') {
+                                if (type === 'project_application') {
+                                    if (action === 'accept') {
+                                        const details = await window.db.getApplicationDetails(related);
+                                        if (!details) return alert('Application details not found');
+
+                                        const roles = details.application.preferredRoles || [];
+                                        let chosenRole = roles[0] || 'Member';
+
+                                        if (roles.length > 1) {
+                                            const choice = prompt(`Select role for "${details.application.applicantName}" in "${details.projectTitle}":\nChoices: ${roles.join(', ')}`, roles[0]);
+                                            if (choice === null) return; // Cancelled
+                                            if (roles.includes(choice)) {
+                                                chosenRole = choice;
+                                            } else {
+                                                alert('Invalid choice');
+                                                return;
+                                            }
+                                        }
+                                        res = await window.db.updateApplicationStatusWithProject(details.projectId, related, 'ACCEPTED', chosenRole);
+                                    } else {
+                                        const details = await window.db.getApplicationDetails(related);
+                                        if (!details) return alert('Application details not found');
+                                        res = await window.db.updateApplicationStatusWithProject(details.projectId, related, 'REJECTED');
+                                    }
+                                } else if (type === 'invitation') {
                                     if (action === 'accept') {
                                         const invitation = await window.db.getInvitation(related);
                                         const roles = invitation ? (invitation.roles || []) : [];

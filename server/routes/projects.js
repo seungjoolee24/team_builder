@@ -107,14 +107,18 @@ router.post('/:id/join', auth, async (req, res) => {
         project.applications.unshift(newApplication);
         await project.save();
 
+        const savedApp = project.applications[0];
+
         // Create Notification for Project Owner
         const Notification = require('../models/Notification');
+        const rolesStr = (req.body.roles || []).join(', ');
         const notification = new Notification({
             recipient: project.owner,
-            type: 'request', // 'request' type for applications
+            type: 'project_application',
             title: 'New Project Application',
-            message: `${req.user.name} applied as ${req.body.role} for "${project.title}"`,
-            link: `/projects/workspace.html?id=${project.id}&tab=applications`
+            message: `${req.user.name} applied for "${project.title}" (${rolesStr})`,
+            link: `/projects/workspace.html?id=${project.id}&tab=applications`,
+            relatedId: savedApp._id
         });
         await notification.save();
 
@@ -152,6 +156,34 @@ router.get('/:id/applications', auth, async (req, res) => {
         }));
 
         res.json(formattedApps);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+});
+
+// @route   GET api/projects/application-details/:appId
+// @desc    Get application details by its ID (across all projects)
+// @access  Private
+router.get('/application-details/:appId', auth, async (req, res) => {
+    try {
+        const project = await Project.findOne({ "applications._id": req.params.appId }).populate('applications.applicant', 'name email');
+        if (!project) return res.status(404).json({ msg: 'Application not found' });
+
+        const app = project.applications.id(req.params.appId);
+        if (!app) return res.status(404).json({ msg: 'Application not found' });
+
+        res.json({
+            projectId: project._id,
+            projectTitle: project.title,
+            application: {
+                id: app._id,
+                applicantName: app.applicant.name,
+                preferredRoles: app.preferredRoles,
+                message: app.message,
+                status: app.status
+            }
+        });
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server Error');
