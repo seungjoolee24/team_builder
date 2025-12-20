@@ -241,6 +241,45 @@ class DataService {
         }
     }
 
+    async getFriends() {
+        try {
+            const res = await fetch(`${this.API_URL}/friends`, {
+                headers: this._authHeader()
+            });
+            if (!res.ok) return [];
+            return await res.json();
+        } catch (err) {
+            console.error('getFriends error:', err);
+            return [];
+        }
+    }
+
+    async getFriendStatus(userId) {
+        try {
+            const res = await fetch(`${this.API_URL}/friends/status/${userId}`, {
+                headers: this._authHeader()
+            });
+            if (!res.ok) return { status: 'none' };
+            return await res.json();
+        } catch (err) {
+            console.error('getFriendStatus error:', err);
+            return { status: 'none' };
+        }
+    }
+
+    async getFriendRequests() {
+        try {
+            const res = await fetch(`${this.API_URL}/friends/requests`, {
+                headers: this._authHeader()
+            });
+            if (!res.ok) return [];
+            return await res.json();
+        } catch (err) {
+            console.error('getFriendRequests error:', err);
+            return [];
+        }
+    }
+
     async getApplications(filters = {}) {
         if (!filters.projectId) return [];
         try {

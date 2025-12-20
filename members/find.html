@@ -181,11 +181,15 @@
                 renderMembers(members);
             }
 
-            function renderMembers(members) {
+            async function renderMembers(members) {
                 if (members.length === 0) {
                     listContainer.innerHTML = '<p style="text-align: center; color: var(--color-text-secondary); padding: 3rem;">No members found matching your criteria.</p>';
                     return;
                 }
+
+                // Fetch current user's friends and requests to determine status
+                const friends = await window.db.getFriends();
+                const requests = await window.db.getFriendRequests();
 
                 listContainer.innerHTML = members.map(m => {
                     const p = m.profile || {};
@@ -193,6 +197,28 @@
                     const topSkills = skills.slice(0, 3);
                     const bio = p.bio || 'Highly motivated Sogang student looking for a team.';
                     const tags = m.tags || [];
+
+                    // Determine Friendship Status
+                    const isFriend = friends.some(f => f._id === m._id);
+                    const sentReq = requests.find(r => r.to._id === m._id && r.from._id === (currentUser.id || currentUser._id));
+                    const recvReq = requests.find(r => r.from._id === m._id && r.to._id === (currentUser.id || currentUser._id));
+
+                    let friendBtnText = 'Add Friend';
+                    let friendBtnClass = 'btn-outline';
+                    let friendBtnDisabled = '';
+
+                    if (isFriend) {
+                        friendBtnText = 'Friends';
+                        friendBtnClass = 'btn-secondary';
+                        friendBtnDisabled = 'disabled';
+                    } else if (sentReq) {
+                        friendBtnText = 'Request Sent';
+                        friendBtnClass = 'btn-secondary';
+                        friendBtnDisabled = 'disabled';
+                    } else if (recvReq) {
+                        friendBtnText = 'Accept Request';
+                        friendBtnClass = 'btn-primary';
+                    }
 
                     return `
                         <div class="member-card" onclick="toggleExpand(this)">
@@ -250,17 +276,6 @@
                                                 `).join('') || '<p style="font-size: 0.85rem; color: var(--color-text-tertiary);">No skills registered.</p>'}
                                             </div>
                                         </div>
-
-                                        <div class="info-section">
-                                            <span class="info-label">Social & Links</span>
-                                            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
-                                                ${p.links?.github ? `<a href="${p.links.github}" target="_blank" class="btn btn-outline" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">GitHub</a>` : ''}
-                                                ${p.links?.portfolio ? `<a href="${p.links.portfolio}" target="_blank" class="btn btn-outline" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">Portfolio</a>` : ''}
-                                                ${p.links?.instagram ? `<a href="${p.links.instagram}" target="_blank" class="btn btn-outline" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">Instagram</a>` : ''}
-                                                ${(p.customLinks || []).map(l => `<a href="${l.url}" target="_blank" class="btn btn-outline" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">${l.label}</a>`).join('')}
-                                                ${(!p.links?.github && !p.links?.portfolio && !p.links?.instagram && (!p.customLinks || p.customLinks.length === 0)) ? '<p style="font-size: 0.85rem; color: var(--color-text-tertiary);">No links provided.</p>' : ''}
-                                            </div>
-                                        </div>
                                     </div>
 
                                     <!-- Right Column -->
@@ -272,26 +287,28 @@
                                             </div>
                                         </div>
                                         
-                                        <!-- Legacy Data Display (if any) -->
-                                        ${(p.interestDomains && p.interestDomains.length > 0) ? `
-                                            <div class="info-section">
-                                                <span class="info-label">Interests (Archive)</span>
-                                                <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
-                                                    ${p.interestDomains.map(d => `<span class="badge" style="background:var(--color-bg-secondary);">${d}</span>`).join('')}
-                                                </div>
-                                            </div>
-                                        ` : ''}
-
                                         <div class="info-section">
                                             <span class="info-label">Project Selection</span>
                                             <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
                                                 ${(p.preferredProjectTypes || []).map(t => `<span class="badge" style="background: white; border: 1px solid var(--color-border);">${t}</span>`).join('')}
                                             </div>
                                         </div>
-                                    </div>
-     <div style="display: flex; gap: 0.75rem; margin-top: 1rem;">
+
+                                        <div style="display: flex; gap: 0.75rem; margin-top: 2rem;">
                                             <button class="btn btn-primary invite-btn" data-id="${m._id}" data-name="${m.name}" style="flex: 1;">Invite to Project</button>
-                                            <button class="btn btn-outline friend-btn" data-id="${m._id}" data-name="${m.name}" style="flex: 1;">Add Friend</button>
+                                            ${isFriend ? `
+                                                <button class="btn btn-outline" onclick="location.href='../inbox.html'" style="flex: 1;">Message</button>
+                                            ` : `
+                                                <button class="btn ${friendBtnClass} friend-btn" 
+                                                    data-id="${m._id}" 
+                                                    data-name="${m.name}" 
+                                                    data-status="${recvReq ? 'pending_received' : sentReq ? 'pending_sent' : 'none'}"
+                                                    data-reqid="${recvReq ? recvReq._id : ''}"
+                                                    ${friendBtnDisabled} 
+                                                    style="flex: 1;">
+                                                    ${friendBtnText}
+                                                </button>
+                                            `}
                                         </div>
                                     </div>
 
@@ -313,7 +330,20 @@
                 document.querySelectorAll('.friend-btn').forEach(btn => {
                     btn.addEventListener('click', async (e) => {
                         e.stopPropagation();
-                        showFriendModal(e.target.dataset.id, e.target.dataset.name);
+                        const status = e.target.dataset.status;
+                        const targetId = e.target.dataset.id;
+                        const targetName = e.target.dataset.name;
+                        const requestId = e.target.dataset.reqid;
+
+                        if (status === 'none') {
+                            showFriendModal(targetId, targetName);
+                        } else if (status === 'pending_received') {
+                            if (confirm(`Accept friend request from ${targetName}?`)) {
+                                await window.db.respondFriendRequest(requestId, 'accepted');
+                                alert('Friend request accepted!');
+                                loadMembers();
+                            }
+                        }
                     });
                 });
             }
