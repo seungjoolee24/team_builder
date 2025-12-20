@@ -16,14 +16,14 @@
 
     <header id="main-header"></header>
 
-    <main class="container" style="flex: 1; padding: 0; max-width: 100%; height: calc(100vh - 4rem);">
+    <main style="flex: 1; padding: 0; width: 100vw; max-width: 100%; height: calc(100vh - 4rem); margin: 0;">
 
         <div class="inbox-layout"
             style="display: flex; height: 100%; gap: 0; margin-top: 0; border-radius: 0; border: none; border-top: 1px solid var(--color-border);">
 
             <!-- Sidebar: Friends -->
             <div class="thread-list"
-                style="width: 320px; display: flex; flex-direction: column; background: white; border: 1px solid var(--color-border); border-radius: 8px; overflow: hidden;">
+                style="width: 400px; display: flex; flex-direction: column; background: white; border-right: 1px solid var(--color-border); overflow: hidden;">
                 <div style="padding: 1.25rem; border-bottom: 1px solid var(--color-border); background: white;">
                     <h2 style="font-size: 1.25rem; margin: 0;">Friends</h2>
                     <p style="font-size: 0.8rem; color: var(--color-text-tertiary); margin-top: 0.25rem;">Direct
@@ -87,7 +87,7 @@
 
             <!-- Main: Chat Window -->
             <div class="chat-window"
-                style="flex: 1; display: flex; flex-direction: column; background: white; border: 1px solid var(--color-border); border-radius: 8px; overflow: hidden;">
+                style="flex: 1; display: flex; flex-direction: column; background: white; overflow: hidden;">
                 <!-- No Thread Selected View -->
                 <div id="no-thread-selected"
                     style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--color-text-tertiary); text-align: center;">
