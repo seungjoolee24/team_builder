@@ -17,10 +17,15 @@ const connectDB = require('./config/db');
 // Connect to DB immediately
 connectDB();
 
-// Middleware to ensure DB is connected for every request
+// Middleware to ensure DB is connected
 app.use(async (req, res, next) => {
-    await connectDB();
-    next();
+    try {
+        await connectDB();
+        next();
+    } catch (error) {
+        console.error("Database connection failed:", error);
+        res.status(500).json({ msg: "Database connection failed", error: error.message });
+    }
 });
 
 // Routes (Placeholders for now)
