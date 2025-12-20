@@ -111,7 +111,7 @@
                             </label>
                             <label
                                 style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; color: var(--color-text-secondary);">
-                                <input type="checkbox" value="Competition"> Competition
+                                <input type="checkbox" value="Competition / Hackathon"> Competition / Hackathon
                             </label>
                             <label
                                 style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; color: var(--color-text-secondary);">
@@ -119,7 +119,11 @@
                             </label>
                             <label
                                 style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; color: var(--color-text-secondary);">
-                                <input type="checkbox" value="Startup"> Startup
+                                <input type="checkbox" value="Startup / Pre-startup"> Startup / Pre-startup
+                            </label>
+                            <label
+                                style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; color: var(--color-text-secondary);">
+                                <input type="checkbox" value="Club / Study"> Club / Study
                             </label>
                         </div>
                     </div>
@@ -129,15 +133,35 @@
                         <div id="filter-domain" style="display: flex; flex-direction: column; gap: 0.5rem;">
                             <label
                                 style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; color: var(--color-text-secondary);">
-                                <input type="checkbox" value="Web/App"> Web/App
+                                <input type="checkbox" value="Web / App"> Web / App
                             </label>
                             <label
                                 style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; color: var(--color-text-secondary);">
-                                <input type="checkbox" value="AI/Data"> AI/Data
+                                <input type="checkbox" value="AI / Data Science"> AI / Data Science
                             </label>
                             <label
                                 style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; color: var(--color-text-secondary);">
-                                <input type="checkbox" value="Media Art"> Media Art
+                                <input type="checkbox" value="Game Development"> Game Development
+                            </label>
+                            <label
+                                style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; color: var(--color-text-secondary);">
+                                <input type="checkbox" value="Media Art / Design"> Media Art / Design
+                            </label>
+                            <label
+                                style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; color: var(--color-text-secondary);">
+                                <input type="checkbox" value="Hardware / IoT"> Hardware / IoT
+                            </label>
+                            <label
+                                style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; color: var(--color-text-secondary);">
+                                <input type="checkbox" value="Fintech / Business"> Fintech / Business
+                            </label>
+                            <label
+                                style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; color: var(--color-text-secondary);">
+                                <input type="checkbox" value="Social / Humanities"> Social / Humanities
+                            </label>
+                            <label
+                                style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; color: var(--color-text-secondary);">
+                                <input type="checkbox" value="Other"> Other
                             </label>
                         </div>
                     </div>
@@ -172,22 +196,22 @@
                 return Array.from(document.querySelectorAll(`#${containerId} input:checked`)).map(cb => cb.value);
             }
 
-            function render() {
-                // 1. Filter Logic
+            async function render() {
+                grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--color-text-secondary);">Filtering projects...</p>';
+
                 const selectedTypes = getCheckedValues('filter-type');
                 const selectedDomains = getCheckedValues('filter-domain');
 
-                let candidates = projects.filter(p => {
-                    const typeMatch = selectedTypes.length === 0 || selectedTypes.includes(p.type);
-                    const domainMatch = selectedDomains.length === 0 || selectedDomains.includes(p.domain);
-                    return typeMatch && domainMatch;
-                });
+                // Build filter object for API
+                const filters = {};
+                if (selectedTypes.length > 0) filters.type = selectedTypes.join(',');
+                if (selectedDomains.length > 0) filters.domain = selectedDomains.join(',');
 
-                // 2. Sort Logic
-                if (toggle.checked) {
-                    // Recommended ON: Default order (or placeholder logic)
-                    // Currently just keeping original order (likely chronological)
-                } else {
+                // Fetch filtered projects from server
+                let candidates = await window.db.getProjects(filters);
+
+                // 2. Sort Logic (Client-side for now)
+                if (!toggle.checked) {
                     // Recommended OFF: Random Shuffle
                     candidates = candidates.sort(() => Math.random() - 0.5);
                 }
@@ -201,7 +225,7 @@
                         </div>
                         <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem; line-height: 1.4;">${p.title}</h3>
                         <p style="color: var(--color-text-secondary); font-size: 0.95rem; margin-bottom: 1.5rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
-                            ${p.summary || ''}
+                            ${p.oneLineDescription || ''}
                         </p>
                         
                         <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem;">
@@ -213,14 +237,14 @@
                         </div>
                         
                         <div style="border-top: 1px solid var(--color-border); padding-top: 1rem; display: flex; align-items: center; justify-content: space-between;">
-                            <span style="font-size: 0.85rem; color: var(--color-text-tertiary);">Recruiting Now</span>
+                            <span style="font-size: 0.85rem; color: var(--color-text-tertiary);">${p.domain || 'General'}</span>
                             <span style="font-weight: 600; font-size: 0.9rem; color: var(--color-sogang-red);">View &rarr;</span>
                         </div>
                     </a>
                 `).join('');
 
                 if (candidates.length === 0) {
-                    grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--color-text-secondary);">No projects found matching criteria.</p>';
+                    grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--color-text-secondary); padding: 2rem;">No projects found matching criteria.</p>';
                 }
             }
 

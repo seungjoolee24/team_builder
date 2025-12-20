@@ -154,7 +154,11 @@ class DataService {
 
     async getProjects(filters = {}) {
         try {
-            const res = await fetch(`${this.API_URL}/projects`);
+            const params = new URLSearchParams();
+            if (filters.type) params.append('type', filters.type);
+            if (filters.domain) params.append('domain', filters.domain);
+
+            const res = await fetch(`${this.API_URL}/projects?${params.toString()}`);
             if (!res.ok) return [];
             let projects = await res.json();
 
