@@ -13,7 +13,7 @@ const connectDB = async () => {
     try {
         const conn = await mongoose.connect(process.env.MONGODB_URI, {
             dbName: 'teambuilder', // Explicitly set DB name if needed
-            bufferCommands: false, // Disable mongoose buffering
+            bufferCommands: true, // Re-enable buffering to prevent errors if commands are called during connection phase
             serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of hanging
             socketTimeoutMS: 45000, // Close sockets after 45s of inactivity
         });
