@@ -534,7 +534,7 @@ function loadHeader() {
                              style="padding: 0.75rem; border-bottom: 1px solid var(--color-border); transition: background 0.2s; background: ${n.isRead ? '#f8f9fa' : 'white'}; opacity: ${n.isRead ? '0.7' : '1'};">
                             <div style="font-size: 0.85rem; font-weight: ${n.isRead ? '500' : '700'}; margin-bottom: 0.25rem; color: var(--color-text-primary);">
                                 ${n.isRead ? '' : '<span style="display:inline-block; width:6px; height:6px; background:var(--color-sogang-red); border-radius:50%; margin-right:4px;"></span>'}
-                                ${n.title}
+                                ${n.link ? `<a href="${n.link.startsWith('http') ? n.link : rootPath + (n.link.startsWith('/') ? n.link.substring(1) : n.link)}" style="text-decoration: none; color: inherit; font-weight: inherit;">${n.title}</a>` : n.title}
                             </div>
                             <div style="font-size: 0.8rem; color: var(--color-text-secondary); margin-bottom: 0.5rem;">${n.message}</div>
                             
