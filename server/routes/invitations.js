@@ -9,7 +9,7 @@ const Notification = require('../models/Notification');
 // @desc    Send project invitation
 // @access  Private
 router.post('/project', auth, async (req, res) => {
-    const { toUserId, projectId, message } = req.body;
+    const { toUserId, projectId, message, roles } = req.body;
 
     try {
         if (toUserId === req.user.id) {
@@ -34,6 +34,7 @@ router.post('/project', auth, async (req, res) => {
             from: req.user.id,
             to: toUserId,
             project: projectId,
+            roles: roles || [],
             message
         });
 
@@ -50,6 +51,23 @@ router.post('/project', auth, async (req, res) => {
         });
         await notification.save();
 
+        res.json(invitation);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+});
+
+// @route   GET api/invitations/project/:id
+// @desc    Get invitation by ID
+// @access  Private
+router.get('/project/:id', auth, async (req, res) => {
+    try {
+        const invitation = await Invitation.findById(req.params.id).populate('project', 'title');
+        if (!invitation) return res.status(404).json({ msg: 'Invitation not found' });
+        if (invitation.to.toString() !== req.user.id && invitation.from.toString() !== req.user.id) {
+            return res.status(401).json({ msg: 'Not authorized' });
+        }
         res.json(invitation);
     } catch (err) {
         console.error(err.message);

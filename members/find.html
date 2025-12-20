@@ -465,10 +465,7 @@
             async function showInviteModal(targetId, targetName) {
                 if (!currentUser) return alert('Please log in.');
 
-                const projects = await window.db.getProjects({ owner: currentUser.id }); // Filter by ID
-                // The current getProjects implementation filters on frontend by owner string.
-                // My backend update supports owner filtering but I'll stick to what exists if it works.
-
+                const projects = await window.db.getProjects({ owner: currentUser.id });
                 if (projects.length === 0) return alert('You have no open projects.');
 
                 const modal = createModal(`Invite ${targetName} to Project`, `
@@ -479,17 +476,44 @@
                         </select>
                     </div>
                     <div class="input-group">
+                        <label class="label">Select Potential Roles</label>
+                        <div id="invite-roles-container" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; background: var(--color-bg-secondary); padding: 1rem; border-radius: 8px;">
+                            <!-- Checkboxes injected -->
+                        </div>
+                    </div>
+                    <div class="input-group">
                         <label class="label">Optional Message</label>
                         <textarea id="invite-message" class="input" rows="3" placeholder="Explain why you want them in your team..."></textarea>
                     </div>
                     <button id="send-invite-confirm" class="btn btn-primary" style="width: 100%;">Send Invitation</button>
                 `);
 
-                document.getElementById('send-invite-confirm').addEventListener('click', async () => {
-                    const projectId = document.getElementById('invite-project-select').value;
-                    const message = document.getElementById('invite-message').value;
+                const projectSelect = document.getElementById('invite-project-select');
+                const rolesContainer = document.getElementById('invite-roles-container');
 
-                    const res = await window.db.sendInvitation(targetId, projectId, message);
+                function updateRoles() {
+                    const project = projects.find(p => p.id === projectSelect.value);
+                    if (project && project.roles) {
+                        rolesContainer.innerHTML = project.roles.map(r => `
+                            <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; cursor: pointer;">
+                                <input type="checkbox" name="invite-role" value="${r.role}">
+                                ${r.role}
+                            </label>
+                        `).join('');
+                    }
+                }
+
+                projectSelect.addEventListener('change', updateRoles);
+                updateRoles();
+
+                document.getElementById('send-invite-confirm').addEventListener('click', async () => {
+                    const projectId = projectSelect.value;
+                    const message = document.getElementById('invite-message').value;
+                    const selectedRoles = Array.from(document.querySelectorAll('input[name="invite-role"]:checked')).map(cb => cb.value);
+
+                    if (selectedRoles.length === 0) return alert('Please select at least one role.');
+
+                    const res = await window.db.sendInvitation(targetId, projectId, selectedRoles, message);
                     if (res.success) {
                         alert('Invitation sent!');
                         modal.close();

@@ -4,6 +4,7 @@ const InvitationSchema = new mongoose.Schema({
     from: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     to: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     project: { type: mongoose.Schema.Types.ObjectId, ref: 'Project', required: true },
+    roles: [String], // Array of potential roles offered
     message: { type: String },
     status: { type: String, enum: ['pending', 'accepted', 'declined'], default: 'pending' },
     createdAt: { type: Date, default: Date.now }

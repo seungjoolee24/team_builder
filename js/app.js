@@ -246,12 +246,12 @@ class DataService {
 
     // --- Application Methods ---
 
-    async createApplication(projectId, role, message) {
+    async createApplication(projectId, roles, message) {
         try {
             const res = await fetch(`${this.API_URL}/projects/${projectId}/join`, {
                 method: 'POST',
                 headers: this._authHeader(),
-                body: JSON.stringify({ role, message })
+                body: JSON.stringify({ roles, message })
             });
             if (!res.ok) {
                 const data = await res.json();
@@ -328,12 +328,12 @@ class DataService {
         return { success: false, message: "Method signature update required: pass projectId" };
     }
 
-    async updateApplicationStatusWithProject(projectId, appId, status) {
+    async updateApplicationStatusWithProject(projectId, appId, status, role = null) {
         try {
             const res = await fetch(`${this.API_URL}/projects/applications/${projectId}/${appId}`, {
                 method: 'PUT',
                 headers: this._authHeader(),
-                body: JSON.stringify({ status })
+                body: JSON.stringify({ status, role })
             });
             if (!res.ok) throw new Error('Failed to update status');
             return { success: true };
@@ -342,14 +342,26 @@ class DataService {
         }
     }
 
+    async getInvitation(id) {
+        try {
+            const res = await fetch(`${this.API_URL}/invitations/project/${id}`, {
+                headers: this._authHeader()
+            });
+            if (!res.ok) return null;
+            return await res.json();
+        } catch (err) {
+            return null;
+        }
+    }
+
     // --- Invitation & Social Methods ---
 
-    async sendInvitation(toUserId, projectId, message = '') {
+    async sendInvitation(toUserId, projectId, roles = [], message = '') {
         try {
             const res = await fetch(`${this.API_URL}/invitations/project`, {
                 method: 'POST',
                 headers: this._authHeader(),
-                body: JSON.stringify({ toUserId, projectId, message })
+                body: JSON.stringify({ toUserId, projectId, roles, message })
             });
             const data = await res.json();
             if (!res.ok) throw new Error(data.msg || 'Failed to send invitation');
@@ -640,8 +652,25 @@ function loadHeader() {
                                 await window.db.markNotificationRead(id);
 
                                 if (type === 'invitation') {
-                                    const status = action === 'accept' ? 'accepted' : 'declined';
-                                    res = await window.db.respondToInvitation(related, status);
+                                    if (action === 'accept') {
+                                        const invitation = await window.db.getInvitation(related);
+                                        const roles = invitation ? (invitation.roles || []) : [];
+
+                                        let chosenRole = roles[0] || 'Member';
+                                        if (roles.length > 1) {
+                                            const choice = prompt(`Select role for project "${invitation.project?.title || 'Project'}": (${roles.join(', ')})`, roles[0]);
+                                            if (choice === null) return; // Cancelled
+                                            if (roles.includes(choice)) {
+                                                chosenRole = choice;
+                                            } else {
+                                                alert('Invalid role choice.');
+                                                return;
+                                            }
+                                        }
+                                        res = await window.db.respondToInvitation(related, 'accepted', chosenRole);
+                                    } else {
+                                        res = await window.db.respondToInvitation(related, 'declined');
+                                    }
                                 } else if (type === 'request') {
                                     const status = action === 'accept' ? 'accepted' : 'declined';
                                     res = await window.db.respondToFriendRequest(related, status);

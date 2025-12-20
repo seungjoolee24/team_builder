@@ -26,7 +26,8 @@ const ProjectSchema = new mongoose.Schema({
     // Applications (Pending)
     applications: [{
         applicant: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-        role: String,
+        role: String, // Final assigned role (set by host on acceptance)
+        preferredRoles: [String], // Roles the applicant selected
         message: String,
         status: { type: String, default: 'PENDING' }, // PENDING, ACCEPTED, REJECTED
         appliedAt: { type: Date, default: Date.now }

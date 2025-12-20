@@ -416,10 +416,13 @@
                 } else {
                     appList.innerHTML = pendingApps.map(app => `
                         <div class="card" style="padding: 0.75rem; font-size: 0.85rem; margin-bottom: 0.5rem; border: 1px solid var(--color-border);" id="app-card-${app.id}">
-                            <div style="font-weight: 600; margin-bottom: 0.25rem;">${app.applicantName} (${app.role})</div>
+                            <div style="font-weight: 600; margin-bottom: 0.25rem;">${app.applicantName}</div>
+                            <div style="display: flex; flex-wrap: wrap; gap: 0.25rem; margin-bottom: 0.5rem;">
+                                ${(app.preferredRoles || []).map(r => `<span class="badge" style="background:var(--color-bg-secondary); border:1px solid var(--color-border); font-size:0.7rem;">${r}</span>`).join('')}
+                            </div>
                             <p style="color: var(--color-text-secondary); margin-bottom: 0.5rem;">"${app.message}"</p>
                             <div style="display: flex; gap: 0.5rem;">
-                                <button class="btn btn-primary btn-accept" data-id="${app.id}" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">Accept</button>
+                                <button class="btn btn-primary btn-accept" data-id="${app.id}" data-roles='${JSON.stringify(app.preferredRoles || [])}' style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">Accept</button>
                                 <button class="btn btn-secondary btn-reject" data-id="${app.id}" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">Reject</button>
                             </div>
                         </div>
@@ -430,10 +433,24 @@
                 appList.addEventListener('click', async (e) => {
                     if (e.target.classList.contains('btn-accept')) {
                         const appId = e.target.getAttribute('data-id');
-                        await window.db.updateApplicationStatusWithProject(projectId, appId, 'ACCEPTED');
+                        const roles = JSON.parse(e.target.getAttribute('data-roles'));
+
+                        let chosenRole = roles[0];
+                        if (roles.length > 1) {
+                            const choice = prompt(`Select role to assign among choices (${roles.join(', ')}):`, roles[0]);
+                            if (choice === null) return; // Cancelled
+                            if (roles.includes(choice)) {
+                                chosenRole = choice;
+                            } else {
+                                alert('Invalid role choice. Please pick from ' + roles.join(', '));
+                                return;
+                            }
+                        }
+
+                        await window.db.updateApplicationStatusWithProject(projectId, appId, 'ACCEPTED', chosenRole);
                         document.getElementById(`app-card-${appId}`).remove();
-                        alert('Applicant Accepted!');
-                        // Optional: Reload or update UI count
+                        alert(`Applicant Accepted as ${chosenRole}!`);
+                        window.location.reload(); // Reload to update member list
                     }
                     if (e.target.classList.contains('btn-reject')) {
                         const appId = e.target.getAttribute('data-id');

@@ -32,8 +32,11 @@
         <div class="card" style="width: 100%; max-width: 500px; padding: 2rem;">
             <h3 style="margin-bottom: 1rem;">Apply to Project</h3>
             <div class="input-group">
-                <label class="label">Select Role</label>
-                <select id="apply-role" class="input"></select>
+                <label class="label">Select Preferred Roles (Multiple selection possible)</label>
+                <div id="apply-roles-container"
+                    style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; background: var(--color-bg-secondary); padding: 1rem; border-radius: 8px;">
+                    <!-- Checkboxes injected -->
+                </div>
             </div>
             <div class="input-group">
                 <label class="label">Motivation / Introduction</label>
@@ -174,13 +177,19 @@
                         return;
                     }
 
-                    // Populate Roles
-                    roleSelect.innerHTML = (project.roles || [])
+                    // Populate Roles as Checkboxes
+                    const rolesContainer = document.getElementById('apply-roles-container');
+                    rolesContainer.innerHTML = (project.roles || [])
                         .filter(r => (r.filled || 0) < r.count)
-                        .map(r => `<option value="${r.role}">${r.role}</option>`)
+                        .map(r => `
+                            <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; cursor: pointer;">
+                                <input type="checkbox" name="apply-role" value="${r.role}">
+                                ${r.role}
+                            </label>
+                        `)
                         .join('');
 
-                    if (roleSelect.options.length === 0) {
+                    if (rolesContainer.children.length === 0) {
                         alert('This project is full!');
                         return;
                     }
@@ -194,14 +203,17 @@
             });
 
             submitBtn.addEventListener('click', async () => {
-                const role = document.getElementById('apply-role').value;
+                const selectedRoles = Array.from(document.querySelectorAll('input[name="apply-role"]:checked')).map(cb => cb.value);
                 const msg = document.getElementById('apply-msg').value;
 
-                const result = await window.db.createApplication(projectId, role, msg);
+                if (selectedRoles.length === 0) return alert('Please select at least one role.');
+
+                const result = await window.db.createApplication(projectId, selectedRoles, msg);
 
                 if (result.success) {
                     alert('Application sent successfully! The team leader will review it.');
                     modal.style.display = 'none';
+                    window.location.reload();
                 } else {
                     alert('Application Failed: ' + result.message);
                     modal.style.display = 'none';

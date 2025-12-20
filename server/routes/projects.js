@@ -100,7 +100,7 @@ router.post('/:id/join', auth, async (req, res) => {
 
         const newApplication = {
             applicant: req.user.id,
-            role: req.body.role,
+            preferredRoles: req.body.roles || [],
             message: req.body.message
         };
 
@@ -145,6 +145,7 @@ router.get('/:id/applications', auth, async (req, res) => {
             applicantName: app.applicant.name,
             applicantEmail: app.applicant.email,
             role: app.role,
+            preferredRoles: app.preferredRoles,
             message: app.message,
             status: app.status,
             appliedAt: app.appliedAt
@@ -178,20 +179,20 @@ router.put('/applications/:projectId/:appId', auth, async (req, res) => {
         // If accepted, add to members
         if (status === 'ACCEPTED') {
             // Check if already member
-            if (!project.members.some(m => m.user.toString() === app.applicant.toString())) {
-                project.members.push({
-                    user: app.applicant,
-                    role: app.role
-                });
+            const finalRole = req.body.role || app.preferredRoles[0] || 'Member';
+            project.members.push({
+                user: app.applicant,
+                role: finalRole
+            });
 
-                // Update role count
-                const roleDef = project.roles.find(r => r.role === app.role);
-                if (roleDef) {
-                    roleDef.filled += 1;
-                }
+            app.role = finalRole;
+
+            // Update role count
+            const roleDef = project.roles.find(r => r.role === finalRole);
+            if (roleDef) {
+                roleDef.filled += 1;
             }
         }
-
         await project.save();
         res.json(app);
     } catch (err) {
