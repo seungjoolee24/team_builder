@@ -59,6 +59,33 @@
                 return;
             }
 
+            // Determine User Status & Button
+            const currentUser = window.db.getCurrentUser();
+            let actionButton = `<button id="apply-btn" class="btn btn-primary" style="width: 100%;">Apply Now</button>`;
+
+            if (currentUser) {
+                const userId = currentUser.id;
+
+                // Check Owner
+                const isOwner = project.owner === userId || (typeof project.owner === 'object' && project.owner._id === userId);
+
+                // Check Member
+                const isMember = project.members && project.members.some(m => m.user === userId || (typeof m.user === 'object' && m.user._id === userId));
+
+                // Check Pending Application
+                const isPending = project.applications && project.applications.some(app =>
+                    (app.applicant === userId || (typeof app.applicant === 'object' && app.applicant._id === userId)) && app.status === 'PENDING'
+                );
+
+                if (isOwner) {
+                    actionButton = `<a href="../workspace.html?id=${projectId}" class="btn" style="display:block; width: 100%; background-color: var(--color-sogang-red); color: white; text-align:center; text-decoration:none;">Manage Project</a>`;
+                } else if (isMember) {
+                    actionButton = `<a href="../workspace.html?id=${projectId}" class="btn" style="display:block; width: 100%; background-color: #28a745; color: white; text-align:center; text-decoration:none;">Enter Workspace</a>`;
+                } else if (isPending) {
+                    actionButton = `<button class="btn" style="width: 100%; background-color: #ffc107; color: black; cursor: default;" disabled>Application Pending</button>`;
+                }
+            }
+
             // Render Content
             document.getElementById('project-content').innerHTML = `
                 <div style="margin-bottom: 2rem;">
@@ -106,7 +133,7 @@
                                 `).join('')}
                             </div>
 
-                            <button id="apply-btn" class="btn btn-primary" style="width: 100%;">Apply Now</button>
+                            ${actionButton}
                             <p style="text-align: center; font-size: 0.8rem; color: var(--color-text-tertiary); margin-top: 1rem;">
                                 Leader: ${project.owner}
                             </p>
