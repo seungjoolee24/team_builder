@@ -233,7 +233,7 @@
                     method: 'PATCH',
                     headers: {
                         'Content-Type': 'application/json',
-                        'x-auth-token': token
+                        'Authorization': `Bearer ${token}`
                     },
                     body: JSON.stringify({ status: newStatus })
                 });
@@ -257,7 +257,7 @@
                 const token = localStorage.getItem('token');
                 const res = await fetch(`${window.db.API_URL}/projects/${projectId}/leave`, {
                     method: 'POST',
-                    headers: { 'x-auth-token': token }
+                    headers: { 'Authorization': `Bearer ${token}` }
                 });
 
                 if (res.ok) {
@@ -280,7 +280,7 @@
                 const token = localStorage.getItem('token');
                 const res = await fetch(`${window.db.API_URL}/projects/${projectId}`, {
                     method: 'DELETE',
-                    headers: { 'x-auth-token': token }
+                    headers: { 'Authorization': `Bearer ${token}` }
                 });
 
                 if (res.ok) {
