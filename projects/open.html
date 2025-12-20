@@ -13,7 +13,7 @@
     <style>
         .role-row {
             display: grid;
-            grid-template-columns: 2fr 1fr 40px;
+            grid-template-columns: 3fr 1fr 50px;
             gap: 1rem;
             align-items: end;
             margin-bottom: 1rem;
@@ -106,9 +106,14 @@
                             <label class="label">Count</label>
                             <input type="number" class="input role-count" value="1" min="1">
                         </div>
-                        <button type="button" class="btn btn-outline" style="padding: 0.5rem;" disabled>
-                            &times;
-                        </button>
+                        <div>
+                            <label class="label" style="visibility: hidden;">Rm</label>
+                            <button type="button" class="btn btn-outline"
+                                style="padding: 0; width: 100%; height: 42px; display: flex; align-items: center; justify-content: center;"
+                                disabled>
+                                &times;
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -176,9 +181,12 @@
                     <div>
                         <input type="number" class="input role-count" value="1" min="1">
                     </div>
-                    <button type="button" class="btn btn-outline remove-role-btn" style="padding: 0.5rem; color: var(--color-sogang-red);">
-                        &times;
-                    </button>
+                    <div>
+                        <label class="label" style="visibility: hidden;">Rm</label>
+                        <button type="button" class="btn btn-outline remove-role-btn" style="padding: 0; width: 100%; height: 42px; display: flex; align-items: center; justify-content: center; color: var(--color-sogang-red); border-color: var(--color-border);">
+                            &times;
+                        </button>
+                    </div>
                 `;
                 rolesContainer.appendChild(row);
 
