@@ -120,10 +120,6 @@ const seed = async () => {
             // Identify possible members (everyone except owner)
             const candidates = createdUsers.filter(u => u._id.toString() !== owner._id.toString());
 
-            // Randomly select 3 to 7 additional members
-            const targetAdditionalCount = 3 + Math.floor(Math.random() * 5); // 3,4,5,6,7
-            const selectedMembers = candidates.sort(() => 0.5 - Math.random()).slice(0, targetAdditionalCount);
-
             const project = new Project({
                 title: p.title,
                 oneLineDescription: p.description,
@@ -141,15 +137,38 @@ const seed = async () => {
                 members: [{ user: owner._id, role: p.ownerRole }]
             });
 
+            // Calculate total slots defined in roles
+            const totalProjectSlots = project.roles.reduce((acc, r) => acc + r.count, 0);
+
+            // Randomly select 2 to 4 additional members (Ensure we don't overflow)
+            let targetAdditionalCount = 2 + Math.floor(Math.random() * 3); // 2, 3, 4
+
+            // Cap at avail capacity (Total - Owner)
+            if (targetAdditionalCount > (totalProjectSlots - 1)) {
+                targetAdditionalCount = totalProjectSlots - 1;
+            }
+
+            const selectedMembers = candidates.sort(() => 0.5 - Math.random()).slice(0, targetAdditionalCount);
+
+            // Count Owner's role first
+            const ownerRoleObj = project.roles.find(r => r.role === p.ownerRole);
+            if (ownerRoleObj && ownerRoleObj.filled < ownerRoleObj.count) {
+                ownerRoleObj.filled += 1;
+            }
+
             // Add selected members
             for (const m of selectedMembers) {
-                // simple role assignment logic
-                const role = ['frontend', 'backend', 'designer', 'planner', 'Member'][Math.floor(Math.random() * 5)];
-                project.members.push({ user: m._id, role });
+                // Determine a needed role
+                // Find roles that are NOT full
+                const availableRoles = project.roles.filter(r => r.filled < r.count);
 
-                // Update role counts if matched
-                const rObj = project.roles.find(r => r.role === role);
-                if (rObj) rObj.filled += 1;
+                if (availableRoles.length === 0) break; // Should not happen if logic is correct but safe check
+
+                // Pick a random available role
+                const rObj = availableRoles[Math.floor(Math.random() * availableRoles.length)];
+
+                project.members.push({ user: m._id, role: rObj.role });
+                rObj.filled += 1;
             }
 
             await project.save();
