@@ -20,14 +20,29 @@ const USERS_DATA = [
     { name: 'Yoon Seo-woo', email: 'seowoo@sogang.ac.kr', role: 'media', major: 'Media & Entertainment', college: 'Integrated Knowledge', tags: ['Media Art', 'Creative', 'Fun'], skills: [{ name: 'Premiere Pro', category: 'Design', level: 'advanced' }, { name: 'After Effects', category: 'Design', level: 'intermediate' }, { name: 'TouchDesigner', category: 'Other', level: 'beginner' }] },
     { name: 'Lim Joon-young', email: 'joonyoung@sogang.ac.kr', role: 'frontend', major: 'Computer Science and Engineering', college: 'Engineering', tags: ['Web/App', 'React', 'Team Player'], skills: [{ name: 'Vue.js', category: 'Frameworks', level: 'intermediate' }, { name: 'TypeScript', category: 'Programming', level: 'intermediate' }, { name: 'Git', category: 'Other', level: 'advanced' }] },
     { name: 'Han Ji-eun', email: 'jieun@sogang.ac.kr', role: 'planner', major: 'Global Korean Studies', college: 'Integrated Knowledge', tags: ['Networking', 'Cultural', 'Flexible Hours'], skills: [{ name: 'Translation', category: 'Other', level: 'advanced' }, { name: 'Event Planning', category: 'Other', level: 'intermediate' }] },
-    { name: 'Shin Dong-wook', email: 'dongwook@sogang.ac.kr', role: 'backend', major: 'Computer Science and Engineering', college: 'Engineering', tags: ['Blockchain', 'Security', 'Quiet'], skills: [{ name: 'C++', category: 'Programming', level: 'intermediate' }, { name: 'Go', category: 'Programming', level: 'beginner' }, { name: 'Solidity', category: 'Programming', level: 'beginner' }] }
+    { name: 'Shin Dong-wook', email: 'dongwook@sogang.ac.kr', role: 'backend', major: 'Computer Science and Engineering', college: 'Engineering', tags: ['Blockchain', 'Security', 'Quiet'], skills: [{ name: 'C++', category: 'Programming', level: 'intermediate' }, { name: 'Go', category: 'Programming', level: 'beginner' }, { name: 'Solidity', category: 'Programming', level: 'beginner' }] },
+    { name: 'Alice Kim', email: 'alice@sogang.ac.kr', role: 'designer', major: 'Media & Entertainment', college: 'Integrated Knowledge', tags: ['UI/UX', 'Portfolio', 'Creative'], skills: [{ name: 'Figma', category: 'Design', level: 'advanced' }, { name: 'Adobe XD', category: 'Design', level: 'intermediate' }] },
+    { name: 'Bob Park', email: 'bob@sogang.ac.kr', role: 'frontend', major: 'Economics', college: 'Economics', tags: ['Web/App', 'React', 'Fintech'], skills: [{ name: 'React', category: 'Frameworks', level: 'intermediate' }, { name: 'JavaScript', category: 'Programming', level: 'advanced' }] },
+    { name: 'Charlie Lee', email: 'charlie@sogang.ac.kr', role: 'planner', major: 'Sociology', college: 'Social Sciences', tags: ['Leadership', 'Networking', 'Project Manager'], skills: [{ name: 'Jira', category: 'Other', level: 'advanced' }, { name: 'Confluence', category: 'Other', level: 'advanced' }] },
+    { name: 'David Choi', email: 'david@sogang.ac.kr', role: 'backend', major: 'Physics', college: 'Natural Sciences', tags: ['Python', 'Data Science', 'Analytical'], skills: [{ name: 'Python', category: 'Programming', level: 'advanced' }, { name: 'C++', category: 'Programming', level: 'intermediate' }] },
+    { name: 'Eve Jung', email: 'eve@sogang.ac.kr', role: 'data', major: 'Mathematics', college: 'Natural Sciences', tags: ['Big Data', 'Machine Learning', 'Research'], skills: [{ name: 'R', category: 'Programming', level: 'advanced' }, { name: 'Python', category: 'Programming', level: 'advanced' }] },
+    { name: 'Frank Kang', email: 'frank@sogang.ac.kr', role: 'media', major: 'Global Korean Studies', college: 'Integrated Knowledge', tags: ['Video Editing', 'Creative', 'Fun'], skills: [{ name: 'Final Cut', category: 'Design', level: 'advanced' }, { name: 'DaVinci Resolve', category: 'Design', level: 'intermediate' }] },
+    { name: 'Grace Yoon', email: 'grace@sogang.ac.kr', role: 'frontend', major: 'French Language and Literature', college: 'Humanities', tags: ['Portfolio', 'Passion', 'Quick Learner'], skills: [{ name: 'Vue.js', category: 'Frameworks', level: 'intermediate' }, { name: 'HTML/CSS', category: 'Programming', level: 'advanced' }] },
+    { name: 'Henry Lim', email: 'henry@sogang.ac.kr', role: 'planner', major: 'Political Science', college: 'Social Sciences', tags: ['Marketing', 'Networking', 'Communication'], skills: [{ name: 'Excel', category: 'Other', level: 'advanced' }, { name: 'PPT', category: 'Design', level: 'advanced' }] },
+    { name: 'Iris Han', email: 'iris@sogang.ac.kr', role: 'designer', major: 'History', college: 'Humanities', tags: ['Graphics', 'Illustrator', 'Creative'], skills: [{ name: 'Photoshop', category: 'Design', level: 'advanced' }, { name: 'Illustrator', category: 'Design', level: 'advanced' }] },
+    { name: 'Jack Shin', email: 'jack@sogang.ac.kr', role: 'backend', major: 'Chemistry', college: 'Natural Sciences', tags: ['Logical', 'Systematic', 'Quiet'], skills: [{ name: 'Java', category: 'Programming', level: 'intermediate' }, { name: 'Spring', category: 'Frameworks', level: 'beginner' }] }
 ];
 
 const PROJECTS_DATA = [
     { title: 'Sogang Delivery Hub', ownerIndex: 0, type: 'Side Project', domain: 'Web / App', description: 'A delivery consolidation service for Sogang students living in dorms.', ownerRole: 'backend' },
     { title: 'AI Campus Guide', ownerIndex: 1, type: 'Competition', domain: 'AI / Data Science', description: 'AI chatbot that helps freshmens navigate campus life and academic rules.', ownerRole: 'frontend' },
     { title: 'Virtual Art Gallery', ownerIndex: 2, type: 'Club / Study', domain: 'Media Art / Design', description: 'Exhibition space in the metaverse for Art & Tech students.', ownerRole: 'designer' },
-    { title: 'Fintech Study Platform', ownerIndex: 3, type: 'Startup / Pre-startup', domain: 'Fintech / Business', description: 'A platform to help students learn investment strategies through simulation.', ownerRole: 'planner' }
+    { title: 'Fintech Study Platform', ownerIndex: 3, type: 'Startup / Pre-startup', domain: 'Fintech / Business', description: 'A platform to help students learn investment strategies through simulation.', ownerRole: 'planner' },
+    { title: 'Sogang Metaverse Campus', ownerIndex: 10, type: 'Club / Study', domain: 'Media Art / Design', description: 'Expanding our campus into the 3D metaverse for remote events.', ownerRole: 'designer' },
+    { title: 'Blockchain Voting System', ownerIndex: 13, type: 'Side Project', domain: 'Security / IT', description: 'A transparent voting system for student council elections.', ownerRole: 'backend' },
+    { title: 'Eco-Friendly Campus Map', ownerIndex: 15, type: 'Competition', domain: 'Web / App', description: 'Crowdsourced map for finding recycling spots and green spaces.', ownerRole: 'data' },
+    { title: 'Language Exchange Matcher', ownerIndex: 17, type: 'Club / Study', domain: 'Education / Culture', description: 'Helping international students find local study buddies automatically.', ownerRole: 'frontend' },
+    { title: 'AI Essay Assistant', ownerIndex: 19, type: 'Side Project', domain: 'AI / Data Science', description: 'LLM-powered tool to help students structure their academic papers.', ownerRole: 'backend' }
 ];
 
 const seed = async () => {
@@ -60,7 +75,7 @@ const seed = async () => {
             await profile.save();
             createdUsers.push(user);
         }
-        console.log('10 Users and Profiles created.');
+        console.log(`${createdUsers.length} Users and Profiles created.`);
 
         // 2. Create Projects
         const createdProjects = [];
@@ -88,7 +103,7 @@ const seed = async () => {
             await project.save();
             createdProjects.push(project);
         }
-        console.log('4 Projects created.');
+        console.log(`${createdProjects.length} Projects created.`);
 
         // 3. Add Members to Projects (In 2-3 projects each)
         // Each project gets ~2-3 additional members from the rest
