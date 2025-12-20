@@ -3,6 +3,45 @@ const router = express.Router();
 const auth = require('../middleware/auth');
 const User = require('../models/User');
 const Profile = require('../models/Profile');
+const Friendship = require('../models/Friendship');
+const Project = require('../models/Project');
+
+// @route   GET api/users/contacts
+// @desc    Get users available for chat (Friends + Project Teammates)
+// @access  Private
+router.get('/contacts', auth, async (req, res) => {
+    try {
+        const currentUserId = req.user.id;
+        const contactIds = new Set();
+
+        // 1. Get Friends
+        const friendships = await Friendship.find({ users: currentUserId });
+        friendships.forEach(f => {
+            f.users.forEach(uid => {
+                if (uid.toString() !== currentUserId) contactIds.add(uid.toString());
+            });
+        });
+
+        // 2. Get Project Teammates
+        const projects = await Project.find({
+            $or: [{ owner: currentUserId }, { 'members.user': currentUserId }]
+        });
+
+        projects.forEach(p => {
+            if (p.owner.toString() !== currentUserId) contactIds.add(p.owner.toString());
+            p.members.forEach(m => {
+                if (m.user.toString() !== currentUserId) contactIds.add(m.user.toString());
+            });
+        });
+
+        // Fetch User Details
+        const contacts = await User.find({ _id: { $in: Array.from(contactIds) } }).select('name email');
+        res.json(contacts);
+    } catch (err) {
+        console.error('Get Contacts Error:', err.message);
+        res.status(500).json({ msg: 'Server error fetching contacts' });
+    }
+});
 
 // @route   GET api/users
 // @desc    Get all users (with optional filters)
