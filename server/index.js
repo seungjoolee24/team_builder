@@ -14,8 +14,8 @@ app.use(express.json());
 // Database Connection
 const connectDB = require('./config/db');
 
-// Connect to DB immediately
-connectDB();
+// Connect to DB immediately - REMOVED to avoid race conditions
+// connectDB();
 
 // Middleware to ensure DB is connected
 app.use(async (req, res, next) => {
