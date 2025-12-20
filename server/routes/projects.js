@@ -22,6 +22,11 @@ router.get('/', async (req, res) => {
         }
         if (owner) {
             query.owner = owner;
+        } else {
+            // Default public search: only return OPEN projects
+            if (!query.status) {
+                query.status = 'OPEN';
+            }
         }
 
         const projects = await Project.find(query)
@@ -234,6 +239,92 @@ router.put('/applications/:projectId/:appId', auth, async (req, res) => {
         );
 
         res.json(app);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+});
+
+// @route   PATCH api/projects/:id/status
+// @desc    Update project status (Only Owner)
+// @access  Private
+router.patch('/:id/status', auth, async (req, res) => {
+    try {
+        const { status } = req.body; // OPEN, CONFIRMED
+        const project = await Project.findById(req.params.id);
+
+        if (!project) {
+            return res.status(404).json({ msg: 'Project not found' });
+        }
+
+        // Check ownership
+        if (project.owner.toString() !== req.user.id) {
+            return res.status(401).json({ msg: 'Not authorized' });
+        }
+
+        project.status = status;
+        await project.save();
+        res.json(project);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+});
+
+// @route   POST api/projects/:id/leave
+// @desc    Leave a project
+// @access  Private
+router.post('/:id/leave', auth, async (req, res) => {
+    try {
+        const project = await Project.findById(req.params.id);
+        if (!project) return res.status(404).json({ msg: 'Project not found' });
+
+        // Check if member
+        const memberIndex = project.members.findIndex(m => m.user.toString() === req.user.id);
+        if (memberIndex === -1) {
+            return res.status(400).json({ msg: 'Not a member of this project' });
+        }
+
+        // Prevent Owner from leaving (Must delete instead)
+        if (project.owner.toString() === req.user.id) {
+            return res.status(400).json({ msg: 'Owner cannot leave. Use terminate instead.' });
+        }
+
+        const member = project.members[memberIndex];
+        const roleName = member.role;
+
+        // Remove member
+        project.members.splice(memberIndex, 1);
+
+        // Update role count
+        const roleDef = project.roles.find(r => r.role === roleName);
+        if (roleDef && roleDef.filled > 0) {
+            roleDef.filled -= 1;
+        }
+
+        await project.save();
+        res.json({ msg: 'Left project successfully' });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+});
+
+// @route   DELETE api/projects/:id
+// @desc    Delete (Terminate) a project
+// @access  Private
+router.delete('/:id', auth, async (req, res) => {
+    try {
+        const project = await Project.findById(req.params.id);
+        if (!project) return res.status(404).json({ msg: 'Project not found' });
+
+        // Check ownership
+        if (project.owner.toString() !== req.user.id) {
+            return res.status(401).json({ msg: 'Not authorized' });
+        }
+
+        await project.deleteOne();
+        res.json({ msg: 'Project terminated' });
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server Error');

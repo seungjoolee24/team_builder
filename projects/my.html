@@ -155,33 +155,145 @@
 
             listContainer.innerHTML = projects.map(project => {
                 const roles = project.roles || [];
-                // Use actual members length (includes host) or fallback to 1
                 const filledCount = (project.members && project.members.length > 0) ? project.members.length : (roles.reduce((acc, r) => acc + Number(r.filled || 0), 0) + 1);
                 const totalCount = roles.reduce((acc, r) => acc + Number(r.count || 0), 0) + 1;
+                const isFull = filledCount >= totalCount;
+                const isConfirmed = project.status === 'CONFIRMED';
+                const isOpen = project.status === 'OPEN';
+
+                // Status Badge Logic
+                let badgeColor = 'blue';
+                let statusText = 'RECRUITING (OPEN)';
+                if (isConfirmed) {
+                    badgeColor = 'purple';
+                    statusText = 'CONFIRMED (Started)';
+                } else if (isFull) {
+                    badgeColor = 'orange';
+                    statusText = 'FULL (Waitlist)';
+                }
+
+                // Action Button Logic (Hosted only)
+                let actionButton = '';
+                if (isHosted) {
+                    if (isConfirmed) {
+                        actionButton = `<button onclick="updateStatus('${project._id}', 'OPEN')" class="btn btn-outline" style="font-size: 0.8rem; margin-right: 0.5rem;">Re-open Recruitment</button>`;
+                    } else {
+                        actionButton = `<button onclick="updateStatus('${project._id}', 'CONFIRMED')" class="btn btn-primary" style="font-size: 0.8rem; background-color: var(--color-text-secondary); border-color: var(--color-text-secondary); margin-right: 0.5rem;">Confirm & Close</button>`;
+                    }
+                }
+
+                // Joined Projects: Leave Button
+                let leaveButton = '';
+                if (!isHosted) {
+                    leaveButton = `<button onclick="leaveProject('${project._id || project.id}')" class="btn btn-outline" style="font-size: 0.8rem; color: #dc3545; border-color: #dc3545; margin-right: 0.5rem;">Leave Project</button>`;
+                }
+
+                // Hosted Projects: Terminate Button
+                let terminateButton = '';
+                if (isHosted) {
+                    terminateButton = `<button onclick="terminateProject('${project._id || project.id}')" class="btn btn-outline" style="font-size: 0.8rem; color: #dc3545; border-color: #dc3545; margin-right: 0.5rem;">Terminate</button>`;
+                }
 
                 return `
                     <div class="project-card-row">
                         <div style="flex: 1;">
                             <div style="display: flex; gap: 0.75rem; align-items: center; margin-bottom: 0.5rem;">
-                                <span class="badge ${project.status === 'OPEN' ? 'blue' : 'red'}" style="text-transform: uppercase;">${project.status || 'OPEN'}</span>
+                                <span class="badge ${badgeColor}" style="text-transform: uppercase;">${statusText}</span>
                                 <span style="font-size: 0.85rem; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;">${project.type || 'Project'}</span>
                             </div>
                             <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem;">${project.title}</h3>
-                            <p style="color: var(--color-text-secondary); font-size: 0.95rem;">${project.summary || 'No description'}</p>
+                            <p style="color: var(--color-text-secondary); font-size: 0.95rem;">${project.oneLineDescription || project.summary || 'No description'}</p>
                         </div>
                         
-                        <div style="text-align: right; min-width: 200px;">
+                        <div style="text-align: right; min-width: 240px;">
                             <div style="margin-bottom: 1rem;">
                                 <span style="font-weight: 600; color: var(--color-text-primary);">${filledCount}/${totalCount}</span>
                                 <span style="color: var(--color-text-secondary); font-size: 0.9rem;"> Members</span>
                             </div>
-                            <a href="../workspace.html?id=${project.id}" class="btn ${isHosted ? 'btn-secondary' : 'btn-outline'}" style="font-size: 0.9rem;">
-                                ${isHosted ? 'Manage Project' : 'Enter Workspace'}
-                            </a>
+                            <div style="display: flex; justify-content: flex-end; gap: 0.5rem;">
+                                ${!isHosted ? leaveButton : ''}
+                                ${isHosted ? terminateButton : ''}
+                                ${actionButton}
+                                <a href="../workspace.html?id=${project._id || project.id}" class="btn ${isHosted ? 'btn-secondary' : 'btn-outline'}" style="font-size: 0.9rem;">
+                                    ${isHosted ? 'Manage' : 'Enter'}
+                                </a>
+                            </div>
                         </div>
                     </div>
                 `;
             }).join('');
+        }
+
+        async function updateStatus(projectId, newStatus) {
+            if (!confirm(`Are you sure you want to change status to ${newStatus}?`)) return;
+
+            try {
+                const token = localStorage.getItem('token');
+                const res = await fetch(`http://localhost:5000/api/projects/${projectId}/status`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-auth-token': token
+                    },
+                    body: JSON.stringify({ status: newStatus })
+                });
+
+                if (res.ok) {
+                    alert('Status updated!');
+                    window.location.reload();
+                } else {
+                    const data = await res.json();
+                    alert(data.msg || 'Update failed');
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Server error');
+            }
+        }
+        async function leaveProject(projectId) {
+            if (!confirm('Are you sure you want to leave this project?')) return;
+
+            try {
+                const token = localStorage.getItem('token');
+                const res = await fetch(`http://localhost:5000/api/projects/${projectId}/leave`, {
+                    method: 'POST',
+                    headers: { 'x-auth-token': token }
+                });
+
+                if (res.ok) {
+                    alert('You have left the project.');
+                    window.location.reload();
+                } else {
+                    const data = await res.json();
+                    alert(data.msg || 'Failed to leave project');
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Server error');
+            }
+        }
+
+        async function terminateProject(projectId) {
+            if (!confirm('WARNING: This will permanently delete the project and all its data. This action cannot be undone.\n\nAre you sure you want to terminate this project?')) return;
+
+            try {
+                const token = localStorage.getItem('token');
+                const res = await fetch(`http://localhost:5000/api/projects/${projectId}`, {
+                    method: 'DELETE',
+                    headers: { 'x-auth-token': token }
+                });
+
+                if (res.ok) {
+                    alert('Project terminated successfully.');
+                    window.location.reload();
+                } else {
+                    const data = await res.json();
+                    alert(data.msg || 'Failed to terminate project');
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Server error');
+            }
         }
     </script>
 </body>
