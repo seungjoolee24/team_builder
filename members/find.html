@@ -137,9 +137,21 @@
                         <option value="media">Media Artist</option>
                     </select>
                 </div>
-                <div class="input-group" style="margin-bottom: 0;">
+                <div class="input-group" style="margin-bottom: 0; position: relative;">
                     <label class="label">Tags (AND logic)</label>
-                    <input type="text" id="filter-tags" class="input" placeholder="e.g. Web, Startup">
+                    <input type="text" id="filter-tags" class="input" placeholder="e.g. Web, Startup"
+                        autocomplete="off">
+                    <!-- Tag Suggestions Tooltip-style -->
+                    <div id="tag-suggestions"
+                        style="display: none; position: absolute; top: 100%; left: 0; width: 100%; max-width: 400px; background: white; border: 1px solid var(--color-border); border-radius: 8px; box-shadow: var(--shadow-lg); z-index: 100; padding: 1rem; margin-top: 0.5rem;">
+                        <p
+                            style="font-size: 0.75rem; font-weight: 700; color: var(--color-text-tertiary); text-transform: uppercase; margin-bottom: 0.75rem; border-bottom: 1px solid #eee; padding-bottom: 0.25rem;">
+                            Suggested Tags</p>
+                        <div id="suggestions-list"
+                            style="display: flex; flex-wrap: wrap; gap: 0.4rem; max-height: 200px; overflow-y: auto;">
+                            <!-- Tags injected via JS -->
+                        </div>
+                    </div>
                 </div>
                 <button type="button" id="search-btn" class="btn btn-primary" style="width: 100%;">Search</button>
             </div>
@@ -160,6 +172,52 @@
             const listContainer = document.getElementById('members-list');
             const searchBtn = document.getElementById('search-btn');
             const currentUser = window.db.getCurrentUser();
+
+            const SUGGESTED_TAGS = [
+                'Web/App', 'AI/Data', 'Fintech', 'Game Dev', 'Blockchain', 'E-commerce',
+                'IoT', 'Metaverse', 'Security', 'Healthcare', 'Competition', 'Side Project',
+                'Startup', 'Hackathon', 'Capstone', 'Research', 'Online Only', 'Hybrid',
+                'Win Awards', 'Build Portfolio', 'Networking'
+            ];
+
+            function setupTagSuggestions() {
+                const tagInput = document.getElementById('filter-tags');
+                const suggestionBox = document.getElementById('tag-suggestions');
+                const list = document.getElementById('suggestions-list');
+
+                // Populate
+                list.innerHTML = SUGGESTED_TAGS.map(tag => `
+                    <span class="badge" style="cursor: pointer; background: #f8f9fa; border: 1px solid var(--color-border); color: var(--color-text-secondary); height: auto; padding: 4px 10px;" onclick="addSearchTag('${tag}')">
+                        ${tag}
+                    </span>
+                `).join('');
+
+                tagInput.addEventListener('focus', () => {
+                    suggestionBox.style.display = 'block';
+                });
+
+                // Close on click outside
+                document.addEventListener('click', (e) => {
+                    if (!tagInput.contains(e.target) && !suggestionBox.contains(e.target)) {
+                        suggestionBox.style.display = 'none';
+                    }
+                });
+
+                window.addSearchTag = (tag) => {
+                    const currentVal = tagInput.value.trim();
+                    if (!currentVal) {
+                        tagInput.value = tag;
+                    } else {
+                        const tags = currentVal.split(',').map(t => t.trim());
+                        if (!tags.includes(tag)) {
+                            tagInput.value = currentVal + ', ' + tag;
+                        }
+                    }
+                    tagInput.focus();
+                };
+            }
+
+            setupTagSuggestions();
 
             async function loadMembers() {
                 listContainer.innerHTML = '<p style="text-align: center; color: var(--color-text-secondary);">Searching...</p>';
