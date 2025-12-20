@@ -803,3 +803,137 @@ function highlightActivePage() {
         }
     });
 }
+
+// --- Global UI Utilities ---
+
+window.showProfileCard = async (userId, name) => {
+    const currentUser = window.db.getCurrentUser();
+    if (userId === currentUser.id || userId === currentUser._id) return;
+
+    const user = await window.db.getUserProfile(userId);
+    if (!user) return alert('Profile not found.');
+
+    const p = user.profile || {};
+    const skills = p.skills || [];
+    const statusObj = await window.db.getFriendStatus(userId);
+    const status = statusObj.status;
+
+    let actionBtn = '';
+    const path = window.location.pathname;
+    const rootPath = (path.includes('/projects/') || path.includes('/members/') || path.includes('/auth/')) ? '../' : './';
+
+    if (status === 'friends') {
+        actionBtn = `<button class="btn btn-outline" onclick="location.href='${rootPath}inbox.html'" style="width: 100%;">Message</button>`;
+    } else if (status === 'pending_sent') {
+        actionBtn = `<button class="btn btn-secondary" disabled style="width: 100%;">Request Sent</button>`;
+    } else if (status === 'pending_received') {
+        actionBtn = `<button class="btn btn-primary" onclick="acceptFriend('${statusObj.requestId}', '${name}')" style="width: 100%;">Accept Request</button>`;
+    } else {
+        actionBtn = `<button class="btn btn-primary" onclick="sendFriendRequest('${userId}', '${name}')" style="width: 100%;">Add Friend</button>`;
+    }
+
+    const modal = document.createElement('div');
+    modal.id = 'profile-active-modal';
+    modal.style = `position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 1rem;`;
+    modal.innerHTML = `
+        <div style="background: white; width: 100%; max-width: 440px; border-radius: 12px; overflow: hidden; box-shadow: var(--shadow-lg); animation: fadeIn 0.3s ease;">
+            <div style="height: 100px; background: var(--color-sogang-red);"></div>
+            <div style="padding: 0 2rem 2rem; margin-top: -50px;">
+                <div style="width: 100px; height: 100px; border-radius: 50%; background: white; margin: 0 auto 1.5rem; padding: 4px; border: 1px solid #eee; box-shadow: var(--shadow-sm);">
+                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=${name}" style="width: 100%; height: 100%; border-radius: 50%;">
+                </div>
+                
+                <div style="text-align: center; margin-bottom: 2rem;">
+                    <h3 style="margin: 0; font-size: 1.5rem; color: var(--color-text-primary);">${name}</h3>
+                    <p style="color: var(--color-text-tertiary); font-size: 0.95rem; margin-top: 0.25rem;">${p.primaryRole || 'Team Member'}</p>
+                    <p style="color: var(--color-text-secondary); font-size: 0.85rem;">${p.college || 'Sogang'} | ${p.major || 'Major Undefined'}</p>
+                </div>
+
+                <div style="margin-bottom: 2rem;">
+                    <h4 style="font-size: 0.75rem; text-transform: uppercase; color: var(--color-text-tertiary); margin-bottom: 0.75rem; border-bottom: 1px solid #eee; padding-bottom: 0.5rem;">Introduction</h4>
+                    <p style="font-size: 0.9rem; color: var(--color-text-secondary); line-height: 1.5;">${p.bio || 'Highly motivated Sogang student.'}</p>
+                </div>
+
+                <div style="margin-bottom: 2rem;">
+                    <h4 style="font-size: 0.75rem; text-transform: uppercase; color: var(--color-text-tertiary); margin-bottom: 0.75rem; border-bottom: 1px solid #eee; padding-bottom: 0.5rem;">Skills & Proficiency</h4>
+                    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                        ${skills.map(s => {
+        const levelColor = s.level === 'advanced' ? 'var(--color-sogang-red)' : s.level === 'intermediate' ? 'var(--color-primary)' : 'var(--color-text-secondary)';
+        return `
+                            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem;">
+                                <span style="font-weight: 500;">${s.name}</span>
+                                <span class="badge" style="font-size: 0.7rem; background: white; border: 1px solid ${levelColor}; color: ${levelColor}; text-transform: capitalize;">${s.level || 'beginner'}</span>
+                            </div>
+                        `;
+    }).join('') || '<p style="font-size: 0.85rem; color: var(--color-text-tertiary);">No skills registered.</p>'}
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 2rem;">
+                    <h4 style="font-size: 0.75rem; text-transform: uppercase; color: var(--color-text-tertiary); margin-bottom: 0.75rem; border-bottom: 1px solid #eee; padding-bottom: 0.5rem;">Links</h4>
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                        ${p.links?.github ? `<a href="${p.links.github}" target="_blank" class="badge" style="background: #24292e; color: white;">GitHub</a>` : ''}
+                        ${p.links?.portfolio ? `<a href="${p.links.portfolio}" target="_blank" class="badge blue">Portfolio</a>` : ''}
+                        ${(p.customLinks || []).map(l => `<a href="${l.url}" target="_blank" class="badge" style="background: white; border: 1px solid var(--color-border); color: var(--color-text-primary);">${l.label}</a>`).join('')}
+                        ${(!p.links?.github && !p.links?.portfolio && (!p.customLinks || p.customLinks.length === 0)) ? '<p style="font-size: 0.85rem; color: var(--color-text-tertiary);">No links provided.</p>' : ''}
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 0.75rem;">
+                    ${actionBtn}
+                    <button class="btn btn-outline" onclick="document.getElementById('profile-active-modal').remove()" style="width: 100%;">Close</button>
+                </div>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+    modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
+};
+
+window.sendFriendRequest = async (userId, name) => {
+    const msg = prompt(`Send a friend request to ${name}? (Optional message):`, "Hi, let's connect!");
+    if (msg !== null) {
+        const res = await window.db.sendFriendRequest(userId, msg);
+        if (res.success) {
+            alert('Request sent!');
+            if (document.getElementById('profile-active-modal')) document.getElementById('profile-active-modal').remove();
+
+            // Check if on workspace and have projectId
+            if (typeof window.renderMembers === 'function') {
+                try {
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const pid = urlParams.get('id');
+                    if (pid) {
+                        const refreshedProject = await window.db.getProjectById(pid);
+                        window.renderMembers(refreshedProject);
+                    }
+                } catch (e) { }
+            }
+        } else {
+            alert('Error: ' + res.message);
+        }
+    }
+};
+
+window.acceptFriend = async (requestId, name) => {
+    if (confirm(`Accept friend request from ${name}?`)) {
+        const res = await window.db.respondToFriendRequest(requestId, 'accepted');
+        if (res.success) {
+            alert('You are now friends!');
+            if (document.getElementById('profile-active-modal')) document.getElementById('profile-active-modal').remove();
+
+            if (typeof window.renderMembers === 'function') {
+                try {
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const pid = urlParams.get('id');
+                    if (pid) {
+                        const refreshedProject = await window.db.getProjectById(pid);
+                        window.renderMembers(refreshedProject);
+                    }
+                } catch (e) { }
+            }
+        } else {
+            alert('Error: ' + res.message);
+        }
+    }
+};

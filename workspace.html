@@ -155,7 +155,6 @@
             if (project) {
                 document.getElementById('project-title').textContent = project.title;
                 document.getElementById('project-type').textContent = project.type;
-
                 renderMembers(project);
             } else {
                 document.getElementById('project-title').textContent = "Project Not Found";
@@ -180,14 +179,11 @@
                         userId = user._id || user.id;
                         name = user.name || 'Unknown';
                     } else {
-                        // Not populated?
                         userId = user;
                         name = 'Loading...';
                     }
 
                     const isMe = String(userId) === String(currentUser.id || currentUser._id);
-
-                    // A member is a leader if their ID matches the project owner ID
                     const isLeader = String(userId) === String(ownerId);
 
                     // Friendship Status (if not me)
@@ -232,118 +228,6 @@
                 });
             }
 
-            window.showProfileCard = async (userId, name) => {
-                const currentUser = window.db.getCurrentUser();
-                if (userId === currentUser.id || userId === currentUser._id) return;
-
-                const user = await window.db.getUserProfile(userId);
-                if (!user) return alert('Profile not found.');
-
-                const p = user.profile || {};
-                const skills = p.skills || [];
-                const statusObj = await window.db.getFriendStatus(userId);
-                const status = statusObj.status;
-
-                let actionBtn = '';
-                if (status === 'friends') {
-                    actionBtn = `<button class="btn btn-outline" onclick="location.href='./inbox.html'" style="width: 100%;">Message</button>`;
-                } else if (status === 'pending_sent') {
-                    actionBtn = `<button class="btn btn-secondary" disabled style="width: 100%;">Request Sent</button>`;
-                } else if (status === 'pending_received') {
-                    actionBtn = `<button class="btn btn-primary" onclick="acceptFriend('${statusObj.requestId}', '${name}')" style="width: 100%;">Accept Request</button>`;
-                } else {
-                    actionBtn = `<button class="btn btn-primary" onclick="sendFriendRequest('${userId}', '${name}')" style="width: 100%;">Add Friend</button>`;
-                }
-
-                // Create/Show a simple modal for the profile card
-                const modal = document.createElement('div');
-                modal.id = 'profile-active-modal';
-                modal.style = `position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 1rem;`;
-                modal.innerHTML = `
-                    <div style="background: white; width: 100%; max-width: 440px; border-radius: 12px; overflow: hidden; box-shadow: var(--shadow-lg); animation: fadeIn 0.3s ease;">
-                        <div style="height: 100px; background: var(--color-sogang-red);"></div>
-                        <div style="padding: 0 2rem 2rem; margin-top: -50px;">
-                            <div style="width: 100px; height: 100px; border-radius: 50%; background: white; margin: 0 auto 1.5rem; padding: 4px; border: 1px solid #eee; box-shadow: var(--shadow-sm);">
-                                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=${name}" style="width: 100%; height: 100%; border-radius: 50%;">
-                            </div>
-                            
-                            <div style="text-align: center; margin-bottom: 2rem;">
-                                <h3 style="margin: 0; font-size: 1.5rem; color: var(--color-text-primary);">${name}</h3>
-                                <p style="color: var(--color-text-tertiary); font-size: 0.95rem; margin-top: 0.25rem;">${p.primaryRole || 'Team Member'}</p>
-                                <p style="color: var(--color-text-secondary); font-size: 0.85rem;">${p.college || 'Sogang'} | ${p.major || 'Major Undefined'}</p>
-                            </div>
-
-                            <div style="margin-bottom: 2rem;">
-                                <h4 style="font-size: 0.75rem; text-transform: uppercase; color: var(--color-text-tertiary); margin-bottom: 0.75rem; border-bottom: 1px solid #eee; padding-bottom: 0.5rem;">Introduction</h4>
-                                <p style="font-size: 0.9rem; color: var(--color-text-secondary); line-height: 1.5;">${p.bio || 'Highly motivated Sogang student.'}</p>
-                            </div>
-
-                            <div style="margin-bottom: 2rem;">
-                                <h4 style="font-size: 0.75rem; text-transform: uppercase; color: var(--color-text-tertiary); margin-bottom: 0.75rem; border-bottom: 1px solid #eee; padding-bottom: 0.5rem;">Skills & Proficiency</h4>
-                                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
-                                    ${skills.map(s => {
-                    const levelColor = s.level === 'advanced' ? 'var(--color-sogang-red)' : s.level === 'intermediate' ? 'var(--color-primary)' : 'var(--color-text-secondary)';
-                    return `
-                                        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem;">
-                                            <span style="font-weight: 500;">${s.name}</span>
-                                            <span class="badge" style="font-size: 0.7rem; background: white; border: 1px solid ${levelColor}; color: ${levelColor}; text-transform: capitalize;">${s.level || 'beginner'}</span>
-                                        </div>
-                                    `;
-                }).join('') || '<p style="font-size: 0.85rem; color: var(--color-text-tertiary);">No skills registered.</p>'}
-                                </div>
-                            </div>
-
-                            <div style="margin-bottom: 2rem;">
-                                <h4 style="font-size: 0.75rem; text-transform: uppercase; color: var(--color-text-tertiary); margin-bottom: 0.75rem; border-bottom: 1px solid #eee; padding-bottom: 0.5rem;">Links</h4>
-                                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                                    ${p.links?.github ? `<a href="${p.links.github}" target="_blank" class="badge" style="background: #24292e; color: white;">GitHub</a>` : ''}
-                                    ${p.links?.portfolio ? `<a href="${p.links.portfolio}" target="_blank" class="badge blue">Portfolio</a>` : ''}
-                                    ${(p.customLinks || []).map(l => `<a href="${l.url}" target="_blank" class="badge" style="background: white; border: 1px solid var(--color-border); color: var(--color-text-primary);">${l.label}</a>`).join('')}
-                                    ${(!p.links?.github && !p.links?.portfolio && (!p.customLinks || p.customLinks.length === 0)) ? '<p style="font-size: 0.85rem; color: var(--color-text-tertiary);">No links provided.</p>' : ''}
-                                </div>
-                            </div>
-
-                            <div style="display: flex; gap: 0.75rem;">
-                                ${actionBtn}
-                                <button class="btn btn-outline" onclick="document.getElementById('profile-active-modal').remove()" style="width: 100%;">Close</button>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                document.body.appendChild(modal);
-                modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
-            };
-
-            window.sendFriendRequest = async (userId, name) => {
-                const msg = prompt(`Send a friend request to ${name}? (Optional message):`, "Hi, let's connect!");
-                if (msg !== null) {
-                    const res = await window.db.sendFriendRequest(userId, msg);
-                    if (res.success) {
-                        alert('Friend request sent!');
-                        document.getElementById('profile-active-modal').remove();
-                        // Re-render project members to update status indicators
-                        const updatedProject = await window.db.getProjectById(projectId);
-                        renderMembers(updatedProject);
-                    } else {
-                        alert('Error: ' + res.message);
-                    }
-                }
-            };
-
-            window.acceptFriend = async (requestId, name) => {
-                if (confirm(`Accept friend request from ${name}?`)) {
-                    const res = await window.db.respondToFriendRequest(requestId, 'accepted');
-                    if (res.success) {
-                        alert('You are now friends!');
-                        document.getElementById('profile-active-modal').remove();
-                        const updatedProject = await window.db.getProjectById(projectId);
-                        renderMembers(updatedProject);
-                    } else {
-                        alert('Error: ' + res.message);
-                    }
-                }
-            };
-
             // Real Chat Logic
             const chatMessages = document.getElementById('chat-messages');
             const chatInput = document.getElementById('chat-input');
@@ -365,12 +249,12 @@
                     div.textContent = chat.message;
                 }
                 chatMessages.appendChild(div);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
             }
 
             // Load existing chats
             const existingChats = await window.db.getChats(projectId);
             if (existingChats.length === 0) {
-                // Show welcome message if empty
                 const welcomeDiv = document.createElement('div');
                 welcomeDiv.className = 'message-bubble msg-received';
                 welcomeDiv.innerHTML = `<div style="font-size: 0.75rem; color: var(--color-text-secondary); margin-bottom: 0.25rem;">System</div>Welcome to the <strong>${project.title}</strong> workspace! Start collaborating.`;
@@ -388,27 +272,23 @@
                     if (result.success) {
                         renderMessage(result.chat);
                         chatInput.value = '';
-                        chatMessages.scrollTop = chatMessages.scrollHeight;
                     } else {
                         alert('Failed to send message: ' + result.message);
                     }
                 }
             });
 
-            document.getElementById('chat-input').addEventListener('keypress', (e) => {
+            chatInput.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') sendBtn.click();
             });
 
-            // Real Applications Logic
-            // Only show applications if the current user is the owner
-            const ownerId = (typeof project.owner === 'object') ? project.owner._id : project.owner;
+            // Applications Logic
             const currentUserId = currentUser.id || currentUser._id;
+            const ownerId = (typeof project.owner === 'object') ? project.owner._id : project.owner;
 
-            // Normalize to strings for comparison
             if (ownerId && currentUserId && String(ownerId) === String(currentUserId)) {
                 const apps = await window.db.getApplications({ projectId: projectId });
                 const appList = document.getElementById('applications-list');
-
                 const pendingApps = apps.filter(a => a.status === 'PENDING');
 
                 if (pendingApps.length === 0) {
@@ -416,7 +296,7 @@
                 } else {
                     appList.innerHTML = pendingApps.map(app => `
                         <div class="card" style="padding: 0.75rem; font-size: 0.85rem; margin-bottom: 0.5rem; border: 1px solid var(--color-border);" id="app-card-${app.id}">
-                            <div style="font-weight: 600; margin-bottom: 0.25rem;">${app.applicantName}</div>
+                            <div onclick="showProfileCard('${app.applicantId}', '${app.applicantName}')" style="font-weight: 600; margin-bottom: 0.25rem; cursor: pointer; color: var(--color-primary);">${app.applicantName}</div>
                             <div style="display: flex; flex-wrap: wrap; gap: 0.25rem; margin-bottom: 0.5rem;">
                                 ${(app.preferredRoles || []).map(r => `<span class="badge" style="background:var(--color-bg-secondary); border:1px solid var(--color-border); font-size:0.7rem;">${r}</span>`).join('')}
                             </div>
@@ -424,33 +304,31 @@
                             <div style="display: flex; gap: 0.5rem;">
                                 <button class="btn btn-primary btn-accept" data-id="${app.id}" data-roles='${JSON.stringify(app.preferredRoles || [])}' style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">Accept</button>
                                 <button class="btn btn-secondary btn-reject" data-id="${app.id}" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">Reject</button>
+                                <button class="btn btn-outline" onclick="showProfileCard('${app.applicantId}', '${app.applicantName}')" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">View Profile</button>
                             </div>
                         </div>
                     `).join('');
                 }
 
-                // Event Delegation for Buttons
+                // Event Delegation
                 appList.addEventListener('click', async (e) => {
                     if (e.target.classList.contains('btn-accept')) {
                         const appId = e.target.getAttribute('data-id');
                         const roles = JSON.parse(e.target.getAttribute('data-roles'));
-
                         let chosenRole = roles[0];
                         if (roles.length > 1) {
-                            const choice = prompt(`Select role to assign among choices (${roles.join(', ')}):`, roles[0]);
-                            if (choice === null) return; // Cancelled
-                            if (roles.includes(choice)) {
-                                chosenRole = choice;
-                            } else {
-                                alert('Invalid role choice. Please pick from ' + roles.join(', '));
+                            const choice = prompt(`Select role to assign (${roles.join(', ')}):`, roles[0]);
+                            if (choice === null) return;
+                            if (roles.includes(choice)) chosenRole = choice;
+                            else {
+                                alert('Invalid role choice.');
                                 return;
                             }
                         }
-
                         await window.db.updateApplicationStatusWithProject(projectId, appId, 'ACCEPTED', chosenRole);
                         document.getElementById(`app-card-${appId}`).remove();
                         alert(`Applicant Accepted as ${chosenRole}!`);
-                        window.location.reload(); // Reload to update member list
+                        window.location.reload();
                     }
                     if (e.target.classList.contains('btn-reject')) {
                         const appId = e.target.getAttribute('data-id');
@@ -460,13 +338,10 @@
                     }
                 });
             } else {
-                // If not owner, hide applications section or show "My Application Status"
                 document.getElementById('applications-section').innerHTML = `
-                    <h3 style="font-size: 1rem; text-transform: uppercase; color: var(--color-text-secondary); letter-spacing: 0.05em; margin-bottom: 1rem;">
-                        Project Status
-                    </h3>
+                    <h3 style="font-size: 1rem; text-transform: uppercase; color: var(--color-text-secondary); letter-spacing: 0.05em; margin-bottom: 1rem;">Project Status</h3>
                     <p style="font-size: 0.9rem; color: var(--color-text-secondary);">You are viewing this project as a member/guest.</p>
-                 `;
+                `;
             }
         });
     </script>
