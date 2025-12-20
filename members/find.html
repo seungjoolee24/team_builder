@@ -113,17 +113,21 @@
                     <label class="label">College</label>
                     <select id="filter-college" class="input">
                         <option value="All">All Colleges</option>
-                        <option value="engineering">Engineering</option>
-                        <option value="science">Natural Sciences</option>
-                        <option value="economics">Economics/Business</option>
-                        <option value="social_sciences">Social Sciences</option>
-                        <option value="media_art">Media & Arts</option>
-                        <option value="humanities">Humanities</option>
+                        <option value="Humanities">Humanities</option>
+                        <option value="Social Sciences">Social Sciences</option>
+                        <option value="Natural Sciences">Natural Sciences</option>
+                        <option value="Engineering">Engineering</option>
+                        <option value="Economics">Economics</option>
+                        <option value="Business Administration">Business Administration</option>
+                        <option value="Integrated Knowledge">Integrated Knowledge (Media/Art)</option>
+                        <option value="AI/Graduate">AI/Convergence</option>
                     </select>
                 </div>
                 <div class="input-group" style="margin-bottom: 0;">
                     <label class="label">Major</label>
-                    <input type="text" id="filter-major" class="input" placeholder="e.g. Art&Tech">
+                    <select id="filter-major" class="input">
+                        <option value="All">All Majors</option>
+                    </select>
                 </div>
                 <div class="input-group" style="margin-bottom: 0;">
                     <label class="label">Primary Role</label>
@@ -172,6 +176,35 @@
             const listContainer = document.getElementById('members-list');
             const searchBtn = document.getElementById('search-btn');
             const currentUser = window.db.getCurrentUser();
+
+            const SOGANG_ACADEMIC_DATA = {
+                'Humanities': ['Korean Language and Literature', 'English Language and Literature', 'German Language and Literature', 'French Language and Literature', 'Chinese Language and Literature', 'Philosophy', 'History', 'Religious Studies'],
+                'Social Sciences': ['Sociology', 'Political Science', 'Psychology', 'Social Welfare'],
+                'Economics': ['Economics'],
+                'Business Administration': ['Business Administration'],
+                'Natural Sciences': ['Mathematics', 'Physics', 'Chemistry', 'Life Science'],
+                'Engineering': ['Electronic Engineering', 'Computer Science and Engineering', 'Chemical and Biomolecular Engineering', 'Mechanical Engineering'],
+                'Integrated Knowledge': ['Journalism and Strategic Communication', 'Media & Entertainment', 'Art & Technology', 'Global Korean Studies'],
+                'AI/Graduate': ['AI', 'Convergence Software']
+            };
+
+            function setupAcademicFilters() {
+                const collegeSelect = document.getElementById('filter-college');
+                const majorSelect = document.getElementById('filter-major');
+
+                collegeSelect.addEventListener('change', () => {
+                    const college = collegeSelect.value;
+                    if (college === 'All') {
+                        majorSelect.innerHTML = '<option value="All">All Majors</option>';
+                        return;
+                    }
+                    const majors = SOGANG_ACADEMIC_DATA[college] || [];
+                    majorSelect.innerHTML = '<option value="All">All Majors</option>' +
+                        majors.map(m => `<option value="${m}">${m}</option>`).join('');
+                });
+            }
+
+            setupAcademicFilters();
 
             const SUGGESTED_TAGS = [
                 'Web/App', 'AI/Data', 'Fintech', 'Game Dev', 'Blockchain', 'E-commerce',

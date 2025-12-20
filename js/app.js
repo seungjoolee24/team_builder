@@ -149,9 +149,9 @@ class DataService {
     async getUsers(filters = {}) {
         try {
             const params = new URLSearchParams();
-            if (filters.college) params.append('college', filters.college);
-            if (filters.major) params.append('major', filters.major);
-            if (filters.primaryRole) params.append('primaryRole', filters.primaryRole);
+            if (filters.college && filters.college !== 'All') params.append('college', filters.college);
+            if (filters.major && filters.major !== 'All') params.append('major', filters.major);
+            if (filters.primaryRole && filters.primaryRole !== 'All') params.append('primaryRole', filters.primaryRole);
             if (filters.tags) params.append('tags', filters.tags);
 
             const res = await fetch(`${this.API_URL}/users?${params.toString()}`);

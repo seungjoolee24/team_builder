@@ -82,18 +82,21 @@
                                     <label class="label">College</label>
                                     <select id="college" class="input">
                                         <option value="">Select College</option>
-                                        <option value="engineering">Engineering</option>
-                                        <option value="science">Natural Sciences</option>
-                                        <option value="economics">Economics/Business</option>
-                                        <option value="social_sciences">Social Sciences</option>
-                                        <option value="media_art">Media, Arts & Science (Art&Tech)</option>
-                                        <option value="humanities">Humanities</option>
-                                        <option value="global">Global Korean Studies</option>
+                                        <option value="Humanities">Humanities</option>
+                                        <option value="Social Sciences">Social Sciences</option>
+                                        <option value="Natural Sciences">Natural Sciences</option>
+                                        <option value="Engineering">Engineering</option>
+                                        <option value="Economics">Economics</option>
+                                        <option value="Business Administration">Business Administration</option>
+                                        <option value="Integrated Knowledge">Integrated Knowledge (Media/Art)</option>
+                                        <option value="AI/Graduate">AI/Convergence</option>
                                     </select>
                                 </div>
                                 <div class="input-group">
                                     <label class="label">Major</label>
-                                    <input type="text" id="major" class="input" placeholder="e.g. Computer Science">
+                                    <select id="major" class="input">
+                                        <option value="">Select Major</option>
+                                    </select>
                                 </div>
                             </div>
                             <div class="input-group">
@@ -289,6 +292,28 @@
             ]
         };
 
+        const SOGANG_ACADEMIC_DATA = {
+            'Humanities': ['Korean Language and Literature', 'English Language and Literature', 'German Language and Literature', 'French Language and Literature', 'Chinese Language and Literature', 'Philosophy', 'History', 'Religious Studies'],
+            'Social Sciences': ['Sociology', 'Political Science', 'Psychology', 'Social Welfare'],
+            'Economics': ['Economics'],
+            'Business Administration': ['Business Administration'],
+            'Natural Sciences': ['Mathematics', 'Physics', 'Chemistry', 'Life Science'],
+            'Engineering': ['Electronic Engineering', 'Computer Science and Engineering', 'Chemical and Biomolecular Engineering', 'Mechanical Engineering'],
+            'Integrated Knowledge': ['Journalism and Strategic Communication', 'Media & Entertainment', 'Art & Technology', 'Global Korean Studies'],
+            'AI/Graduate': ['AI', 'Convergence Software']
+        };
+
+        function setupAcademicSystem() {
+            const collegeSelect = document.getElementById('college');
+            const majorSelect = document.getElementById('major');
+
+            collegeSelect.addEventListener('change', () => {
+                const majors = SOGANG_ACADEMIC_DATA[collegeSelect.value] || [];
+                majorSelect.innerHTML = '<option value="">Select Major</option>' +
+                    majors.map(m => `<option value="${m}">${m}</option>`).join('');
+            });
+        }
+
         const state = {
             skills: [],
             tags: new Set(),
@@ -306,6 +331,7 @@
 
             // 2. Initialize UI Systems
             setupAccordions();
+            setupAcademicSystem();
             setupSkillSystem();
             setupLinkSystem();
             setupTagSystem();
@@ -519,10 +545,17 @@
 
         function fillFormData(p) {
             // ... basics ...
-            if (p.college) document.getElementById('college').value = p.college;
+            if (p.college) {
+                document.getElementById('college').value = p.college;
+                // Trigger major updates
+                const majors = SOGANG_ACADEMIC_DATA[p.college] || [];
+                document.getElementById('major').innerHTML = '<option value="">Select Major</option>' +
+                    majors.map(m => `<option value="${m}">${m}</option>`).join('');
+            }
             if (p.major) {
                 document.getElementById('major').value = p.major;
-                document.getElementById('display-major').textContent = p.major;
+                const displayMajor = document.getElementById('display-major');
+                if (displayMajor) displayMajor.textContent = p.major;
             }
             if (p.bio) document.getElementById('bio').value = p.bio;
             if (p.primaryRole) document.getElementById('primaryRole').value = p.primaryRole;
