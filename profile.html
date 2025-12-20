@@ -195,6 +195,24 @@
                                     <input type="text" id="link-instagram" class="input" placeholder="@handle or link">
                                 </div>
                             </div>
+
+                            <!-- Custom Links -->
+                            <div class="input-group"
+                                style="margin-top: 1.5rem; border-top: 1px solid var(--color-border); padding-top: 1.5rem;">
+                                <label class="label">Custom Links</label>
+                                <div id="custom-links-container"
+                                    style="display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1rem;">
+                                    <!-- Dynamic links injected here -->
+                                </div>
+
+                                <div style="display: flex; gap: 0.5rem;">
+                                    <input type="text" id="custom-link-label" class="input" style="flex: 1;"
+                                        placeholder="Label (e.g. Notion)">
+                                    <input type="text" id="custom-link-url" class="input" style="flex: 2;"
+                                        placeholder="URL (https://...)">
+                                    <button type="button" id="add-link-btn" class="btn btn-secondary">Add</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -238,17 +256,39 @@
     <script src="./js/app.js"></script>
     <script>
         const PREDEFINED_TAG_CATEGORIES = {
-            'Interest': ['Web/App', 'AI/Data', 'Fintech', 'Game', 'Blockchain', 'E-commerce', 'IoT', 'Metaverse'],
-            'Preference': ['Competition', 'Side Project', 'Startup', 'Study', 'Hackathon'],
-            'Collaboration': ['Less than 5h', '10h+', 'Online', 'Offline', 'Hybrid', 'Short-term', 'Long-term'],
-            'Availability': ['Weekday Day', 'Weekday Night', 'Weekend'],
-            'Goals': ['Award', 'Portfolio', 'Networking', 'Learning', 'Fun'],
-            'Motivation': ['High Passion', 'Just Experience', 'Serious', 'Chill']
+            'Interest': [
+                'Web/App', 'AI/Data', 'Fintech', 'Game Dev', 'Blockchain', 'E-commerce',
+                'IoT', 'Metaverse', 'Cloud Computing', 'Security', 'Healthcare', 'EdTech',
+                'Social Media', 'Enterprise', 'SaaS', 'Mobile'
+            ],
+            'Preference': [
+                'Competition', 'Side Project', 'Startup', 'Study Group', 'Hackathon',
+                'Capstone', 'Research', 'Volunteering', 'Freelance'
+            ],
+            'Collaboration': [
+                'Less than 5h/week', '5-10h/week', '10-20h/week', '20h+/week',
+                'Online Only', 'Offline Preferred', 'Hybrid', 'Flexible Hours',
+                'Fixed Schedule', 'Weekends Only', 'Weekdays Only',
+                'Short-term (1mo)', 'Mid-term (3mo)', 'Long-term (6mo+)'
+            ],
+            'Availability': [
+                'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday',
+                'Saturday', 'Sunday', 'Morning', 'Afternoon', 'Evening', 'Late Night'
+            ],
+            'Goals': [
+                'Win Awards', 'Build Portfolio', 'Networking', 'Learn New Tech',
+                'Launch Product', 'Get Hired', 'Have Fun', 'Solve Real Problem'
+            ],
+            'Motivation': [
+                'High Passion', 'Serious & Committed', 'Just Experience',
+                'Chill / Casual', 'Growth Mindset', 'Leadership', 'Team Player'
+            ]
         };
 
         const state = {
             skills: [],
-            tags: new Set()
+            tags: new Set(),
+            customLinks: []
         };
 
         // ... existing setup ...
@@ -256,95 +296,50 @@
         // --- UI Initialize ---
         setupAccordions();
         setupSkillSystem();
+        setupLinkSystem();
         setupTagSystem();
 
-        // --- Load Data ---
-        const profileData = await window.db.getProfile();
-        if (profileData) {
-            fillFormData(profileData);
-        }
+        // ... existing load/save ...
 
-        // ... save handler ...
-        document.getElementById('save-btn').addEventListener('click', async (e) => {
-            e.preventDefault();
-            const formData = collectFormData();
-            const result = await window.db.updateProfile(formData);
-            if (result.success) {
-                showSuccessFeedback();
-                document.getElementById('display-major').textContent = formData.major || 'Major Undefined';
-            } else {
-                alert('Failed to save: ' + result.message);
-            }
-        });
+        function setupLinkSystem() {
+            const addBtn = document.getElementById('add-link-btn');
+            const labelInput = document.getElementById('custom-link-label');
+            const urlInput = document.getElementById('custom-link-url');
 
-        // ... setupAccordions, setupSkillSystem ...
+            addBtn.addEventListener('click', () => {
+                const label = labelInput.value.trim();
+                const url = urlInput.value.trim();
 
-        function setupTagSystem() {
-            const container = document.getElementById('predefined-tags-area');
-            const myTagsContainer = document.getElementById('my-tags-container');
-            const input = document.getElementById('manual-tag-input');
+                if (!label || !url) return alert('Please enter both label and URL');
 
-            // Render Predefined Categories
-            Object.entries(PREDEFINED_TAG_CATEGORIES).forEach(([category, tags]) => {
-                const group = document.createElement('div');
-                group.style.marginBottom = '1.5rem';
-                group.innerHTML = `<h4 style="font-size:0.9rem; margin-bottom:0.5rem; color:var(--color-text-secondary);">${category}</h4>`;
-
-                const chipsDiv = document.createElement('div');
-                chipsDiv.style.display = 'flex';
-                chipsDiv.style.flexWrap = 'wrap';
-                chipsDiv.style.gap = '0.5rem';
-
-                tags.forEach(tag => {
-                    const chip = document.createElement('span');
-                    chip.className = 'badge'; // Reuse badge style
-                    chip.style.cursor = 'pointer';
-                    chip.style.background = 'white';
-                    chip.style.border = '1px solid var(--color-border)';
-                    chip.style.color = 'var(--color-text-primary)';
-                    chip.textContent = tag;
-                    chip.onclick = () => addTag(tag);
-                    chipsDiv.appendChild(chip);
-                });
-
-                group.appendChild(chipsDiv);
-                container.appendChild(group);
+                addLinkToUI({ label, url });
+                labelInput.value = '';
+                urlInput.value = '';
             });
 
-            // Manual Input
-            input.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    addTag(input.value.trim());
-                    input.value = '';
-                }
-            });
+            window.removeLink = (index) => {
+                state.customLinks.splice(index, 1);
+                renderCustomLinks();
+            };
         }
 
-        function addTag(tag) {
-            if (!tag) return;
-            if (state.tags.has(tag)) return;
-
-            state.tags.add(tag);
-            renderMyTags();
+        function addLinkToUI(link) {
+            state.customLinks.push(link);
+            renderCustomLinks();
         }
 
-        function removeTag(tag) {
-            state.tags.delete(tag);
-            renderMyTags();
+        function renderCustomLinks() {
+            const container = document.getElementById('custom-links-container');
+            container.innerHTML = state.customLinks.map((link, index) => `
+                <div style="display: flex; gap: 0.5rem; align-items: center; background: var(--color-bg-secondary); padding: 0.5rem; border-radius: 4px;">
+                    <span style="font-weight: 600; font-size: 0.9rem; min-width: 80px;">${link.label}</span>
+                    <a href="${link.url}" target="_blank" style="flex: 1; font-size: 0.85rem; color: var(--color-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${link.url}</a>
+                    <button type="button" onclick="removeLink(${index})" style="background: none; border: none; cursor: pointer; font-size: 1.2rem; color: var(--color-text-tertiary);">&times;</button>
+                </div>
+            `).join('');
         }
 
-        function renderMyTags() {
-            const container = document.getElementById('my-tags-container');
-            container.innerHTML = '';
-            state.tags.forEach(tag => {
-                const chip = document.createElement('div');
-                chip.className = 'chip';
-                chip.style.background = 'var(--color-bg-tertiary)';
-                chip.innerHTML = `<span>${tag}</span><span class="remove-chip" style="cursor:pointer; margin-left:0.5rem;" onclick="removeTag('${tag}')">&times;</span>`;
-                container.appendChild(chip);
-            });
-        }
+        // ... setupTagSystem ...
 
         function collectFormData() {
             // ... existing skills ...
@@ -363,7 +358,8 @@
                     youtube: document.getElementById('link-youtube').value,
                     instagram: document.getElementById('link-instagram').value
                 },
-                tags: Array.from(state.tags) // Send tags array
+                customLinks: state.customLinks, // Send custom links
+                tags: Array.from(state.tags)
             };
         }
 
@@ -398,7 +394,12 @@
                 document.getElementById('link-instagram').value = p.links.instagram || '';
             }
 
-            // Tags (from backend User model via getProfile proxy)
+            // Custom Links
+            if (p.customLinks && Array.isArray(p.customLinks)) {
+                p.customLinks.forEach(l => addLinkToUI(l));
+            }
+
+            // Tags
             if (p.tags && Array.isArray(p.tags)) {
                 p.tags.forEach(t => state.tags.add(t));
                 renderMyTags();

@@ -257,7 +257,8 @@
                                                 ${p.links?.github ? `<a href="${p.links.github}" target="_blank" class="btn btn-outline" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">GitHub</a>` : ''}
                                                 ${p.links?.portfolio ? `<a href="${p.links.portfolio}" target="_blank" class="btn btn-outline" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">Portfolio</a>` : ''}
                                                 ${p.links?.instagram ? `<a href="${p.links.instagram}" target="_blank" class="btn btn-outline" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">Instagram</a>` : ''}
-                                                ${(!p.links?.github && !p.links?.portfolio) ? '<p style="font-size: 0.85rem; color: var(--color-text-tertiary);">No links provided.</p>' : ''}
+                                                ${(p.customLinks || []).map(l => `<a href="${l.url}" target="_blank" class="btn btn-outline" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">${l.label}</a>`).join('')}
+                                                ${(!p.links?.github && !p.links?.portfolio && !p.links?.instagram && (!p.customLinks || p.customLinks.length === 0)) ? '<p style="font-size: 0.85rem; color: var(--color-text-tertiary);">No links provided.</p>' : ''}
                                             </div>
                                         </div>
                                     </div>

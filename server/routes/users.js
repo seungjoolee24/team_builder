@@ -124,7 +124,7 @@ router.get('/profile', auth, async (req, res) => {
 // @access  Private
 router.post('/profile', auth, async (req, res) => {
     const {
-        college, major, bio, hashtags, primaryRole, otherRoles, skills, links,
+        skills, links, customLinks,
         // The following are now 'tags' in UI but kept in Profile for legacy? 
         // Prompt says: "Category info (interest/preference/etc.) may remain UI-only. Minimum requirement is a unified tags array."
         // And "Convert only these six sections into a Tag-based system".
@@ -157,6 +157,7 @@ router.post('/profile', auth, async (req, res) => {
     if (otherRoles) profileFields.otherRoles = otherRoles;
     if (skills) profileFields.skills = skills;
     if (links) profileFields.links = links;
+    if (customLinks) profileFields.customLinks = customLinks;
 
     // Optional fields - if still sent, we save them. If not, we don't.
     // The new frontend might not send them, effectively 'deprecating' them in Profile.

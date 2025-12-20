@@ -24,6 +24,10 @@ const ProfileSchema = new mongoose.Schema({
         youtube: { type: String },
         instagram: { type: String }
     },
+    customLinks: [{
+        label: { type: String },
+        url: { type: String }
+    }],
 
     // Interests & Preferences
     interestDomains: [{ type: String }],
