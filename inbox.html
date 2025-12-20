@@ -16,9 +16,10 @@
 
     <header id="main-header"></header>
 
-    <main class="container" style="flex: 1; padding: 0; max-width: 100%; height: calc(100vh - 4rem - 2rem);">
+    <main class="container" style="flex: 1; padding: 0; max-width: 100%; height: calc(100vh - 4rem);">
 
-        <div class="inbox-layout" style="display: flex; height: 100%; gap: 1rem; padding-bottom: 2rem;">
+        <div class="inbox-layout"
+            style="display: flex; height: 100%; gap: 0; margin-top: 0; border-radius: 0; border: none; border-top: 1px solid var(--color-border);">
 
             <!-- Sidebar: Friends -->
             <div class="thread-list"
@@ -158,7 +159,7 @@
 
                 // Merge and Sort
                 const mergedList = friends.map(f => {
-                    const thread = threads.find(t => t.type === 'dm' && t.users.some(u => u._id === f._id));
+                    const thread = threads.find(t => t.type === 'dm' && t.users.some(u => String(u._id || u) === String(f._id)));
                     return { ...f, thread };
                 });
 
