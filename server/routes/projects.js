@@ -66,6 +66,15 @@ router.get('/:id', async (req, res) => {
 router.post('/', auth, async (req, res) => {
     try {
         const { ownerRole, ...projectData } = req.body;
+
+        // Auto-increment filled count if owner takes a role
+        if (projectData.roles && ownerRole) {
+            const roleIndex = projectData.roles.findIndex(r => r.role === ownerRole);
+            if (roleIndex !== -1) {
+                projectData.roles[roleIndex].filled = 1;
+            }
+        }
+
         const newProject = new Project({
             ...projectData,
             owner: req.user.id,

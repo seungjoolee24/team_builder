@@ -139,7 +139,19 @@
                                     <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.9rem;">
                                         <span style="font-weight: 600;">Total Team Members</span>
                                         <span style="font-weight: 700; color: var(--color-sogang-red);">
-                                            ${(project.members && project.members.length > 0 ? project.members.length : 1)} / ${(project.roles || []).reduce((acc, r) => acc + Number(r.count || 0), 0) + 1}
+                                            ${(() => {
+                    const ownerId = typeof project.owner === 'object' ? project.owner._id : project.owner;
+                    const ownerMember = (project.members || []).find(m => {
+                        const mId = typeof m.user === 'object' ? m.user._id : m.user;
+                        return String(mId) === String(ownerId);
+                    });
+                    const ownerRole = ownerMember ? ownerMember.role : 'Leader';
+                    const isOwnerIncluded = (project.roles || []).some(r => r.role === ownerRole);
+
+                    const currentMembers = project.members && project.members.length > 0 ? project.members.length : 1;
+                    const totalSlots = (project.roles || []).reduce((acc, r) => acc + Number(r.count || 0), 0) + (isOwnerIncluded ? 0 : 1);
+                    return `${currentMembers} / ${totalSlots}`;
+                })()}
                                         </span>
                                     </div>
                                 </div>
@@ -149,10 +161,10 @@
                             <p style="text-align: center; font-size: 0.8rem; color: var(--color-text-tertiary); margin-top: 1rem;">
                                 Leader: ${typeof project.owner === 'object' ? project.owner.name : 'Unknown'} 
                                 (${(project.members || []).find(m => {
-                const mId = typeof m.user === 'object' ? m.user._id : m.user;
-                const oId = typeof project.owner === 'object' ? project.owner._id : project.owner;
-                return String(mId) === String(oId);
-            })?.role || 'Leader'})
+                    const mId = typeof m.user === 'object' ? m.user._id : m.user;
+                    const oId = typeof project.owner === 'object' ? project.owner._id : project.owner;
+                    return String(mId) === String(oId);
+                })?.role || 'Leader'})
                             </p>
                         </div>
                     </aside>

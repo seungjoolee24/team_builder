@@ -232,7 +232,21 @@
                 }
 
                 // Render
-                grid.innerHTML = candidates.map(p => `
+                // Render
+                grid.innerHTML = candidates.map(p => {
+                    // Logic to check if owner is included in roles (for correct Total Count)
+                    const ownerId = (typeof p.owner === 'object') ? (p.owner._id || p.owner.id) : p.owner;
+                    const ownerMember = (p.members || []).find(m => {
+                        const mUserId = (typeof m.user === 'object') ? (m.user._id || m.user.id) : m.user;
+                        return String(mUserId) === String(ownerId);
+                    });
+                    const ownerRole = ownerMember ? ownerMember.role : 'Leader';
+                    const isOwnerIncluded = (p.roles || []).some(r => r.role === ownerRole);
+
+                    const filledCount = (p.members && p.members.length > 0) ? p.members.length : 1;
+                    const totalCount = (p.roles || []).reduce((acc, r) => acc + Number(r.count || 0), 0) + (isOwnerIncluded ? 0 : 1);
+
+                    return `
                     <a href="./detail.html?id=${p.id}" class="card" style="text-decoration: none; color: inherit; display: block;">
                         <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
                             <span class="badge blue">${p.type || 'Project'}</span>
@@ -256,11 +270,11 @@
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
                                 <span style="font-size: 0.8rem; font-weight: 600; color: var(--color-text-primary);">Team Progress</span>
                                 <span style="font-size: 0.8rem; color: var(--color-text-secondary);">
-                                    ${(p.members && p.members.length > 0 ? p.members.length : 1)} / ${(p.roles || []).reduce((acc, r) => acc + Number(r.count || 0), 0) + 1}
+                                    ${filledCount} / ${totalCount}
                                 </span>
                             </div>
                             <div style="width: 100%; height: 6px; background: #eee; border-radius: 3px; overflow: hidden;">
-                                <div style="height: 100%; background: var(--color-sogang-red); width: ${((p.members && p.members.length > 0 ? p.members.length : 1) / ((p.roles || []).reduce((acc, r) => acc + Number(r.count || 0), 0) + 1)) * 100}%"></div>
+                                <div style="height: 100%; background: var(--color-sogang-red); width: ${(filledCount / totalCount) * 100}%"></div>
                             </div>
                         </div>
                         
@@ -269,7 +283,8 @@
                             <span style="font-weight: 600; font-size: 0.9rem; color: var(--color-sogang-red);">View &rarr;</span>
                         </div>
                     </a>
-                `).join('');
+                `;
+                }).join('');
 
                 if (candidates.length === 0) {
                     grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--color-text-secondary); padding: 2rem;">No projects found matching criteria.</p>';

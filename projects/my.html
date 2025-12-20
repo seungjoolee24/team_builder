@@ -155,8 +155,18 @@
 
             listContainer.innerHTML = projects.map(project => {
                 const roles = project.roles || [];
-                const filledCount = (project.members && project.members.length > 0) ? project.members.length : (roles.reduce((acc, r) => acc + Number(r.filled || 0), 0) + 1);
-                const totalCount = roles.reduce((acc, r) => acc + Number(r.count || 0), 0) + 1;
+
+                // Calculate Total Count logic (Owner included or +1?)
+                const ownerId = (typeof project.owner === 'object') ? (project.owner._id || project.owner.id) : project.owner;
+                const ownerMember = (project.members || []).find(m => {
+                    const mUserId = (typeof m.user === 'object') ? (m.user._id || m.user.id) : m.user;
+                    return String(mUserId) === String(ownerId);
+                });
+                const ownerRole = ownerMember ? ownerMember.role : 'Leader';
+                const isOwnerIncluded = roles.some(r => r.role === ownerRole);
+
+                const filledCount = (project.members && project.members.length > 0) ? project.members.length : 1;
+                const totalCount = roles.reduce((acc, r) => acc + Number(r.count || 0), 0) + (isOwnerIncluded ? 0 : 1);
                 const isFull = filledCount >= totalCount;
                 const isConfirmed = project.status === 'CONFIRMED';
                 const isOpen = project.status === 'OPEN';
