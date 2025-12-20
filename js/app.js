@@ -332,6 +332,36 @@ class DataService {
         }
     }
 
+    // --- Project Chat Methods ---
+
+    async getChats(projectId) {
+        try {
+            const res = await fetch(`${this.API_URL}/chats/${projectId}`, {
+                headers: this._authHeader()
+            });
+            if (!res.ok) return [];
+            return await res.json();
+        } catch (err) {
+            console.error('getChats error:', err);
+            return [];
+        }
+    }
+
+    async sendChat(projectId, message) {
+        try {
+            const res = await fetch(`${this.API_URL}/chats/${projectId}`, {
+                method: 'POST',
+                headers: this._authHeader(),
+                body: JSON.stringify({ message })
+            });
+            if (!res.ok) throw new Error('Failed to send message');
+            const chat = await res.json();
+            return { success: true, chat };
+        } catch (err) {
+            return { success: false, message: err.message };
+        }
+    }
+
     // --- Inbox & Messaging Methods ---
 
     async getInbox() {
