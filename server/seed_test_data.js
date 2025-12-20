@@ -146,7 +146,7 @@ const seed = async () => {
             const randomIndexes = Array.from({ length: createdUsers.length }, (_, k) => k)
                 .filter(k => k !== i)
                 .sort(() => 0.5 - Math.random())
-                .slice(0, 3);
+                .slice(0, 4);
 
             for (const rIdx of randomIndexes) {
                 const userA = createdUsers[i];
