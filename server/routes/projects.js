@@ -8,8 +8,8 @@ const User = require('../models/User');
 // @desc    Get all projects
 // @access  Public
 router.get('/', async (req, res) => {
-    const { type, domain } = req.query;
     try {
+        const { type, domain, owner } = req.query;
         const query = {};
         if (type) {
             const typeList = Array.isArray(type) ? type : type.split(',');
@@ -18,6 +18,9 @@ router.get('/', async (req, res) => {
         if (domain) {
             const domainList = Array.isArray(domain) ? domain : domain.split(',');
             query.domain = { $in: domainList };
+        }
+        if (owner) {
+            query.owner = owner;
         }
 
         const projects = await Project.find(query)

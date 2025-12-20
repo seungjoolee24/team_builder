@@ -211,12 +211,18 @@ class DataService {
     async getJoinedProjects() {
         try {
             const projects = await this.getProjects();
-            const userId = this.user?.id;
-            if (!userId) return [];
+            const currentUserId = String(this.user?.id || this.user?._id);
+            if (!currentUserId) return [];
 
-            return projects.filter(p =>
-                p.members && p.members.some(m => m.user === userId || (typeof m.user === 'object' && m.user._id === userId))
-            );
+            return projects.filter(p => {
+                const ownerId = String((typeof p.owner === 'object') ? (p.owner._id || p.owner.id) : p.owner);
+                const isOwner = ownerId === currentUserId;
+                const isMember = p.members && p.members.some(m => {
+                    const mId = String((typeof m.user === 'object') ? (m.user._id || m.user.id) : m.user);
+                    return mId === currentUserId;
+                });
+                return isMember && !isOwner;
+            });
         } catch (err) {
             return [];
         }
