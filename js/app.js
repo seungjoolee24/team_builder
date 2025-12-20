@@ -106,7 +106,8 @@ class DataService {
                 headers: this._authHeader(),
                 body: JSON.stringify(profileData)
             });
-            if (!res.ok) throw new Error('Failed to update profile');
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.msg || data.message || 'Failed to update profile');
             return { success: true };
         } catch (err) {
             return { success: false, message: err.message };

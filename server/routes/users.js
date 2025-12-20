@@ -193,7 +193,7 @@ router.post('/profile', auth, async (req, res) => {
         res.json({ ...profile._doc, tags: user ? user.tags : [] });
     } catch (err) {
         console.error('Update Profile Error:', err.message);
-        res.status(500).json({ msg: 'Server error updating profile' });
+        res.status(500).json({ msg: 'Server error: ' + err.message });
     }
 });
 
