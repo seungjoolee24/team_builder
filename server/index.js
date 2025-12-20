@@ -11,9 +11,17 @@ app.use(cors());
 app.use(express.json());
 
 // Database Connection
-mongoose.connect(process.env.MONGODB_URI)
-    .then(() => console.log('MongoDB Connected'))
-    .catch(err => console.error('MongoDB Connection Error:', err));
+// Database Connection
+const connectDB = require('./config/db');
+
+// Connect to DB immediately
+connectDB();
+
+// Middleware to ensure DB is connected for every request
+app.use(async (req, res, next) => {
+    await connectDB();
+    next();
+});
 
 // Routes (Placeholders for now)
 // Serve static files from the root directory
