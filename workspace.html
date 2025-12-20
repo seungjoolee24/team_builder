@@ -167,21 +167,35 @@
                 const friends = await window.db.getFriends();
                 const requests = await window.db.getFriendRequests();
 
+                // Get owner ID safely
+                const ownerId = (typeof project.owner === 'object') ? project.owner._id : project.owner;
+
                 membersList.innerHTML = project.members.map(m => {
-                    const user = m.user;
+                    let user = m.user;
                     if (!user) return '';
 
-                    const isMe = user._id === currentUser.id || user._id === currentUser._id;
-                    const name = user.name || 'Unknown';
-                    const role = m.role || 'Member';
-                    const isLeader = role === 'Leader' || role === 'Owner';
+                    // Robust user data extraction
+                    let userId, name;
+                    if (typeof user === 'object') {
+                        userId = user._id || user.id;
+                        name = user.name || 'Unknown';
+                    } else {
+                        // Not populated?
+                        userId = user;
+                        name = 'Loading...';
+                    }
+
+                    const isMe = String(userId) === String(currentUser.id || currentUser._id);
+
+                    // A member is a leader if their ID matches the project owner ID
+                    const isLeader = String(userId) === String(ownerId);
 
                     // Friendship Status (if not me)
                     let statusHtml = '';
                     if (!isMe) {
-                        const isFriend = friends.some(f => f._id === user._id);
-                        const sentReq = requests.find(r => r.to._id === user._id && r.from._id === (currentUser.id || currentUser._id));
-                        const recvReq = requests.find(r => r.from._id === user._id && r.to._id === (currentUser.id || currentUser._id));
+                        const isFriend = friends.some(f => f._id === userId);
+                        const sentReq = requests.find(r => r.to._id === userId && r.from._id === (currentUser.id || currentUser._id));
+                        const recvReq = requests.find(r => r.from._id === userId && r.to._id === (currentUser.id || currentUser._id));
 
                         if (isFriend) {
                             statusHtml = '<span style="font-size: 0.7rem; color: #2ecc71;">● Friend</span>';
@@ -193,7 +207,7 @@
                     }
 
                     return `
-                        <div class="member-item" onclick="showProfileCard('${user._id}', '${name}')" style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer; padding: 0.5rem; border-radius: 6px; transition: background 0.2s;">
+                        <div class="member-item" onclick="showProfileCard('${userId}', '${name}')" style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer; padding: 0.5rem; border-radius: 6px; transition: background 0.2s;">
                             <div style="width: 36px; height: 36px; background: #eee; border-radius: 50%; overflow: hidden; border: 1px solid #ddd; flex-shrink: 0;">
                                 <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=${name}" style="width: 100%">
                             </div>
@@ -344,13 +358,11 @@
 
             // Real Applications Logic
             // Only show applications if the current user is the owner
-            // Note: project.owner might be an object if populated, or string ID.
-            // Our backend getProjectById returns owner as ObjectId string (unpopulated) usually, 
-            // but let's be safe.
             const ownerId = (typeof project.owner === 'object') ? project.owner._id : project.owner;
+            const currentUserId = currentUser.id || currentUser._id;
 
             // Normalize to strings for comparison
-            if (String(ownerId) === String(currentUser.id) || String(ownerId) === String(currentUser._id)) {
+            if (ownerId && currentUserId && String(ownerId) === String(currentUserId)) {
                 const apps = await window.db.getApplications({ projectId: projectId });
                 const appList = document.getElementById('applications-list');
 

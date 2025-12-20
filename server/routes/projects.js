@@ -20,7 +20,9 @@ router.get('/', async (req, res) => {
             query.domain = { $in: domainList };
         }
 
-        const projects = await Project.find(query).sort({ createdAt: -1 });
+        const projects = await Project.find(query)
+            .populate('owner', 'name email')
+            .sort({ createdAt: -1 });
         res.json(projects);
     } catch (err) {
         console.error(err.message);
@@ -33,7 +35,9 @@ router.get('/', async (req, res) => {
 // @access  Public
 router.get('/:id', async (req, res) => {
     try {
-        const project = await Project.findById(req.params.id);
+        const project = await Project.findById(req.params.id)
+            .populate('members.user', 'name email')
+            .populate('owner', 'name email');
         if (!project) {
             return res.status(404).json({ msg: 'Project not found' });
         }
@@ -54,10 +58,15 @@ router.post('/', auth, async (req, res) => {
     try {
         const newProject = new Project({
             ...req.body,
-            owner: req.user.id
+            owner: req.user.id,
+            members: [{
+                user: req.user.id,
+                role: 'Leader'
+            }]
         });
 
         const project = await newProject.save();
+        await project.populate('owner', 'name email');
         res.json(project);
     } catch (err) {
         console.error(err.message);
