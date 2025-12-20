@@ -291,15 +291,45 @@
             customLinks: []
         };
 
-        // ... existing setup ...
+        document.addEventListener('DOMContentLoaded', async () => {
+            // 1. Load User Info (Name, Email)
+            const user = window.db.getCurrentUser();
+            if (user) {
+                document.getElementById('display-name').textContent = user.name;
+                document.getElementById('display-email').textContent = user.email;
+                document.getElementById('profile-avatar').src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.name}`;
+            }
 
-        // --- UI Initialize ---
-        setupAccordions();
-        setupSkillSystem();
-        setupLinkSystem();
-        setupTagSystem();
+            // 2. Initialize UI Systems
+            setupAccordions();
+            setupSkillSystem();
+            setupLinkSystem();
+            setupTagSystem();
 
-        // ... existing load/save ...
+            // 3. Load Profile Data
+            const profileData = await window.db.getProfile();
+            if (profileData) {
+                fillFormData(profileData);
+            }
+
+            // 4. Save Handler
+            document.getElementById('save-btn').addEventListener('click', async (e) => {
+                e.preventDefault();
+                const formData = collectFormData();
+                const result = await window.db.updateProfile(formData);
+                if (result.success) {
+                    showSuccessFeedback();
+                    // Update display major if changed
+                    if (formData.major) {
+                        document.getElementById('display-major').textContent = formData.major;
+                    }
+                } else {
+                    alert('Failed to save: ' + result.message);
+                }
+            });
+        });
+
+
 
         function setupAccordions() {
             document.querySelectorAll('.accordion-header').forEach(header => {
