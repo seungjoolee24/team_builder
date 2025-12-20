@@ -43,7 +43,8 @@ router.post('/request', auth, async (req, res) => {
             type: 'request',
             title: 'Friend Request',
             message: `${req.user.name} sent you a friend request.`,
-            link: '#' // Inbox or Profile
+            link: '#', // Inbox or Profile
+            relatedId: friendRequest._id
         });
         await notification.save();
 

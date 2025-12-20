@@ -5,7 +5,9 @@ const NotificationSchema = new mongoose.Schema({
     type: { type: String, required: true }, // invitation, request, approval, message
     title: { type: String },
     message: { type: String },
+    message: { type: String },
     link: { type: String },
+    relatedId: { type: mongoose.Schema.Types.ObjectId }, // ID of the Invitation or Request
     isRead: { type: Boolean, default: false },
     timestamp: { type: Date, default: Date.now }
 });

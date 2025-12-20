@@ -541,8 +541,8 @@ function loadHeader() {
                             ${n.type === 'invitation' || n.type === 'request' ? `
                                 <div style="display: flex; gap: 0.5rem;">
                                     ${n.isRead ? '<span style="font-size:0.75rem; color:green;">Response Sent</span>' : `
-                                        <button class="btn btn-primary notif-action-btn" data-id="${n._id}" data-type="${n.type}" data-action="accept" style="padding: 0.25rem 0.6rem; font-size: 0.75rem;">Accept</button>
-                                        <button class="btn btn-outline notif-action-btn" data-id="${n._id}" data-type="${n.type}" data-action="decline" style="padding: 0.25rem 0.6rem; font-size: 0.75rem;">Decline</button>
+                                        <button class="btn btn-primary notif-action-btn" data-id="${n._id}" data-type="${n.type}" data-related="${n.relatedId}" data-action="accept" style="padding: 0.25rem 0.6rem; font-size: 0.75rem;">Accept</button>
+                                        <button class="btn btn-outline notif-action-btn" data-id="${n._id}" data-type="${n.type}" data-related="${n.relatedId}" data-action="decline" style="padding: 0.25rem 0.6rem; font-size: 0.75rem;">Decline</button>
                                     `}
                                 </div>
                             ` : `
