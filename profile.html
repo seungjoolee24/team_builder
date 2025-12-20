@@ -318,11 +318,8 @@
                 const formData = collectFormData();
                 const result = await window.db.updateProfile(formData);
                 if (result.success) {
-                    showSuccessFeedback();
-                    // Update display major if changed
-                    if (formData.major) {
-                        document.getElementById('display-major').textContent = formData.major;
-                    }
+                    alert('Profile saved successfully!');
+                    window.location.reload();
                 } else {
                     alert('Failed to save: ' + result.message);
                 }
