@@ -45,7 +45,8 @@ router.post('/project', auth, async (req, res) => {
             type: 'invitation',
             title: 'Project Invitation',
             message: `${req.user.name} invited you to join "${project.title}"`,
-            link: `/projects/detail.html?id=${projectId}`
+            link: `/projects/detail.html?id=${projectId}`,
+            relatedId: invitation._id
         });
         await notification.save();
 

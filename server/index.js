@@ -1,4 +1,5 @@
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({ path: path.resolve(__dirname, '.env') });
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -31,7 +32,7 @@ app.use(async (req, res, next) => {
 
 // Routes (Placeholders for now)
 // Serve static files from the root directory
-const path = require('path');
+// Serve static files from the root directory
 app.use(express.static(path.join(__dirname, '../')));
 
 // Import Routes
