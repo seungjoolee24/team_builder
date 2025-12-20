@@ -123,6 +123,10 @@
                                     <option value="frontend">Frontend Developer</option>
                                     <option value="backend">Backend Developer</option>
                                     <option value="data">Data/AI Engineer</option>
+                                    <option value="mobile">Mobile Developer</option>
+                                    <option value="devops">DevOps/Infra</option>
+                                    <option value="game">Game Developer</option>
+                                    <option value="marketing">Marketing/Business</option>
                                     <option value="media">Media/Video Artist</option>
                                 </select>
                             </div>
@@ -136,7 +140,12 @@
                                     <label class="checkbox-item"><input type="checkbox" value="frontend">
                                         Frontend</label>
                                     <label class="checkbox-item"><input type="checkbox" value="backend"> Backend</label>
+                                    <label class="checkbox-item"><input type="checkbox" value="mobile"> Mobile</label>
+                                    <label class="checkbox-item"><input type="checkbox" value="devops"> DevOps</label>
                                     <label class="checkbox-item"><input type="checkbox" value="data"> AI/Data</label>
+                                    <label class="checkbox-item"><input type="checkbox" value="game"> Game Dev</label>
+                                    <label class="checkbox-item"><input type="checkbox" value="marketing">
+                                        Marketing</label>
                                     <label class="checkbox-item"><input type="checkbox" value="media"> Media/Art</label>
                                 </div>
                             </div>
@@ -154,11 +163,16 @@
                                     <select id="skill-category-add" class="input" style="flex: 1;">
                                         <option value="Programming">Programming</option>
                                         <option value="Frameworks">Frameworks</option>
+                                        <option value="Infrastructure">Infrastructure</option>
                                         <option value="Design">Design</option>
                                         <option value="Other">Other</option>
                                     </select>
                                     <input type="text" id="skill-name-add" class="input" style="flex: 1.5;"
-                                        placeholder="Skill Name (e.g. React)">
+                                        placeholder="Skill Name (e.g. React)" list="skill-name-options">
+                                    <datalist id="skill-name-options">
+                                        <!-- Populated dynamically based on category -->
+                                    </datalist>
+
                                     <select id="skill-level-add" class="input" style="flex: 1;">
                                         <option value="beginner">Beginner</option>
                                         <option value="intermediate">Intermediate</option>
@@ -289,7 +303,24 @@
             'Motivation': [
                 'High Passion', 'Serious & Committed', 'Just Experience',
                 'Chill / Casual', 'Growth Mindset', 'Leadership', 'Team Player'
+            ],
+            'Deep Tech': [
+                'Blockchain', 'NFT', 'Metaverse', 'IoT', 'Cloud', 'Cybersecurity', 'Robotics'
+            ],
+            'Lifestyle': [
+                'Health/Sport', 'Travel', 'Environment (ESG)', 'Social Impact', 'Fashion/Beauty', 'Food/Gourmet'
+            ],
+            'Work Style': [
+                'Agile', 'Remote Work', 'MVP Focus', 'TDD', 'Pair Programming', 'Async Comm'
             ]
+        };
+
+        const SKILL_SUGGESTIONS = {
+            'Programming': ['JavaScript', 'TypeScript', 'Python', 'Java', 'C++', 'C', 'C#', 'Go', 'Rust', 'Swift', 'Kotlin', 'Dart', 'PHP', 'Ruby', 'SQL', 'HTML/CSS', 'Shell', 'R', 'MATLAB', 'Solidity'],
+            'Frameworks': ['React', 'Vue.js', 'Next.js', 'Angular', 'Svelte', 'Node.js', 'Django', 'Spring Boot', 'Flutter', 'React Native', 'Express', 'FastAPI', 'Flask', 'Laravel', 'Ruby on Rails', 'TensorFlow', 'PyTorch', 'Unity', 'Unreal Engine'],
+            'Infrastructure': ['Docker', 'Kubernetes', 'AWS', 'GCP', 'Azure', 'Firebase', 'Vercel', 'Netlify', 'GitHub Actions', 'Jenkins', 'Terraform', 'Nginx', 'Linux'],
+            'Design': ['Figma', 'Adobe XD', 'Photoshop', 'Illustrator', 'After Effects', 'Premiere Pro', 'Blender', 'Cinema4D', 'Zeplin', 'ProtoPie', 'Sketch', 'InDesign'],
+            'Other': ['Git', 'Jira', 'Notion', 'Slack', 'Excel', 'Google Analytics', 'SEO', 'Tableau', 'Power BI']
         };
 
         const SOGANG_ACADEMIC_DATA = {
@@ -371,9 +402,21 @@
             const addBtn = document.getElementById('add-skill-btn');
             const nameInput = document.getElementById('skill-name-add');
             const categorySelect = document.getElementById('skill-category-add');
+            const dataList = document.getElementById('skill-name-options');
 
-            // Suggestions (Simple placeholder logic or restore previous if needed)
-            // For now, ensure basic add functionality works
+            // Function to update datalist options
+            const updateSuggestions = () => {
+                const category = categorySelect.value;
+                const suggestions = SKILL_SUGGESTIONS[category] || [];
+                dataList.innerHTML = suggestions.map(skill => `<option value="${skill}">`).join('');
+            };
+
+            // Initialize and listen for changes
+            updateSuggestions();
+            categorySelect.addEventListener('change', () => {
+                nameInput.value = ''; // Clear input on category change
+                updateSuggestions();
+            });
 
             addBtn.addEventListener('click', () => {
                 const name = nameInput.value.trim();
