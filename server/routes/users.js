@@ -197,4 +197,20 @@ router.post('/profile', auth, async (req, res) => {
     }
 });
 
+// @route   GET api/users/:id
+// @desc    Get user by ID with profile
+// @access  Public
+router.get('/:id', async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id).select('name email tags');
+        if (!user) return res.status(404).json({ msg: 'User not found' });
+
+        const profile = await Profile.findOne({ user: req.params.id });
+        res.json({ ...user._doc, profile: profile || {} });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+});
+
 module.exports = router;

@@ -149,15 +149,19 @@
 
                                 <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
                                     <select id="skill-category-add" class="input" style="flex: 1;">
-                                        <option value="Programming">Programming Languages</option>
-                                        <option value="Frameworks">Frameworks/Libraries</option>
-                                        <option value="Design">Design Tools</option>
-                                        <option value="Other">Other Tools</option>
+                                        <option value="Programming">Programming</option>
+                                        <option value="Frameworks">Frameworks</option>
+                                        <option value="Design">Design</option>
+                                        <option value="Other">Other</option>
                                     </select>
                                     <input type="text" id="skill-name-add" class="input" style="flex: 1.5;"
-                                        placeholder="Enter skill name (e.g. Python, React)">
-                                    <button type="button" id="add-skill-btn" class="btn btn-secondary">Add
-                                        Skill</button>
+                                        placeholder="Skill Name (e.g. React)">
+                                    <select id="skill-level-add" class="input" style="flex: 1;">
+                                        <option value="beginner">Beginner</option>
+                                        <option value="intermediate">Intermediate</option>
+                                        <option value="advanced">Advanced</option>
+                                    </select>
+                                    <button type="button" id="add-skill-btn" class="btn btn-secondary">Add</button>
                                 </div>
                                 <div id="skill-suggestions"
                                     style="margin-top: 0.5rem; display: flex; flex-wrap: wrap; gap: 0.4rem;">
@@ -348,9 +352,10 @@
             addBtn.addEventListener('click', () => {
                 const name = nameInput.value.trim();
                 const category = categorySelect.value;
+                const level = document.getElementById('skill-level-add').value;
                 if (!name) return;
 
-                addSkillToUI({ name, category });
+                addSkillToUI({ name, category, level });
                 nameInput.value = '';
             });
 
@@ -369,15 +374,19 @@
 
         function renderSkills() {
             const container = document.getElementById('skills-list');
-            container.innerHTML = state.skills.map((skill, index) => `
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background: var(--color-bg-secondary); border-radius: 6px; margin-bottom: 0.5rem;">
-                    <div>
-                        <span style="font-weight: 600; font-size: 0.9rem;">${skill.name}</span>
-                        <span style="font-size: 0.8rem; color: var(--color-text-tertiary); margin-left: 0.5rem;">${skill.category}</span>
+            container.innerHTML = state.skills.map((skill, index) => {
+                const levelColor = skill.level === 'advanced' ? 'var(--color-sogang-red)' : skill.level === 'intermediate' ? 'var(--color-primary)' : 'var(--color-text-secondary)';
+                return `
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background: var(--color-bg-secondary); border-radius: 6px; margin-bottom: 0.5rem;">
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <span style="font-weight: 600; font-size: 0.9rem;">${skill.name}</span>
+                            <span class="badge" style="font-size: 0.7rem; background: white; border: 1px solid ${levelColor}; color: ${levelColor}; text-transform: capitalize;">${skill.level || 'beginner'}</span>
+                            <span style="font-size: 0.8rem; color: var(--color-text-tertiary);">${skill.category}</span>
+                        </div>
+                        <button type="button" onclick="removeSkill(${index})" style="color: var(--color-text-tertiary); background: none; border: none; font-size: 1.25rem; cursor: pointer;">&times;</button>
                     </div>
-                    <button type="button" onclick="removeSkill(${index})" style="color: var(--color-text-tertiary); background: none; border: none; font-size: 1.25rem; cursor: pointer;">&times;</button>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
         function setupLinkSystem() {

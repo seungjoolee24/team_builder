@@ -114,6 +114,17 @@ class DataService {
         }
     }
 
+    async getUserProfile(userId) {
+        try {
+            const res = await fetch(`${this.API_URL}/users/${userId}`);
+            if (!res.ok) return null;
+            return await res.json();
+        } catch (err) {
+            console.error('Get User Profile Error:', err);
+            return null;
+        }
+    }
+
     async getProfile(email = null) {
         // Note: The backend currently supports getting MY profile or ALL users.
         // To get a specific user's profile, we might need to filter from getUsers() or add a specific endpoint.

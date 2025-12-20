@@ -265,15 +265,27 @@
                                         <div class="info-section">
                                             <span class="info-label">Skills & Proficiency</span>
                                             <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-                                                ${(p.skills || []).map(s => `
+                                                ${(p.skills || []).map(s => {
+                        const levelColor = s.level === 'advanced' ? 'var(--color-sogang-red)' : s.level === 'intermediate' ? 'var(--color-primary)' : 'var(--color-text-secondary)';
+                        return `
                                                     <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem;">
                                                         <span style="font-weight: 500;">${s.name} <small style="color: var(--color-text-tertiary); font-weight: normal;">(${s.category})</small></span>
                                                         <div style="display: flex; gap: 0.5rem; align-items: center;">
-                                                            <span class="badge ${s.level === 'advanced' ? 'red' : s.level === 'intermediate' ? 'blue' : ''}" style="font-size: 0.7rem;">${s.level}</span>
-                                                            <span style="font-size: 0.7rem; color: var(--color-text-tertiary);">${s.experience}</span>
+                                                            <span class="badge" style="font-size: 0.7rem; background: white; border: 1px solid ${levelColor}; color: ${levelColor}; text-transform: capitalize;">${s.level || 'beginner'}</span>
                                                         </div>
                                                     </div>
-                                                `).join('') || '<p style="font-size: 0.85rem; color: var(--color-text-tertiary);">No skills registered.</p>'}
+                                                `;
+                    }).join('') || '<p style="font-size: 0.85rem; color: var(--color-text-tertiary);">No skills registered.</p>'}
+                                            </div>
+                                        </div>
+
+                                        <div class="info-section" style="margin-top: 2rem;">
+                                            <span class="info-label">Links</span>
+                                            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                                                ${p.links?.github ? `<a href="${p.links.github}" target="_blank" class="badge" style="background: #24292e; color: white;">GitHub</a>` : ''}
+                                                ${p.links?.portfolio ? `<a href="${p.links.portfolio}" target="_blank" class="badge blue">Portfolio</a>` : ''}
+                                                ${(p.customLinks || []).map(l => `<a href="${l.url}" target="_blank" class="badge" style="background: white; border: 1px solid var(--color-border); color: var(--color-text-primary);">${l.label}</a>`).join('')}
+                                                ${(!p.links?.github && !p.links?.portfolio && (!p.customLinks || p.customLinks.length === 0)) ? '<p style="font-size: 0.85rem; color: var(--color-text-tertiary);">No links provided.</p>' : ''}
                                             </div>
                                         </div>
                                     </div>
