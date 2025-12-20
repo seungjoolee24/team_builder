@@ -11,6 +11,14 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
+// Startup Checks
+console.log('--- Server Startup ---');
+console.log('NODE_ENV:', process.env.NODE_ENV);
+console.log('MONGODB_URI defined:', !!process.env.MONGODB_URI);
+console.log('JWT_SECRET defined:', !!process.env.JWT_SECRET);
+if (!process.env.JWT_SECRET) console.error('CRITICAL: JWT_SECRET is missing!');
+console.log('----------------------');
+
 // Database Connection
 const connectDB = require('./config/db');
 

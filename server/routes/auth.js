@@ -62,15 +62,26 @@ router.post('/register', async (req, res) => {
 // @access  Public
 router.post('/login', async (req, res) => {
     const { email, password } = req.body;
+    console.log('[DEBUG] Login attempt:', email);
+
+    const mongoose = require('mongoose'); // Ensure mongoose is required if not top-level
+    console.log('[DEBUG] DB ReadyState:', mongoose.connection.readyState); // 0: disconnected, 1: connected, 2: connecting, 3: disconnecting
 
     try {
+        if (!process.env.JWT_SECRET) {
+            console.error('[DEBUG] FATAL: JWT_SECRET is missing!');
+            return res.status(500).json({ msg: 'Server misconfiguration' });
+        }
+
         let user = await User.findOne({ email });
+        console.log('[DEBUG] User found:', !!user);
 
         if (!user) {
             return res.status(400).json({ msg: 'Invalid Credentials' });
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
+        console.log('[DEBUG] Password match:', isMatch);
 
         if (!isMatch) {
             return res.status(400).json({ msg: 'Invalid Credentials' });
@@ -88,13 +99,16 @@ router.post('/login', async (req, res) => {
             process.env.JWT_SECRET,
             { expiresIn: 360000 },
             (err, token) => {
-                if (err) throw err;
+                if (err) {
+                    console.error('[DEBUG] JWT Sign Error:', err);
+                    throw err;
+                }
                 res.json({ token, user: { id: user.id, name: user.name, email: user.email } });
             }
         );
     } catch (err) {
-        console.error('Login Error:', err.message);
-        res.status(500).json({ msg: 'Server error during login' });
+        console.error('Login Error Stack:', err);
+        res.status(500).json({ msg: 'Server error during login: ' + err.message });
     }
 });
 
