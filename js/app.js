@@ -623,12 +623,15 @@ function loadHeader() {
                 }
 
                 if (list) {
-                    list.innerHTML = notifications.map(n => `
+                    list.innerHTML = notifications.map(n => {
+                        const fullLink = n.link ? (n.link.startsWith('http') ? n.link : rootPath + (n.link.startsWith('/') ? n.link.substring(1) : n.link)) : null;
+                        return `
                         <div class="notification-item" 
-                             style="padding: 0.75rem; border-bottom: 1px solid var(--color-border); transition: background 0.2s; background: ${n.isRead ? '#f8f9fa' : 'white'}; opacity: ${n.isRead ? '0.7' : '1'};">
+                             ${fullLink ? `onclick="window.location.href='${fullLink}'"` : ''}
+                             style="padding: 0.75rem; border-bottom: 1px solid var(--color-border); transition: background 0.2s; background: ${n.isRead ? '#f8f9fa' : 'white'}; opacity: ${n.isRead ? '0.7' : '1'}; cursor: ${fullLink ? 'pointer' : 'default'};">
                             <div style="font-size: 0.85rem; font-weight: ${n.isRead ? '500' : '700'}; margin-bottom: 0.25rem; color: var(--color-text-primary);">
                                 ${n.isRead ? '' : '<span style="display:inline-block; width:6px; height:6px; background:var(--color-sogang-red); border-radius:50%; margin-right:4px;"></span>'}
-                                ${n.link ? `<a href="${n.link.startsWith('http') ? n.link : rootPath + (n.link.startsWith('/') ? n.link.substring(1) : n.link)}" style="text-decoration: none; color: inherit; font-weight: inherit;">${n.title}</a>` : n.title}
+                                ${fullLink ? `<a href="${fullLink}" onclick="event.stopPropagation()" style="text-decoration: none; color: inherit; font-weight: inherit;">${n.title}</a>` : n.title}
                             </div>
                             <div style="font-size: 0.8rem; color: var(--color-text-secondary); margin-bottom: 0.5rem;">${n.message}</div>
                             
@@ -643,11 +646,13 @@ function loadHeader() {
                                 <a href="${rootPath + n.link}" class="btn btn-outline notif-view-link" data-id="${n._id}" style="padding: 0.25rem 0.6rem; font-size: 0.75rem; text-decoration: none; display: inline-block;">View</a>
                             `}
                         </div>
-                    `).join('');
+                        `;
+                    }).join('');
 
                     // Add Event Listeners for "View" links
                     document.querySelectorAll('.notif-view-link').forEach(link => {
                         link.addEventListener('click', (e) => {
+                            e.stopPropagation();
                             const id = e.target.getAttribute('data-id');
                             window.db.markNotificationRead(id);
                         });
@@ -656,6 +661,7 @@ function loadHeader() {
                     document.querySelectorAll('.notif-action-btn').forEach(btn => {
                         btn.addEventListener('click', async (e) => {
                             e.preventDefault();
+                            e.stopPropagation();
                             const { id, type, action, related } = e.target.dataset;
                             // Call backend API based on type
                             try {

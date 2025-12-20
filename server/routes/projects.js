@@ -117,7 +117,7 @@ router.post('/:id/join', auth, async (req, res) => {
             type: 'project_application',
             title: 'New Project Application',
             message: `${req.user.name} applied for "${project.title}" (${rolesStr})`,
-            link: `/projects/workspace.html?id=${project.id}&tab=applications`,
+            link: `/workspace.html?id=${project.id}&tab=applications`,
             relatedId: savedApp._id
         });
         await notification.save();
