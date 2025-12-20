@@ -15,9 +15,12 @@ class DataService {
         // Use relative path for production (Vercel) and local Node server
         this.API_URL = '/api';
 
-        // If running on VS Code Live Server (port 5500 usually), point to local backend
-        if (window.location.port === '5500' || window.location.port === '5501') {
-            this.API_URL = 'http://localhost:5000/api';
+        // If running on local dev server (port 5500, 5501, 3000, 5173, etc.), point to local backend
+        // We assume backend is on 5000.
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            if (window.location.port !== '5000') {
+                this.API_URL = 'http://localhost:5000/api';
+            }
         }
 
 

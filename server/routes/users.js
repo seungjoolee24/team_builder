@@ -124,6 +124,7 @@ router.get('/profile', auth, async (req, res) => {
 // @access  Private
 router.post('/profile', auth, async (req, res) => {
     const {
+        college, major, bio, hashtags, primaryRole, otherRoles,
         skills, links, customLinks,
         // The following are now 'tags' in UI but kept in Profile for legacy? 
         // Prompt says: "Category info (interest/preference/etc.) may remain UI-only. Minimum requirement is a unified tags array."

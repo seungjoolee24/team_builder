@@ -14,18 +14,19 @@ app.use(express.json());
 // Database Connection
 const connectDB = require('./config/db');
 
-// Connect to DB immediately - REMOVED to avoid race conditions
-// connectDB();
+// Connect to DB immediately
+connectDB().catch(err => {
+    console.error("Initial database connection failed:", err);
+});
 
-// Middleware to ensure DB is connected
-app.use(async (req, res, next) => {
+// Optional: Middleware to ensure DB is connected ONLY for /api routes
+app.use('/api', async (req, res, next) => {
     try {
         await connectDB();
         next();
     } catch (error) {
-        console.error("Database connection failed:", error);
-        // Include the specific error in 'msg' so the frontend alert shows it.
-        res.status(500).json({ msg: `Database connection failed: ${error.message}` });
+        console.error("Database connection failed for API request:", error);
+        res.status(500).json({ msg: `Database connection failed` });
     }
 });
 
