@@ -83,6 +83,17 @@ router.post('/:id/join', auth, async (req, res) => {
         project.applications.unshift(newApplication);
         await project.save();
 
+        // Create Notification for Project Owner
+        const Notification = require('../models/Notification');
+        const notification = new Notification({
+            recipient: project.owner,
+            type: 'request', // 'request' type for applications
+            title: 'New Project Application',
+            message: `${req.user.name} applied as ${req.body.role} for "${project.title}"`,
+            link: `/projects/workspace.html?id=${project.id}&tab=applications`
+        });
+        await notification.save();
+
         res.json(project.applications);
     } catch (err) {
         console.error(err.message);

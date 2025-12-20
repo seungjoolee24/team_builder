@@ -39,7 +39,11 @@ app.use('/api/invitations', invitationRoutes);
 app.use('/api/friends', friendRoutes);
 app.use('/api/inbox', inboxRoutes);
 
-// Start Server
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
+// Start Server (Only if not running on Vercel)
+if (require.main === module) {
+    app.listen(PORT, () => {
+        console.log(`Server running on port ${PORT}`);
+    });
+}
+
+module.exports = app;

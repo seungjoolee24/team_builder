@@ -222,7 +222,8 @@
             // but let's be safe.
             const ownerId = (typeof project.owner === 'object') ? project.owner._id : project.owner;
 
-            if (ownerId === currentUser.id || ownerId === currentUser._id) {
+            // Normalize to strings for comparison
+            if (String(ownerId) === String(currentUser.id) || String(ownerId) === String(currentUser._id)) {
                 const apps = await window.db.getApplications({ projectId: projectId });
                 const appList = document.getElementById('applications-list');
 

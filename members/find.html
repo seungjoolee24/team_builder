@@ -170,7 +170,7 @@
 
                 // Shuffle and filter self
                 let members = users
-                    .filter(u => !currentUser || u.id !== currentUser.id)
+                    .filter(u => !currentUser || (u.id !== currentUser.id && u._id !== currentUser.id))
                     .sort(() => Math.random() - 0.5);
 
                 renderMembers(members);
@@ -330,7 +330,7 @@
             async function showInviteModal(targetId, targetName) {
                 if (!currentUser) return alert('Please log in.');
 
-                const projects = await window.db.getProjects({ owner: currentUser.email }); // Note: API filters by owner email/id?
+                const projects = await window.db.getProjects({ owner: currentUser.id }); // Filter by ID
                 // The current getProjects implementation filters on frontend by owner string.
                 // My backend update supports owner filtering but I'll stick to what exists if it works.
 
