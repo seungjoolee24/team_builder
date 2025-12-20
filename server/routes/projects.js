@@ -59,12 +59,13 @@ router.get('/:id', async (req, res) => {
 // @access  Private
 router.post('/', auth, async (req, res) => {
     try {
+        const { ownerRole, ...projectData } = req.body;
         const newProject = new Project({
-            ...req.body,
+            ...projectData,
             owner: req.user.id,
             members: [{
                 user: req.user.id,
-                role: 'Leader'
+                role: ownerRole || 'Leader'
             }]
         });
 

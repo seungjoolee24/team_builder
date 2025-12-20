@@ -112,6 +112,25 @@
                     Another Role</button>
             </section>
 
+            <!-- My Role -->
+            <section style="margin-bottom: 2rem;">
+                <h3 style="margin-bottom: 1rem; border-bottom: 1px solid var(--color-border); padding-bottom: 0.5rem;">
+                    My Role</h3>
+                <div class="input-group">
+                    <label class="label">My Role in this Project</label>
+                    <select id="owner-role" class="input" required>
+                        <option value="frontend">Frontend Developer</option>
+                        <option value="backend">Backend Developer</option>
+                        <option value="designer">Designer</option>
+                        <option value="planner">Planner (PM)</option>
+                        <option value="data">AI/Data</option>
+                    </select>
+                    <p style="font-size: 0.8rem; color: var(--color-text-tertiary); margin-top: 0.5rem;">
+                        This is the role you will take as the project leader.
+                    </p>
+                </div>
+            </section>
+
             <div style="text-align: right;">
                 <button type="submit" class="btn btn-primary" style="padding-left: 3rem; padding-right: 3rem;">Create
                     Project</button>
@@ -180,6 +199,8 @@
                     return;
                 }
 
+                const ownerRole = document.getElementById('owner-role').value;
+
                 // Don't include owner - backend sets it from auth token
                 const newProjectData = {
                     title,
@@ -188,6 +209,7 @@
                     domain,
                     description,
                     roles,
+                    ownerRole,
                     status: 'OPEN'
                 };
 
@@ -196,9 +218,9 @@
                 console.log('Create Project result:', result);
 
                 if (result.success) {
-                    console.log('Project created successfully, redirecting to /projects/my.html...');
+                    console.log('Project created successfully, redirecting...');
                     alert('Project Created Successfully!');
-                    window.location.href = '/projects/my.html';
+                    window.location.href = './my.html';
                 } else {
                     console.error('Create Project failed:', result.message);
                     alert('Failed to create project: ' + (result.message || 'Unknown error'));

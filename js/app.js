@@ -157,6 +157,7 @@ class DataService {
             const params = new URLSearchParams();
             if (filters.type) params.append('type', filters.type);
             if (filters.domain) params.append('domain', filters.domain);
+            if (filters.owner) params.append('owner', filters.owner);
 
             const res = await fetch(`${this.API_URL}/projects?${params.toString()}`);
             if (!res.ok) return [];
@@ -168,8 +169,12 @@ class DataService {
                 ...p
             }));
 
+            // Client-side fallback/extra filtering if needed (handle both string and object owners)
             if (filters.owner) {
-                projects = projects.filter(p => p.owner === filters.owner);
+                projects = projects.filter(p => {
+                    const ownerId = (typeof p.owner === 'object') ? (p.owner._id || p.owner.id) : p.owner;
+                    return String(ownerId) === String(filters.owner);
+                });
             }
             return projects;
         } catch (err) {

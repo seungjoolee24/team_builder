@@ -83,7 +83,8 @@
                 return;
             }
 
-            const hostedProjects = await window.db.getProjects({ owner: currentUser.id });
+            const userId = currentUser.id || currentUser._id;
+            const hostedProjects = await window.db.getProjects({ owner: userId });
             const joinedProjects = await window.db.getJoinedProjects();
 
             renderList('hosted-list', hostedProjects, true);

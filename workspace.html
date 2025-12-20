@@ -213,8 +213,11 @@
                             </div>
                             <div style="flex: 1; min-width: 0;">
                                 <div style="display: flex; justify-content: space-between; align-items: center;">
-                                    <span style="font-size: 0.9rem; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${name} ${isMe ? '(You)' : ''}</span>
-                                    ${isLeader ? '<span style="font-size: 0.7rem; background: #fff3cd; color: #856404; padding: 1px 4px; border-radius: 4px;">Lead</span>' : ''}
+                                    <div style="display: flex; align-items: center; gap: 0.5rem; min-width: 0;">
+                                        <span style="font-size: 0.9rem; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${name} ${isMe ? '(You)' : ''}</span>
+                                        ${isLeader ? '<span style="font-size: 0.7rem; background: #fff3cd; color: #856404; padding: 1px 4px; border-radius: 4px; flex-shrink: 0;">Lead</span>' : ''}
+                                    </div>
+                                    <span style="font-size: 0.75rem; color: var(--color-text-tertiary); text-transform: capitalize;">${m.role || 'Member'}</span>
                                 </div>
                                 ${statusHtml}
                             </div>

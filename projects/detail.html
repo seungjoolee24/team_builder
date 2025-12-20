@@ -144,7 +144,12 @@
 
                             ${actionButton}
                             <p style="text-align: center; font-size: 0.8rem; color: var(--color-text-tertiary); margin-top: 1rem;">
-                                Leader: ${typeof project.owner === 'object' ? project.owner.name : 'Unknown'}
+                                Leader: ${typeof project.owner === 'object' ? project.owner.name : 'Unknown'} 
+                                (${(project.members || []).find(m => {
+                const mId = typeof m.user === 'object' ? m.user._id : m.user;
+                const oId = typeof project.owner === 'object' ? project.owner._id : project.owner;
+                return String(mId) === String(oId);
+            })?.role || 'Leader'})
                             </p>
                         </div>
                     </aside>
