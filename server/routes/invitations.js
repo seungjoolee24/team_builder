@@ -92,6 +92,12 @@ router.post('/project/:id/respond', auth, async (req, res) => {
         invitation.status = status;
         await invitation.save();
 
+        // Mark notification as read
+        await Notification.updateMany(
+            { recipient: req.user.id, relatedId: req.params.id, type: 'invitation' },
+            { isRead: true }
+        );
+
         if (status === 'accepted') {
             const project = await Project.findById(invitation.project);
             if (project) {

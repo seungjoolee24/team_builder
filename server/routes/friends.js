@@ -72,6 +72,12 @@ router.post('/request/:id/respond', auth, async (req, res) => {
         friendRequest.status = status;
         await friendRequest.save();
 
+        // Mark notification as read
+        await Notification.updateMany(
+            { recipient: req.user.id, relatedId: req.params.id, type: 'request' },
+            { isRead: true }
+        );
+
         if (status === 'accepted') {
             const friendship = new Friendship({
                 users: [friendRequest.from, friendRequest.to]

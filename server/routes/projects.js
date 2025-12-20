@@ -3,6 +3,7 @@ const router = express.Router();
 const auth = require('../middleware/auth');
 const Project = require('../models/Project');
 const User = require('../models/User');
+const Notification = require('../models/Notification');
 
 // @route   GET api/projects
 // @desc    Get all projects
@@ -110,7 +111,6 @@ router.post('/:id/join', auth, async (req, res) => {
         const savedApp = project.applications[0];
 
         // Create Notification for Project Owner
-        const Notification = require('../models/Notification');
         const rolesStr = (req.body.roles || []).join(', ');
         const notification = new Notification({
             recipient: project.owner,
@@ -226,6 +226,13 @@ router.put('/applications/:projectId/:appId', auth, async (req, res) => {
             }
         }
         await project.save();
+
+        // Mark notification as read
+        await Notification.updateMany(
+            { recipient: req.user.id, relatedId: req.params.appId, type: 'project_application' },
+            { isRead: true }
+        );
+
         res.json(app);
     } catch (err) {
         console.error(err.message);
