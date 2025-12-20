@@ -301,6 +301,58 @@
 
         // ... existing load/save ...
 
+        function setupAccordions() {
+            document.querySelectorAll('.accordion-header').forEach(header => {
+                header.addEventListener('click', () => {
+                    const accordion = header.parentElement;
+                    accordion.classList.toggle('active');
+                });
+            });
+        }
+
+        function setupSkillSystem() {
+            const addBtn = document.getElementById('add-skill-btn');
+            const nameInput = document.getElementById('skill-name-add');
+            const categorySelect = document.getElementById('skill-category-add');
+
+            // Suggestions (Simple placeholder logic or restore previous if needed)
+            // For now, ensure basic add functionality works
+
+            addBtn.addEventListener('click', () => {
+                const name = nameInput.value.trim();
+                const category = categorySelect.value;
+                if (!name) return;
+
+                addSkillToUI({ name, category });
+                nameInput.value = '';
+            });
+
+            window.removeSkill = (index) => {
+                state.skills.splice(index, 1);
+                renderSkills();
+            };
+        }
+
+        function addSkillToUI(skill) {
+            // Avoid duplicates
+            if (state.skills.some(s => s.name.toLowerCase() === skill.name.toLowerCase())) return;
+            state.skills.push(skill);
+            renderSkills();
+        }
+
+        function renderSkills() {
+            const container = document.getElementById('skills-list');
+            container.innerHTML = state.skills.map((skill, index) => `
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background: var(--color-bg-secondary); border-radius: 6px; margin-bottom: 0.5rem;">
+                    <div>
+                        <span style="font-weight: 600; font-size: 0.9rem;">${skill.name}</span>
+                        <span style="font-size: 0.8rem; color: var(--color-text-tertiary); margin-left: 0.5rem;">${skill.category}</span>
+                    </div>
+                    <button type="button" onclick="removeSkill(${index})" style="color: var(--color-text-tertiary); background: none; border: none; font-size: 1.25rem; cursor: pointer;">&times;</button>
+                </div>
+            `).join('');
+        }
+
         function setupLinkSystem() {
             const addBtn = document.getElementById('add-link-btn');
             const labelInput = document.getElementById('custom-link-label');
