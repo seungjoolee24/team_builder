@@ -9,6 +9,7 @@ const User = require('./models/User');
 const Profile = require('./models/Profile');
 const Project = require('./models/Project');
 const Friendship = require('./models/Friendship');
+const Notification = require('./models/Notification');
 
 // 1. Defined 40 Users (Diverse roles and new tags)
 const USERS_DATA = [
@@ -155,6 +156,7 @@ const seed = async () => {
         await Profile.deleteMany({});
         await Project.deleteMany({});
         await Friendship.deleteMany({});
+        await Notification.deleteMany({});
 
         const salt = await bcrypt.genSalt(10);
         const password = await bcrypt.hash('sogang123', salt);
@@ -279,6 +281,49 @@ const seed = async () => {
             }
         }
         console.log('Friendships created.');
+
+        // 4. Coverage Guarantee: Ensure NO user is isolated
+        console.log('Verifying coverage...');
+
+        // A. Project Coverage
+        for (const user of createdUsers) {
+            const isMember = await Project.exists({ 'members.user': user._id });
+            if (!isMember) {
+                // Force assign to a random project
+                const randomProject = await Project.findOne({ status: 'OPEN' }); // simple pick, can be optimized
+                if (randomProject) {
+                    // Just add as Member role if no specific fit, or simplified logic
+                    // Try to match role if possible
+                    const userProfile = USERS_DATA.find(ud => ud.email === user.email);
+                    let roleToAssign = userProfile ? userProfile.role : 'Member';
+
+                    // Check if role exists in project
+                    const hasRole = randomProject.roles.find(r => r.role === roleToAssign);
+                    if (!hasRole) roleToAssign = randomProject.roles[0].role; // Fallback
+
+                    randomProject.members.push({ user: user._id, role: roleToAssign });
+
+                    // Update count if tracking strictly (optional for seed redundancy but good practice)
+                    const rObj = randomProject.roles.find(r => r.role === roleToAssign);
+                    if (rObj) rObj.filled += 1;
+
+                    await randomProject.save();
+                    console.log(`Force-assigned ${user.name} to project ${randomProject.title}`);
+                }
+            }
+        }
+
+        // B. Friend Coverage
+        for (const user of createdUsers) {
+            const hasFriend = await Friendship.exists({ users: user._id });
+            if (!hasFriend) {
+                // Force friend someone
+                const rando = createdUsers.find(u => u._id.toString() !== user._id.toString());
+                const fs = new Friendship({ users: [user._id, rando._id] });
+                await fs.save();
+                console.log(`Force-friended ${user.name} with ${rando.name}`);
+            }
+        }
 
         console.log('--- SEED COMPLETE ---');
         process.exit(0);
