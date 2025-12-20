@@ -58,6 +58,12 @@ router.get('/thread/:id', auth, async (req, res) => {
             .populate('sender', 'name')
             .sort({ timestamp: 1 });
 
+        // Mark as read
+        await Message.updateMany(
+            { thread: req.params.id, sender: { $ne: req.user.id } },
+            { $addToSet: { readBy: req.user.id } }
+        );
+
         res.json(messages);
     } catch (err) {
         console.error('Fetch Messages Error:', err.message);

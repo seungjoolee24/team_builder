@@ -100,36 +100,76 @@
                 return;
             }
 
-            // === Load Friends ===
+            // === Load Friends & Sort by Newest Message ===
+            let lastKnownMessageTime = null;
+
             async function loadFriends() {
                 const friends = await window.db.getFriends();
-                if (friends.length === 0) {
+                const threads = await window.db.getInbox();
+
+                // Merge and Sort
+                const mergedList = friends.map(f => {
+                    const thread = threads.find(t => t.type === 'dm' && t.users.some(u => u._id === f._id));
+                    return { ...f, thread };
+                });
+
+                // Sort by lastMessageAt (descending), items with no messages go to bottom
+                mergedList.sort((a, b) => {
+                    const timeA = a.thread?.lastMessageAt ? new Date(a.thread.lastMessageAt).getTime() : 0;
+                    const timeB = b.thread?.lastMessageAt ? new Date(b.thread.lastMessageAt).getTime() : 0;
+                    return timeB - timeA;
+                });
+
+                // Check for overall newest message to trigger alert
+                const newestThread = threads[0]; // Already sorted by backend
+                if (newestThread && newestThread.lastMessageAt) {
+                    const newestTime = new Date(newestThread.lastMessageAt).getTime();
+                    // Alert only if it's a new message (newer than last check), NOT from me, and we aren't already in THAT thread
+                    if (lastKnownMessageTime && newestTime > lastKnownMessageTime) {
+                        const lastMsg = newestThread.lastMessage;
+                        if (lastMsg) {
+                            const senderId = String(lastMsg.sender?._id || lastMsg.sender);
+                            const myId = String(currentUser.id || currentUser._id);
+                            if (senderId !== myId && String(newestThread._id) !== String(activeThreadId)) {
+                                alert('(new message)');
+                            }
+                        }
+                    }
+                    lastKnownMessageTime = newestTime;
+                }
+
+                if (mergedList.length === 0) {
                     friendsContainer.innerHTML = '<p style="padding: 2rem; text-align: center; color: var(--color-text-tertiary);">No friends yet.<br><small>Connect with others in "Find Members"!</small></p>';
                     return;
                 }
 
-                // Get inbox to show last messages
-                const threads = await window.db.getInbox();
-
-                friendsContainer.innerHTML = friends.map(friend => {
-                    // Find DM thread with this friend if it exists
-                    const thread = threads.find(t => t.type === 'dm' && t.users.some(u => u._id === friend._id));
+                friendsContainer.innerHTML = mergedList.map(item => {
+                    const friend = item;
+                    const thread = item.thread;
                     const lastMsg = thread?.lastMessage ? thread.lastMessage.text : 'No messages yet';
                     const time = thread?.lastMessageAt ? new Date(thread.lastMessageAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
                     const isActive = friend._id === activeFriendId;
 
+                    // Unread check
+                    const lastMsgObj = thread?.lastMessage;
+                    const myId = String(currentUser.id || currentUser._id);
+                    const isUnread = lastMsgObj &&
+                        String(lastMsgObj.sender?._id || lastMsgObj.sender) !== myId &&
+                        !lastMsgObj.readBy?.some(r => String(r) === myId);
+
                     return `
                         <div class="thread-item ${isActive ? 'active' : ''}" onclick="openDM('${friend._id}', '${friend.name}')" style="padding: 1rem; border-bottom: 1px solid var(--color-border); cursor: pointer; transition: background 0.2s; background: ${isActive ? '#f8f9fa' : 'white'}; border-left: 4px solid ${isActive ? 'var(--color-sogang-red)' : 'transparent'};">
                             <div style="display: flex; gap: 0.75rem; align-items: center;">
-                                <div style="width: 48px; height: 48px; border-radius: 50%; background: #EEE; overflow: hidden; flex-shrink: 0; border: 1px solid #eee;">
+                                <div style="width: 48px; height: 48px; border-radius: 50%; background: #EEE; overflow: hidden; flex-shrink: 0; border: 1px solid #eee; position: relative;">
                                     <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=${friend.name}" style="width: 100%; height: 100%;">
+                                    ${isUnread ? '<div style="position: absolute; top: 0; right: 0; width: 12px; height: 12px; background: #e74c3c; border-radius: 50%; border: 2px solid white;"></div>' : ''}
                                 </div>
                                 <div style="flex: 1; min-width: 0;">
                                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.15rem;">
-                                        <h4 style="margin: 0; font-size: 0.95rem; font-weight: 600; color: var(--color-text-primary);">${friend.name}</h4>
-                                        <span style="font-size: 0.7rem; color: var(--color-text-tertiary);">${time}</span>
+                                        <h4 style="margin: 0; font-size: 0.95rem; font-weight: ${isUnread ? '700' : '600'}; color: var(--color-text-primary);">${friend.name}</h4>
+                                        <span style="font-size: 0.7rem; color: ${isUnread ? '#e74c3c' : 'var(--color-text-tertiary)'}; font-weight: ${isUnread ? '700' : 'normal'}">${isUnread ? '(New) ' : ''}${time}</span>
                                     </div>
-                                    <p style="margin: 0; font-size: 0.8rem; color: var(--color-text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                    <p style="margin: 0; font-size: 0.8rem; color: ${isUnread ? 'var(--color-text-primary)' : 'var(--color-text-secondary)'}; font-weight: ${isUnread ? '500' : 'normal'}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                                         ${lastMsg}
                                     </p>
                                 </div>
