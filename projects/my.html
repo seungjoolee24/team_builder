@@ -103,18 +103,19 @@
             }
 
             listContainer.innerHTML = projects.map(project => {
-                const filledCount = project.roles.reduce((acc, r) => acc + (r.filled || 0), 0);
-                const totalCount = project.roles.reduce((acc, r) => acc + r.count, 0);
+                const roles = project.roles || [];
+                const filledCount = roles.reduce((acc, r) => acc + (r.filled || 0), 0);
+                const totalCount = roles.reduce((acc, r) => acc + (r.count || 0), 0);
 
                 return `
                     <div class="project-card-row">
                         <div style="flex: 1;">
                             <div style="display: flex; gap: 0.75rem; align-items: center; margin-bottom: 0.5rem;">
-                                <span class="badge ${project.status === 'OPEN' ? 'blue' : 'red'}" style="text-transform: uppercase;">${project.status}</span>
-                                <span style="font-size: 0.85rem; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;">${project.type}</span>
+                                <span class="badge ${project.status === 'OPEN' ? 'blue' : 'red'}" style="text-transform: uppercase;">${project.status || 'OPEN'}</span>
+                                <span style="font-size: 0.85rem; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;">${project.type || 'Project'}</span>
                             </div>
                             <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem;">${project.title}</h3>
-                            <p style="color: var(--color-text-secondary); font-size: 0.95rem;">${project.summary}</p>
+                            <p style="color: var(--color-text-secondary); font-size: 0.95rem;">${project.summary || 'No description'}</p>
                         </div>
                         
                         <div style="text-align: right; min-width: 200px;">

@@ -93,12 +93,16 @@
             }
 
             // Use Data Service
+            console.log('Attempting registration...');
             const result = await window.db.register(name, email, password);
+            console.log('Registration result:', result);
 
             if (result.success) {
+                console.log('Registration successful, redirecting to /profile.html...');
                 alert('Account created successfully!');
-                window.location.href = '../profile.html?new=true';
+                window.location.href = '/profile.html?new=true';
             } else {
+                console.error('Registration failed:', result.message);
                 alert('Registration Failed: ' + result.message);
             }
         });

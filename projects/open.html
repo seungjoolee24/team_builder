@@ -173,7 +173,7 @@
                 const currentUser = window.db.getCurrentUser();
                 if (!currentUser) {
                     alert('You must be logged in to create a project.');
-                    window.location.href = '../auth/login.html';
+                    window.location.href = '/auth/login.html';
                     return;
                 }
 
@@ -188,12 +188,16 @@
                     status: 'OPEN'
                 };
 
+                console.log('Creating project with data:', newProjectData);
                 const result = await window.db.createProject(newProjectData);
+                console.log('Create Project result:', result);
 
                 if (result.success) {
+                    console.log('Project created successfully, redirecting to /projects/my.html...');
                     alert('Project Created Successfully!');
-                    window.location.href = './my.html'; // Changed to go to "My Projects"
+                    window.location.href = '/projects/my.html';
                 } else {
+                    console.error('Create Project failed:', result.message);
                     alert('Failed to create project: ' + (result.message || 'Unknown error'));
                 }
             });

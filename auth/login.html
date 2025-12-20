@@ -77,12 +77,16 @@
             const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value.trim();
 
+            console.log('Attempting login with:', email);
             const result = await window.db.login(email, password);
+            console.log('Login result:', result);
 
             if (result.success) {
-                // Redirect
-                window.location.href = '../index.html';
+                console.log('Login successful, redirecting to /index.html...');
+                // Redirect - force root path
+                window.location.href = '/index.html';
             } else {
+                console.error('Login failed:', result.message);
                 alert('Login Failed: ' + result.message);
             }
         });
