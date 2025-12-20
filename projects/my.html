@@ -229,7 +229,7 @@
 
             try {
                 const token = localStorage.getItem('token');
-                const res = await fetch(`http://localhost:5000/api/projects/${projectId}/status`, {
+                const res = await fetch(`${window.db.API_URL}/projects/${projectId}/status`, {
                     method: 'PATCH',
                     headers: {
                         'Content-Type': 'application/json',
@@ -255,7 +255,7 @@
 
             try {
                 const token = localStorage.getItem('token');
-                const res = await fetch(`http://localhost:5000/api/projects/${projectId}/leave`, {
+                const res = await fetch(`${window.db.API_URL}/projects/${projectId}/leave`, {
                     method: 'POST',
                     headers: { 'x-auth-token': token }
                 });
@@ -278,7 +278,7 @@
 
             try {
                 const token = localStorage.getItem('token');
-                const res = await fetch(`http://localhost:5000/api/projects/${projectId}`, {
+                const res = await fetch(`${window.db.API_URL}/projects/${projectId}`, {
                     method: 'DELETE',
                     headers: { 'x-auth-token': token }
                 });
