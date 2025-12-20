@@ -24,7 +24,8 @@ app.use(async (req, res, next) => {
         next();
     } catch (error) {
         console.error("Database connection failed:", error);
-        res.status(500).json({ msg: "Database connection failed", error: error.message });
+        // Include the specific error in 'msg' so the frontend alert shows it.
+        res.status(500).json({ msg: `Database connection failed: ${error.message}` });
     }
 });
 
