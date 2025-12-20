@@ -188,7 +188,10 @@ class DataService {
                 headers: this._authHeader(),
                 body: JSON.stringify(projectData)
             });
-            if (!res.ok) throw new Error('Failed to create project');
+            if (!res.ok) {
+                const data = await res.json().catch(() => ({})); // Handle non-JSON errors
+                throw new Error(data.msg || data.message || `Failed to create project (${res.status})`);
+            }
             const project = await res.json();
             return { success: true, project };
         } catch (err) {
