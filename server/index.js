@@ -12,28 +12,24 @@ app.use(cors());
 app.use(express.json());
 
 // Database Connection
-// Database Connection
 const connectDB = require('./config/db');
 
-// Connect to DB immediately - REMOVED to avoid race conditions
-// connectDB();
+// Connect to DB immediately (Async)
+connectDB();
 
-// Middleware to ensure DB is connected
-app.use(async (req, res, next) => {
+// 1. Serve Static Files IMMEDIATELY (No DB dependency)
+app.use(express.static(path.join(__dirname, '../')));
+
+// 2. Middleware to ensure DB is connected for API routes
+app.use('/api', async (req, res, next) => {
     try {
         await connectDB();
         next();
     } catch (error) {
         console.error("Database connection failed:", error);
-        // Include the specific error in 'msg' so the frontend alert shows it.
         res.status(500).json({ msg: `Database connection failed: ${error.message}` });
     }
 });
-
-// Routes (Placeholders for now)
-// Serve static files from the root directory
-// Serve static files from the root directory
-app.use(express.static(path.join(__dirname, '../')));
 
 // Import Routes
 const authRoutes = require('./routes/auth');
