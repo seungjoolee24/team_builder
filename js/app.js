@@ -12,8 +12,13 @@ class DataService {
         // But for this User Request "deploy this website", we optimize for the deployed state.
         // Vercel will serve frontend and proxy /api to backend.
 
-        // For verification, force localhost:5000
-        this.API_URL = 'http://localhost:5000/api';
+        // Use relative path for production (Vercel) and local Node server
+        this.API_URL = '/api';
+
+        // If running on VS Code Live Server (port 5500 usually), point to local backend
+        if (window.location.port === '5500' || window.location.port === '5501') {
+            this.API_URL = 'http://localhost:5000/api';
+        }
 
 
         this.token = localStorage.getItem('token');
