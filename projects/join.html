@@ -184,8 +184,21 @@
 
     <script src="../js/app.js"></script>
     <script>
+        const PREDEFINED_TAG_CATEGORIES = {
+            'Interest': [
+                'Web/App', 'AI/Data', 'Fintech', 'Game Dev', 'Blockchain', 'E-commerce',
+                'IoT', 'Metaverse', 'Cloud Computing', 'Security', 'Healthcare', 'EdTech',
+                'Social Media', 'Enterprise', 'SaaS', 'Mobile'
+            ],
+            'Preference': [
+                'Competition', 'Side Project', 'Startup', 'Study Group', 'Hackathon',
+                'Capstone', 'Research', 'Volunteering', 'Freelance'
+            ]
+        };
+
         document.addEventListener('DOMContentLoaded', async () => {
             const projects = await window.db.getProjects();
+            const myProfile = await window.db.getProfile();
             let filteredProjects = [...projects];
 
             const grid = document.getElementById('projects-grid');
@@ -225,13 +238,40 @@
                 // Fetch filtered projects from server
                 let candidates = await window.db.getProjects(filters);
 
-                // 2. Sort Logic (Client-side for now)
-                if (!toggle.checked) {
+                // 2. Sort Logic
+                if (toggle.checked && myProfile) {
+                    candidates = candidates.map(p => {
+                        let score = 0;
+
+                        // 1. Role Match (40 pts)
+                        const hasRoleMatch = (p.roles || []).some(r => r.role === myProfile.primaryRole && r.filled < r.count);
+                        if (hasRoleMatch) score += 40;
+
+                        // Identify User Tags by Category
+                        const userPreferences = (myProfile.tags || []).filter(t => PREDEFINED_TAG_CATEGORIES['Preference'].includes(t));
+                        const userInterests = (myProfile.tags || []).filter(t => PREDEFINED_TAG_CATEGORIES['Interest'].includes(t));
+
+                        // 2. Normalized Type Match (30 pts max)
+                        if (userPreferences.length > 0) {
+                            const projectTypes = Array.isArray(p.type) ? p.type : [p.type];
+                            const matchedTypes = projectTypes.filter(t => userPreferences.includes(t));
+                            score += (matchedTypes.length / userPreferences.length) * 30;
+                        }
+
+                        // 3. Normalized Interest Match (30 pts max)
+                        if (userInterests.length > 0) {
+                            const projectDomains = Array.isArray(p.domain) ? p.domain : [p.domain];
+                            const matchedInterests = projectDomains.filter(t => userInterests.includes(t));
+                            score += (matchedInterests.length / userInterests.length) * 30;
+                        }
+
+                        return { ...p, recommendationScore: score };
+                    }).sort((a, b) => b.recommendationScore - a.recommendationScore);
+                } else if (!toggle.checked) {
                     // Recommended OFF: Random Shuffle
                     candidates = candidates.sort(() => Math.random() - 0.5);
                 }
 
-                // Render
                 // Render
                 grid.innerHTML = candidates.map(p => {
                     // Logic to check if owner is included in roles (for correct Total Count)
@@ -249,8 +289,7 @@
                     return `
                     <a href="./detail.html?id=${p.id}" class="card" style="text-decoration: none; color: inherit; display: block;">
                         <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
-                            <span class="badge blue">${p.type || 'Project'}</span>
-                            ${toggle.checked ? '<span style="font-size: 0.8rem; font-weight: 600; color: var(--color-sogang-red);">95% Match</span>' : ''}
+                            <span class="badge blue">${(Array.isArray(p.type) ? p.type[0] : p.type) || 'Project'}</span>
                         </div>
                         <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem; line-height: 1.4;">${p.title}</h3>
                         <p style="color: var(--color-text-secondary); font-size: 0.95rem; margin-bottom: 1.5rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">

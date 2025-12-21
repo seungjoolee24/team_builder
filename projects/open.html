@@ -48,29 +48,26 @@
                     <input type="text" id="summary" class="input" placeholder="Short and catchy summary..." required>
                 </div>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
                     <div class="input-group">
-                        <label class="label">Project Type</label>
-                        <select id="type" class="input" required>
-                            <option value="Class Project">Class Project</option>
-                            <option value="Competition / Hackathon">Competition / Hackathon</option>
-                            <option value="Side Project">Side Project</option>
-                            <option value="Startup / Pre-startup">Startup / Pre-startup</option>
-                            <option value="Club / Study">Club / Study</option>
-                        </select>
+                        <label class="label">Project Type (Multi-select)</label>
+                        <div id="type-tags-selected" class="chips-container"
+                            style="min-height: 42px; padding: 0.4rem; background: #f8f9fa; border: 1px solid var(--color-border); border-radius: 8px; margin-bottom: 0.75rem; display: flex; flex-wrap: wrap; gap: 0.4rem;">
+                            <!-- Selected Types -->
+                        </div>
+                        <div id="type-tags-options" style="display: flex; flex-wrap: wrap; gap: 0.4rem;">
+                            <!-- Type Options -->
+                        </div>
                     </div>
                     <div class="input-group">
-                        <label class="label">Domain/Field</label>
-                        <select id="domain" class="input" required>
-                            <option value="Web / App">Web / App</option>
-                            <option value="AI / Data Science">AI / Data Science</option>
-                            <option value="Game Development">Game Development</option>
-                            <option value="Media Art / Design">Media Art / Design</option>
-                            <option value="Hardware / IoT">Hardware / IoT</option>
-                            <option value="Fintech / Business">Fintech / Business</option>
-                            <option value="Social / Humanities">Social / Humanities</option>
-                            <option value="Other">Other</option>
-                        </select>
+                        <label class="label">Domain/Field (Multi-select)</label>
+                        <div id="domain-tags-selected" class="chips-container"
+                            style="min-height: 42px; padding: 0.4rem; background: #f8f9fa; border: 1px solid var(--color-border); border-radius: 8px; margin-bottom: 0.75rem; display: flex; flex-wrap: wrap; gap: 0.4rem;">
+                            <!-- Selected Domains -->
+                        </div>
+                        <div id="domain-tags-options" style="display: flex; flex-wrap: wrap; gap: 0.4rem;">
+                            <!-- Domain Options -->
+                        </div>
                     </div>
                 </div>
 
@@ -157,7 +154,58 @@
 
     <script src="../js/app.js"></script>
     <script>
+        const CATEGORIES = {
+            'Type': [
+                'Competition', 'Side Project', 'Startup', 'Study Group', 'Hackathon',
+                'Capstone', 'Research', 'Volunteering', 'Freelance'
+            ],
+            'Domain': [
+                'Web/App', 'AI/Data', 'Fintech', 'Game Dev', 'Blockchain', 'E-commerce',
+                'IoT', 'Metaverse', 'Cloud Computing', 'Security', 'Healthcare', 'EdTech',
+                'Social Media', 'Enterprise', 'SaaS', 'Mobile'
+            ]
+        };
+
+        const state = {
+            selectedTypes: new Set(),
+            selectedDomains: new Set()
+        };
+
+        function renderTags(category) {
+            const selectedList = state[category === 'Type' ? 'selectedTypes' : 'selectedDomains'];
+            const container = document.getElementById(`${category.toLowerCase()}-tags-selected`);
+            const optionsContainer = document.getElementById(`${category.toLowerCase()}-tags-options`);
+
+            // Render Selected
+            container.innerHTML = Array.from(selectedList).map(tag => `
+                <div class="chip" style="background: var(--color-bg-tertiary); display: flex; align-items: center; gap: 0.4rem; padding: 4px 10px; border-radius: 16px; font-size: 0.85rem;">
+                    <span>${tag}</span>
+                    <span style="cursor: pointer; font-weight: bold;" onclick="toggleTag('${category}', '${tag}')">&times;</span>
+                </div>
+            `).join('');
+
+            // Render Options
+            optionsContainer.innerHTML = CATEGORIES[category].map(tag => {
+                const isSelected = selectedList.has(tag);
+                return `
+                    <span class="badge" style="cursor: pointer; background: ${isSelected ? 'var(--color-sogang-red)' : 'white'}; color: ${isSelected ? 'white' : 'var(--color-text-primary)'}; border: 1px solid var(--color-border);" onclick="toggleTag('${category}', '${tag}')">
+                        ${tag}
+                    </span>
+                `;
+            }).join('');
+        }
+
+        window.toggleTag = (category, tag) => {
+            const set = state[category === 'Type' ? 'selectedTypes' : 'selectedDomains'];
+            if (set.has(tag)) set.delete(tag);
+            else set.add(tag);
+            renderTags(category);
+        };
+
         document.addEventListener('DOMContentLoaded', () => {
+            renderTags('Type');
+            renderTags('Domain');
+
             const rolesContainer = document.getElementById('roles-container');
             const addRoleBtn = document.getElementById('add-role-btn');
 
@@ -199,11 +247,12 @@
             document.getElementById('open-project-form').addEventListener('submit', async (e) => {
                 e.preventDefault();
 
+                if (state.selectedTypes.size === 0) return alert('Please select at least one Project Type.');
+                if (state.selectedDomains.size === 0) return alert('Please select at least one Domain.');
+
                 // Collect Data
                 const title = document.getElementById('title').value.trim();
                 const summary = document.getElementById('summary').value.trim();
-                const type = document.getElementById('type').value;
-                const domain = document.getElementById('domain').value;
                 const description = document.getElementById('description').value.trim();
 
                 const roles = [];
@@ -227,9 +276,9 @@
                 // Don't include owner - backend sets it from auth token
                 const newProjectData = {
                     title,
-                    oneLineDescription: summary, // Backend expects this field name
-                    type,
-                    domain,
+                    oneLineDescription: summary,
+                    type: Array.from(state.selectedTypes),
+                    domain: Array.from(state.selectedDomains),
                     description,
                     roles,
                     ownerRole,

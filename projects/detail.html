@@ -98,7 +98,9 @@
                 <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 3rem;">
                     
                     <div>
-                        <span class="badge blue" style="margin-bottom: 1rem;">${project.type || 'Project'}</span>
+                        <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+                            ${(Array.isArray(project.type) ? project.type : [project.type || 'Project']).map(t => `<span class="badge blue">${t}</span>`).join('')}
+                        </div>
                         <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;">${project.title}</h1>
                         <p style="font-size: 1.25rem; color: var(--color-text-secondary); margin-bottom: 2rem;">${project.summary || ''}</p>
                         
@@ -110,7 +112,7 @@
                         <section class="card">
                             <h3 style="margin-bottom: 1rem;">Domain & Skills</h3>
                             <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-                                <span class="badge purple">${project.domain || 'General'}</span>
+                                ${(Array.isArray(project.domain) ? project.domain : [project.domain || 'General']).map(d => `<span class="badge purple">${d}</span>`).join('')}
                                 <!-- Mock Skills -->
                                 <span class="badge">React</span>
                                 <span class="badge">Node.js</span>

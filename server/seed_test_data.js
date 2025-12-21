@@ -65,85 +65,85 @@ const USERS_DATA = [
 // 2. Defined 20 Projects
 const PROJECTS_DATA = [
     {
-        title: "AI Schedule Optimizer", type: "Side Project", domain: "AI / Data Science", description: "Automated timetabling using Genetic Algorithms.", ownerRole: "backend",
+        title: "AI Schedule Optimizer", type: ["Side Project"], domain: ["AI/Data", "Web/App"], description: "Automated timetabling using Genetic Algorithms.", ownerRole: "backend",
         roles: [{ role: "frontend", count: 2 }, { role: "backend", count: 2 }, { role: "data", count: 2 }, { role: "designer", count: 1 }]
-    }, // 7 slots
+    },
     {
-        title: "Sogang E-Sports Platform", type: "Startup / Pre-startup", domain: "Game Development", description: "Matching platform for university gamers.", ownerRole: "planner",
+        title: "Sogang E-Sports Platform", type: ["Startup", "Side Project"], domain: ["Game Dev", "Mobile"], description: "Matching platform for university gamers.", ownerRole: "planner",
         roles: [{ role: "game", count: 3 }, { role: "backend", count: 2 }, { role: "designer", count: 1 }, { role: "marketing", count: 1 }]
-    }, // 7 slots
+    },
     {
-        title: "Campus Flea Market", type: "Class Project", domain: "Web / App", description: "Second-hand trading app for students.", ownerRole: "frontend",
+        title: "Campus Flea Market", type: ["Side Project", "Capstone"], domain: ["Web/App", "E-commerce"], description: "Second-hand trading app for students.", ownerRole: "frontend",
         roles: [{ role: "frontend", count: 2 }, { role: "backend", count: 2 }, { role: "mobile", count: 2 }, { role: "designer", count: 1 }]
-    }, // 7 slots
+    },
     {
-        title: "Blockchain Voting System", type: "Competition / Hackathon", domain: "Fintech / Business", description: "Decentralized voting for student council.", ownerRole: "devops",
+        title: "Blockchain Voting System", type: ["Competition", "Hackathon"], domain: ["Blockchain", "Security"], description: "Decentralized voting for student council.", ownerRole: "devops",
         roles: [{ role: "backend", count: 3 }, { role: "frontend", count: 1 }, { role: "devops", count: 2 }, { role: "planner", count: 1 }]
-    }, // 7 slots
+    },
     {
-        title: "Interactive Media Art Exhibition", type: "Club / Study", domain: "Media Art / Design", description: "Digital art installation using Processing/p5.js.", ownerRole: "media",
+        title: "Interactive Media Art Exhibition", type: ["Research", "Side Project"], domain: ["Metaverse", "Media Art"], description: "Digital art installation using Processing/p5.js.", ownerRole: "media",
         roles: [{ role: "media", count: 3 }, { role: "designer", count: 2 }, { role: "frontend", count: 1 }]
-    }, // 6 slots
+    },
     {
-        title: "Fintech Portfolio Manager", type: "Startup / Pre-startup", domain: "Fintech / Business", description: "Asset management dashboard for students.", ownerRole: "backend",
+        title: "Fintech Portfolio Manager", type: ["Startup", "Competition"], domain: ["Fintech", "AI/Data"], description: "Asset management dashboard for students.", ownerRole: "backend",
         roles: [{ role: "backend", count: 2 }, { role: "data", count: 2 }, { role: "frontend", count: 1 }, { role: "planner", count: 1 }]
-    }, // 6 slots
+    },
     {
-        title: "IoT Smart Plant Care", type: "Side Project", domain: "Hardware / IoT", description: "Automated watering system with Arduino.", ownerRole: "devops",
+        title: "IoT Smart Plant Care", type: ["Side Project", "Hackathon"], domain: ["IoT", "Mobile"], description: "Automated watering system with Arduino.", ownerRole: "devops",
         roles: [{ role: "devops", count: 2 }, { role: "mobile", count: 2 }, { role: "backend", count: 1 }]
-    }, // 5 slots
+    },
     {
-        title: "Indie Rhythm Game", type: "Side Project", domain: "Game Development", description: "Unity-based mobile rhythm game.", ownerRole: "game",
+        title: "Indie Rhythm Game", type: ["Side Project", "Startup"], domain: ["Game Dev", "Mobile"], description: "Unity-based mobile rhythm game.", ownerRole: "game",
         roles: [{ role: "game", count: 3 }, { role: "media", count: 1 }, { role: "designer", count: 1 }, { role: "marketing", count: 1 }]
-    }, // 6 slots
+    },
     {
-        title: "Study Group Matcher", type: "Class Project", domain: "Web / App", description: "Find study partners based on schedule.", ownerRole: "backend",
+        title: "Study Group Matcher", type: ["Capstone", "Study Group"], domain: ["Web/App", "Social Media"], description: "Find study partners based on schedule.", ownerRole: "backend",
         roles: [{ role: "frontend", count: 2 }, { role: "backend", count: 2 }, { role: "planner", count: 1 }, { role: "mobile", count: 1 }]
-    }, // 6 slots
+    },
     {
-        title: "ESG Carbon Footprint Tracker", type: "Competition / Hackathon", domain: "Social / Humanities", description: "Track daily carbon usage.", ownerRole: "planner",
+        title: "ESG Carbon Footprint Tracker", type: ["Competition", "Startup"], domain: ["AI/Data", "E-commerce"], description: "Track daily carbon usage.", ownerRole: "planner",
         roles: [{ role: "marketing", count: 2 }, { role: "designer", count: 1 }, { role: "frontend", count: 1 }, { role: "data", count: 1 }]
-    }, // 5 slots
+    },
     {
-        title: "VR Campus Tour", type: "Club / Study", domain: "Media Art / Design", description: "Virtual reality tour of Sogang campus.", ownerRole: "media",
+        title: "VR Campus Tour", type: ["Research", "Study Group"], domain: ["Metaverse", "Game Dev"], description: "Virtual reality tour of Sogang campus.", ownerRole: "media",
         roles: [{ role: "media", count: 2 }, { role: "game", count: 2 }, { role: "designer", count: 1 }]
-    }, // 5 slots
+    },
     {
-        title: "Used Book Auction", type: "Startup / Pre-startup", domain: "Web / App", description: "Real-time auction for textbooks.", ownerRole: "backend",
+        title: "Used Book Auction", type: ["Startup", "Side Project"], domain: ["E-commerce", "Web/App"], description: "Real-time auction for textbooks.", ownerRole: "backend",
         roles: [{ role: "backend", count: 3 }, { role: "frontend", count: 2 }, { role: "devops", count: 1 }]
-    }, // 6 slots
+    },
     {
-        title: "Language Exchange Social", type: "Side Project", domain: "Social / Humanities", description: "Connect with exchange students.", ownerRole: "marketing",
+        title: "Language Exchange Social", type: ["Volunteering", "Side Project"], domain: ["Social Media", "Mobile"], description: "Connect with exchange students.", ownerRole: "marketing",
         roles: [{ role: "marketing", count: 2 }, { role: "mobile", count: 2 }, { role: "planner", count: 1 }]
-    }, // 5 slots
+    },
     {
-        title: "DevOps CI/CD Pipeline Study", type: "Club / Study", domain: "Web / App", description: "Learning Jenkins, Docker, K8s.", ownerRole: "devops",
+        title: "DevOps CI/CD Pipeline Study", type: ["Study Group", "Research"], domain: ["Cloud Computing", "Security"], description: "Learning Jenkins, Docker, K8s.", ownerRole: "devops",
         roles: [{ role: "devops", count: 4 }, { role: "backend", count: 2 }]
-    }, // 6 slots
+    },
     {
-        title: "Mobile RPG 'Sogang Quest'", type: "Competition / Hackathon", domain: "Game Development", description: "RPG game featuring school mascot.", ownerRole: "game",
+        title: "Mobile RPG 'Sogang Quest'", type: ["Hackathon", "Game Dev"], domain: ["Game Dev", "Mobile"], description: "RPG game featuring school mascot.", ownerRole: "game",
         roles: [{ role: "game", count: 3 }, { role: "media", count: 2 }, { role: "planner", count: 1 }]
-    }, // 6 slots
+    },
     {
-        title: "Crypto Wallet Tracker", type: "Startup / Pre-startup", domain: "Fintech / Business", description: "Manage diverse crypto assets.", ownerRole: "frontend",
+        title: "Crypto Wallet Tracker", type: ["Freelance", "Startup"], domain: ["Blockchain", "Fintech"], description: "Manage diverse crypto assets.", ownerRole: "frontend",
         roles: [{ role: "frontend", count: 2 }, { role: "backend", count: 2 }, { role: "data", count: 1 }]
-    }, // 5 slots
+    },
     {
-        title: "Smart Home Dashboard", type: "Side Project", domain: "Hardware / IoT", description: "Control smart devices from web.", ownerRole: "mobile",
+        title: "Smart Home Dashboard", type: ["Side Project", "Hackathon"], domain: ["IoT", "Web/App"], description: "Control smart devices from web.", ownerRole: "mobile",
         roles: [{ role: "mobile", count: 2 }, { role: "backend", count: 2 }, { role: "designer", count: 1 }]
-    }, // 5 slots
+    },
     {
-        title: "Fashion Trend Analysis", type: "Class Project", domain: "AI / Data Science", description: "Crawling Instagram to find trends.", ownerRole: "data",
+        title: "Fashion Trend Analysis", type: ["Research", "Capstone"], domain: ["AI/Data", "Social Media"], description: "Crawling Instagram to find trends.", ownerRole: "data",
         roles: [{ role: "data", count: 3 }, { role: "backend", count: 1 }, { role: "marketing", count: 1 }]
-    }, // 5 slots
+    },
     {
-        title: "Music Collaboration Tool", type: "Side Project", domain: "Media Art / Design", description: "Real-time jamming web app.", ownerRole: "media",
+        title: "Music Collaboration Tool", type: ["Side Project", "Hackathon"], domain: ["Cloud Computing", "Mobile"], description: "Real-time jamming web app.", ownerRole: "media",
         roles: [{ role: "media", count: 2 }, { role: "frontend", count: 2 }, { role: "backend", count: 2 }]
-    }, // 6 slots
+    },
     {
-        title: "Startup Networking Event", type: "Club / Study", domain: "Social / Humanities", description: "Organizing networking for founders.", ownerRole: "marketing",
+        title: "Startup Networking Event", type: ["Startup", "Study Group"], domain: ["Enterprise", "SaaS"], description: "Organizing networking for founders.", ownerRole: "marketing",
         roles: [{ role: "marketing", count: 3 }, { role: "planner", count: 2 }, { role: "designer", count: 1 }]
-    } // 6 slots
+    }
 ];
 
 const seed = async () => {

@@ -4,8 +4,8 @@ const ProjectSchema = new mongoose.Schema({
     title: { type: String, required: true },
     oneLineDescription: { type: String },
     description: { type: String },
-    type: { type: String }, // Class, Side, etc.
-    domain: { type: String }, // Web, AI, etc.
+    type: [{ type: String }], // Class, Side, etc.
+    domain: [{ type: String }], // Web, AI, etc.
     owner: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     status: { type: String, default: 'OPEN' }, // OPEN, IN_PROGRESS, COMPLETED
 
