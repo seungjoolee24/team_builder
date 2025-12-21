@@ -593,7 +593,7 @@ function loadHeader() {
                     </div>
 
                     <a href="${rootPath}profile.html" class="avatar" style="width: 36px; height: 36px; background: #EEE; border-radius: 50%; display: block; overflow: hidden; border: 2px solid var(--color-border);" title="${currentUser.name}">
-                         <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=${currentUser.name}" alt="User" style="width: 100%; height: 100%;">
+                         <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=${currentUser.email || currentUser.name}" alt="User" style="width: 100%; height: 100%;">
                     </a>
                     <button id="logoutBtn" class="btn btn-secondary" style="font-size: 0.8rem; padding: 0.3rem 0.75rem;">Log Out</button>
                 ` : `
@@ -808,28 +808,34 @@ function highlightActivePage() {
 
 window.showProfileCard = async (userId, name) => {
     const currentUser = window.db.getCurrentUser();
-    if (userId === currentUser.id || userId === currentUser._id) return;
+    // if (userId === (currentUser?.id || currentUser?._id)) return; // Allow viewing own profile as fallback
 
     const user = await window.db.getUserProfile(userId);
     if (!user) return alert('Profile not found.');
 
     const p = user.profile || {};
     const skills = p.skills || [];
-    const statusObj = await window.db.getFriendStatus(userId);
+    const statusObj = currentUser ? await window.db.getFriendStatus(userId) : { status: 'none' };
     const status = statusObj.status;
+
+    // Use user.name if parameter is missing
+    const displayName = name || user.name || 'Unknown User';
+    const displayEmail = user.email || displayName; // Seed consistency
 
     let actionBtn = '';
     const path = window.location.pathname;
     const rootPath = (path.includes('/projects/') || path.includes('/members/') || path.includes('/auth/')) ? '../' : './';
 
-    if (status === 'friends') {
-        actionBtn = `<button class="btn btn-outline" onclick="location.href='${rootPath}inbox.html'" style="width: 100%;">Message</button>`;
-    } else if (status === 'pending_sent') {
-        actionBtn = `<button class="btn btn-secondary" disabled style="width: 100%;">Request Sent</button>`;
-    } else if (status === 'pending_received') {
-        actionBtn = `<button class="btn btn-primary" onclick="acceptFriend('${statusObj.requestId}', '${name}')" style="width: 100%;">Accept Request</button>`;
-    } else {
-        actionBtn = `<button class="btn btn-primary" onclick="sendFriendRequest('${userId}', '${name}')" style="width: 100%;">Add Friend</button>`;
+    if (currentUser && String(userId) !== String(currentUser.id || currentUser._id)) {
+        if (status === 'friends') {
+            actionBtn = `<button class="btn btn-outline" onclick="location.href='${rootPath}inbox.html'" style="width: 100%;">Message</button>`;
+        } else if (status === 'pending_sent') {
+            actionBtn = `<button class="btn btn-secondary" disabled style="width: 100%;">Request Sent</button>`;
+        } else if (status === 'pending_received') {
+            actionBtn = `<button class="btn btn-primary" onclick="acceptFriend('${statusObj.requestId}', '${displayName}')" style="width: 100%;">Accept Request</button>`;
+        } else {
+            actionBtn = `<button class="btn btn-primary" onclick="window.sendFriendRequest('${userId}', '${displayName}')" style="width: 100%;">Add Friend</button>`;
+        }
     }
 
     const modal = document.createElement('div');
@@ -840,11 +846,11 @@ window.showProfileCard = async (userId, name) => {
             <div style="height: 100px; background: var(--color-sogang-red);"></div>
             <div style="padding: 0 2rem 2rem; margin-top: -50px;">
                 <div style="width: 100px; height: 100px; border-radius: 50%; background: white; margin: 0 auto 1.5rem; padding: 4px; border: 1px solid #eee; box-shadow: var(--shadow-sm);">
-                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=${name}" style="width: 100%; height: 100%; border-radius: 50%;">
+                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=${displayEmail}" style="width: 100%; height: 100%; border-radius: 50%;">
                 </div>
                 
                 <div style="text-align: center; margin-bottom: 2rem;">
-                    <h3 style="margin: 0; font-size: 1.5rem; color: var(--color-text-primary);">${name}</h3>
+                    <h3 style="margin: 0; font-size: 1.5rem; color: var(--color-text-primary);">${displayName}</h3>
                     <p style="color: var(--color-text-tertiary); font-size: 0.95rem; margin-top: 0.25rem;">${p.primaryRole || 'Team Member'}</p>
                     <p style="color: var(--color-text-secondary); font-size: 0.85rem;">${p.college || 'Sogang'} | ${p.major || 'Major Undefined'}</p>
                 </div>
