@@ -73,7 +73,7 @@ const PROJECTS_DATA = [
         roles: [{ role: "game", count: 3 }, { role: "backend", count: 2 }, { role: "designer", count: 1 }, { role: "marketing", count: 1 }]
     },
     {
-        title: "Campus Flea Market", type: ["Side Project", "Capstone"], domain: ["Web/App", "E-commerce"], description: "Second-hand trading app for students.", ownerRole: "frontend",
+        title: "Campus Flea Market", type: ["Class Project", "Capstone"], domain: ["Web/App", "E-commerce"], description: "Second-hand trading app for students.", ownerRole: "frontend",
         roles: [{ role: "frontend", count: 2 }, { role: "backend", count: 2 }, { role: "mobile", count: 2 }, { role: "designer", count: 1 }]
     },
     {
@@ -81,7 +81,7 @@ const PROJECTS_DATA = [
         roles: [{ role: "backend", count: 3 }, { role: "frontend", count: 1 }, { role: "devops", count: 2 }, { role: "planner", count: 1 }]
     },
     {
-        title: "Interactive Media Art Exhibition", type: ["Research", "Side Project"], domain: ["Metaverse", "Media Art"], description: "Digital art installation using Processing/p5.js.", ownerRole: "media",
+        title: "Interactive Media Art Exhibition", type: ["Research", "Class Project"], domain: ["Metaverse", "Media Art"], description: "Digital art installation using Processing/p5.js.", ownerRole: "media",
         roles: [{ role: "media", count: 3 }, { role: "designer", count: 2 }, { role: "frontend", count: 1 }]
     },
     {
@@ -137,12 +137,53 @@ const PROJECTS_DATA = [
         roles: [{ role: "data", count: 3 }, { role: "backend", count: 1 }, { role: "marketing", count: 1 }]
     },
     {
-        title: "Music Collaboration Tool", type: ["Side Project", "Hackathon"], domain: ["Cloud Computing", "Mobile"], description: "Real-time jamming web app.", ownerRole: "media",
-        roles: [{ role: "media", count: 2 }, { role: "frontend", count: 2 }, { role: "backend", count: 2 }]
-    },
-    {
         title: "Startup Networking Event", type: ["Startup", "Study Group"], domain: ["Enterprise", "SaaS"], description: "Organizing networking for founders.", ownerRole: "marketing",
         roles: [{ role: "marketing", count: 3 }, { role: "planner", count: 2 }, { role: "designer", count: 1 }]
+    },
+    // --- 10 New Diverse Projects ---
+    {
+        title: "Sustainability Dashboard", type: ["Side Project"], domain: ["Social Impact", "Web/App"], description: "Visualizing campus energy consumption.", ownerRole: "data",
+        roles: [{ role: "data", count: 2 }, { role: "frontend", count: 1 }, { role: "designer", count: 1 }, { role: "backend", count: 1 }]
+    },
+    {
+        title: "Language Learning RPG", type: ["Game Dev", "Side Project"], domain: ["Game Dev", "Education"], description: "Learn Korean through an immersive RPG.", ownerRole: "game",
+        roles: [{ role: "game", count: 2 }, { role: "media", count: 2 }, { role: "planner", count: 1 }]
+    },
+    {
+        title: "Student Startup Incubator", type: ["Startup"], domain: ["Enterprise", "Networking"], description: "A platform for student-led ventures.", ownerRole: "planner",
+        roles: [{ role: "planner", count: 2 }, { role: "marketing", count: 2 }, { role: "designer", count: 1 }, { role: "backend", count: 1 }]
+    },
+    {
+        title: "Blockchain Credentialing", type: ["Research", "Hackathon"], domain: ["Blockchain", "Security"], description: "Verifying student certifications on-chain.", ownerRole: "backend",
+        roles: [{ role: "backend", count: 2 }, { role: "devops", count: 1 }, { role: "frontend", count: 1 }]
+    },
+    {
+        title: "AR History Tour", type: ["Research", "Side Project"], domain: ["Metaverse", "Media Art"], description: "History of Sogang through AR.", ownerRole: "media",
+        roles: [{ role: "media", count: 2 }, { role: "designer", count: 2 }, { role: "mobile", count: 1 }]
+    },
+    {
+        title: "Healthy Dining App", type: ["Side Project", "Startup"], domain: ["Web/App", "Lifestyle"], description: "Nutrition tracking for campus meals.", ownerRole: "mobile",
+        roles: [{ role: "mobile", count: 2 }, { role: "backend", count: 1 }, { role: "designer", count: 1 }, { role: "marketing", count: 1 }]
+    },
+    {
+        title: "Open Source Contributor Hub", type: ["Study Group"], domain: ["Web/App", "Community"], description: "Gamifying open-source contributions.", ownerRole: "frontend",
+        roles: [{ role: "frontend", count: 3 }, { role: "backend", count: 2 }, { role: "planner", count: 1 }]
+    },
+    {
+        title: "AI Mental Health Chatbot", type: ["Research", "Side Project"], domain: ["AI/Data", "Healthcare"], description: "Supportive AI for student well-being.", ownerRole: "data",
+        roles: [{ role: "data", count: 2 }, { role: "backend", count: 1 }, { role: "designer", count: 1 }]
+    },
+    {
+        title: "Local Commerce Bridge", type: ["Startup", "E-commerce"], domain: ["Web/App", "Fintech"], description: "Connecting local shops with students.", ownerRole: "backend",
+        roles: [{ role: "backend", count: 2 }, { role: "marketing", count: 2 }, { role: "frontend", count: 1 }]
+    },
+    {
+        title: "Cloud Infrastructure Workshop", type: ["Study Group"], domain: ["Cloud", "DevOps"], description: "Hands-on experience with modern cloud stacks.", ownerRole: "devops",
+        roles: [{ role: "devops", count: 3 }, { role: "backend", count: 2 }]
+    },
+    {
+        title: "Music Collaboration Tool", type: ["Side Project", "Hackathon"], domain: ["Cloud Computing", "Mobile"], description: "Real-time jamming web app.", ownerRole: "media",
+        roles: [{ role: "media", count: 2 }, { role: "frontend", count: 2 }, { role: "backend", count: 2 }]
     }
 ];
 
@@ -179,8 +220,7 @@ const seed = async () => {
         }
         console.log(`${createdUsers.length} Users created.`);
 
-        // 2. Create Projects & Assign Members (4-8 members logic)
-        // Each project needs: Owner + (3 to 7) members = Total 4 to 8.
+        // 2. Create Projects & Assign Members (Balanced Capacity: 3-4 members per 4-7 slots)
         const createdProjects = [];
         for (let i = 0; i < PROJECTS_DATA.length; i++) {
             const p = PROJECTS_DATA[i];
@@ -202,8 +242,8 @@ const seed = async () => {
                 domain: p.domain,
                 description: p.description + '\n\nLooking for passionate teammates to join our journey.',
                 owner: owner._id,
-                status: (i < 15) ? 'OPEN' : 'CONFIRMED', // Mix statuses
-                currentStatus: (i < 5) ? "Initial planning phase" : (i < 10) ? "Recruiting teammates" : "Working on prototype",
+                status: (i < 20) ? 'OPEN' : 'CONFIRMED', // Mix statuses
+                currentStatus: (i < 10) ? "Initial planning phase" : (i < 20) ? "Recruiting teammates" : "Working on prototype",
                 roles: p.roles.map(r => ({ ...r, filled: 0 })), // Initialize filled count
                 members: [{ user: owner._id, role: p.ownerRole }]
             });
@@ -211,44 +251,35 @@ const seed = async () => {
             // Calculate total slots defined in roles
             const totalProjectSlots = project.roles.reduce((acc, r) => acc + r.count, 0);
 
-            // Logic: Target 5-7 members (including owner) to ensure users get 2-4 memberships
-            // Randomly select 4 to 6 additional members (making total 5-7 members)
-            let targetAdditionalCount = 4 + Math.floor(Math.random() * 3); // 4, 5, 6
+            // Logic: Target 3-4 members (including owner)
+            // Occupancy ratio: 3/4=75% to 4/7=57% -> averages around 60%, fulfilling "half-full" request.
+            let targetAdditionalCount = 2 + Math.floor(Math.random() * 2); // 2 or 3 additional members
 
-            // Cap at avail capacity (Total slots - 1 for owner)
+            // Cap at available capacity (Total slots - 1 for owner)
             if (targetAdditionalCount > (totalProjectSlots - 1)) {
                 targetAdditionalCount = totalProjectSlots - 1;
             }
 
             const selectedMembers = candidates.sort(() => 0.5 - Math.random()).slice(0, targetAdditionalCount);
 
-            // Count Owner's role first
+            // Count Owner's role
             const ownerRoleObj = project.roles.find(r => r.role === p.ownerRole);
             if (ownerRoleObj) {
-                if (ownerRoleObj.filled < ownerRoleObj.count) {
-                    ownerRoleObj.filled += 1;
-                }
+                ownerRoleObj.filled = 1;
             }
 
             // Add selected members
             for (const m of selectedMembers) {
-                // Find roles that are NOT full
                 const availableRoles = project.roles.filter(r => r.filled < r.count);
-
                 if (availableRoles.length === 0) break;
 
-                // Get the primary role of the current member from USERS_DATA
                 const memberProfileData = USERS_DATA.find(ud => ud.email === m.email);
                 const memberPrimaryRole = memberProfileData ? memberProfileData.role : null;
 
                 let chosenRoleObj = null;
-
-                // Try to match user's primary role first
                 if (memberPrimaryRole) {
                     chosenRoleObj = availableRoles.find(r => r.role === memberPrimaryRole);
                 }
-
-                // If no match or primary role not found, pick a random available role
                 if (!chosenRoleObj) {
                     chosenRoleObj = availableRoles[Math.floor(Math.random() * availableRoles.length)];
                 }
@@ -260,7 +291,7 @@ const seed = async () => {
             await project.save();
             createdProjects.push(project);
         }
-        console.log(`${createdProjects.length} Projects created (sizes 5-7).`);
+        console.log(`${createdProjects.length} Projects created (sizes 3-4).`);
 
         // 3. Create Friendships
         // Ensure everyone has ~3-6 friends

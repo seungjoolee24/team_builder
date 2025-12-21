@@ -209,7 +209,7 @@
                         <div style="flex: 1;">
                             <div style="display: flex; gap: 0.75rem; align-items: center; margin-bottom: 0.5rem;">
                                 <span class="badge ${badgeColor}" style="text-transform: uppercase;">${statusText}</span>
-                                <span style="font-size: 0.85rem; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;">${(Array.isArray(project.type) ? project.type[0] : project.type) || 'Project'}</span>
+                                ${(Array.isArray(project.type) ? project.type : [project.type]).map(t => `<span style="font-size: 0.85rem; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;">${t}</span>`).join('<span style="color: var(--color-text-tertiary); margin: 0 0.2rem;">•</span>')}
                             </div>
                             <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem;">${project.title}</h3>
                             <p style="color: var(--color-text-secondary); font-size: 0.95rem;">${project.oneLineDescription || project.summary || 'No description'}</p>

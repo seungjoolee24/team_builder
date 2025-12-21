@@ -107,11 +107,11 @@
                         <div id="filter-type" style="display: flex; flex-direction: column; gap: 0.5rem;">
                             <label
                                 style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; color: var(--color-text-secondary);">
-                                <input type="checkbox" value="Class Project"> Class Project
+                                <input type="checkbox" value="Class Project,Capstone"> Class Project / Capstone
                             </label>
                             <label
                                 style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; color: var(--color-text-secondary);">
-                                <input type="checkbox" value="Competition / Hackathon"> Competition / Hackathon
+                                <input type="checkbox" value="Competition,Hackathon"> Competition / Hackathon
                             </label>
                             <label
                                 style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; color: var(--color-text-secondary);">
@@ -119,11 +119,11 @@
                             </label>
                             <label
                                 style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; color: var(--color-text-secondary);">
-                                <input type="checkbox" value="Startup / Pre-startup"> Startup / Pre-startup
+                                <input type="checkbox" value="Startup"> Startup / Pre-startup
                             </label>
                             <label
                                 style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; color: var(--color-text-secondary);">
-                                <input type="checkbox" value="Club / Study"> Club / Study
+                                <input type="checkbox" value="Study Group,Club"> Club / Study
                             </label>
                         </div>
                     </div>
@@ -133,31 +133,36 @@
                         <div id="filter-domain" style="display: flex; flex-direction: column; gap: 0.5rem;">
                             <label
                                 style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; color: var(--color-text-secondary);">
-                                <input type="checkbox" value="Web / App"> Web / App
+                                <input type="checkbox" value="Web/App"> Web / App
                             </label>
                             <label
                                 style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; color: var(--color-text-secondary);">
-                                <input type="checkbox" value="AI / Data Science"> AI / Data Science
+                                <input type="checkbox" value="Mobile"> Mobile
                             </label>
                             <label
                                 style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; color: var(--color-text-secondary);">
-                                <input type="checkbox" value="Game Development"> Game Development
+                                <input type="checkbox" value="AI/Data"> AI / Data Science
                             </label>
                             <label
                                 style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; color: var(--color-text-secondary);">
-                                <input type="checkbox" value="Media Art / Design"> Media Art / Design
+                                <input type="checkbox" value="Game Dev"> Game Development
                             </label>
                             <label
                                 style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; color: var(--color-text-secondary);">
-                                <input type="checkbox" value="Hardware / IoT"> Hardware / IoT
+                                <input type="checkbox" value="Media Art,Design"> Media Art / Design
                             </label>
                             <label
                                 style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; color: var(--color-text-secondary);">
-                                <input type="checkbox" value="Fintech / Business"> Fintech / Business
+                                <input type="checkbox" value="IoT,Hardware"> Hardware / IoT
                             </label>
                             <label
                                 style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; color: var(--color-text-secondary);">
-                                <input type="checkbox" value="Social / Humanities"> Social / Humanities
+                                <input type="checkbox" value="Fintech,E-commerce,Blockchain"> Fintech / Blockchain
+                            </label>
+                            <label
+                                style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; color: var(--color-text-secondary);">
+                                <input type="checkbox" value="Social Media,Community,Enterprise,SaaS"> Social /
+                                Enterprise
                             </label>
                             <label
                                 style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; color: var(--color-text-secondary);">
@@ -288,8 +293,8 @@
 
                     return `
                     <a href="./detail.html?id=${p.id}" class="card" style="text-decoration: none; color: inherit; display: block;">
-                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
-                            <span class="badge blue">${(Array.isArray(p.type) ? p.type[0] : p.type) || 'Project'}</span>
+                        <div style="display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1rem;">
+                            ${(Array.isArray(p.type) ? p.type : [p.type]).map(t => `<span class="badge blue">${t || 'Project'}</span>`).join('')}
                         </div>
                         <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem; line-height: 1.4;">${p.title}</h3>
                         <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem;">
@@ -329,7 +334,9 @@
                         </div>
                         
                         <div style="border-top: 1px solid var(--color-border); padding-top: 1rem; display: flex; align-items: center; justify-content: space-between;">
-                            <span style="font-size: 0.85rem; color: var(--color-text-tertiary);">${p.domain || 'General'}</span>
+                            <div style="display: flex; flex-wrap: wrap; gap: 0.4rem;">
+                                ${(Array.isArray(p.domain) ? p.domain : [p.domain]).map(d => `<span style="font-size: 0.75rem; background: var(--color-bg-tertiary); padding: 2px 6px; border-radius: 4px; color: var(--color-text-tertiary);">${d}</span>`).join('')}
+                            </div>
                             <span style="font-weight: 600; font-size: 0.9rem; color: var(--color-sogang-red);">View &rarr;</span>
                         </div>
                     </a >
