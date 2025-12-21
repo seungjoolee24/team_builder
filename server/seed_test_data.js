@@ -203,6 +203,7 @@ const seed = async () => {
                 description: p.description + '\n\nLooking for passionate teammates to join our journey.',
                 owner: owner._id,
                 status: (i < 15) ? 'OPEN' : 'CONFIRMED', // Mix statuses
+                currentStatus: (i < 5) ? "Initial planning phase" : (i < 10) ? "Recruiting teammates" : "Working on prototype",
                 roles: p.roles.map(r => ({ ...r, filled: 0 })), // Initialize filled count
                 members: [{ user: owner._id, role: p.ownerRole }]
             });
@@ -292,23 +293,27 @@ const seed = async () => {
                 // Force assign to a random project
                 const randomProject = await Project.findOne({ status: 'OPEN' }); // simple pick, can be optimized
                 if (randomProject) {
-                    // Just add as Member role if no specific fit, or simplified logic
                     // Try to match role if possible
                     const userProfile = USERS_DATA.find(ud => ud.email === user.email);
                     let roleToAssign = userProfile ? userProfile.role : 'Member';
 
                     // Check if role exists in project
-                    const hasRole = randomProject.roles.find(r => r.role === roleToAssign);
-                    if (!hasRole) roleToAssign = randomProject.roles[0].role; // Fallback
+                    let rObj = randomProject.roles.find(r => r.role === roleToAssign);
+                    if (!rObj) {
+                        rObj = randomProject.roles[0];
+                        roleToAssign = rObj.role;
+                    }
+
+                    // If role is full, bump the count to accommodate the force-assigned member
+                    if (rObj.filled >= rObj.count) {
+                        rObj.count = rObj.filled + 1;
+                    }
 
                     randomProject.members.push({ user: user._id, role: roleToAssign });
-
-                    // Update count if tracking strictly (optional for seed redundancy but good practice)
-                    const rObj = randomProject.roles.find(r => r.role === roleToAssign);
-                    if (rObj) rObj.filled += 1;
+                    rObj.filled += 1;
 
                     await randomProject.save();
-                    console.log(`Force-assigned ${user.name} to project ${randomProject.title}`);
+                    console.log(`Force-assigned ${user.name} to project ${randomProject.title} (Increased capacity if needed)`);
                 }
             }
         }

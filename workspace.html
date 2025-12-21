@@ -99,6 +99,21 @@
                     </div>
                 </div>
 
+                <!-- Project Status Update (Leader Only) -->
+                <div id="leader-status-section"
+                    style="display: none; background: var(--color-bg-tertiary); padding: 1rem; border-radius: var(--radius-lg); margin-bottom: 2rem; border-left: 4px solid var(--color-sogang-red);">
+                    <h3
+                        style="font-size: 0.85rem; text-transform: uppercase; color: var(--color-text-secondary); letter-spacing: 0.05em; margin-bottom: 0.75rem;">
+                        Leader's Project Update</h3>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <input type="text" id="status-update-input" class="input"
+                            placeholder="What's the current status of the project?" style="font-size: 0.9rem;">
+                        <button onclick="updateProjectCurrentStatus()" class="btn btn-primary"
+                            style="font-size: 0.85rem; padding: 0.5rem 1rem;">Update</button>
+                    </div>
+                    <p id="status-update-feedback" style="font-size: 0.75rem; margin-top: 0.5rem; display: none;"></p>
+                </div>
+
                 <div id="applications-section" style="border-top: 1px solid var(--color-border); padding-top: 1.5rem;">
                     <h3
                         style="font-size: 1rem; text-transform: uppercase; color: var(--color-text-secondary); letter-spacing: 0.05em; margin-bottom: 1rem;">
@@ -155,11 +170,49 @@
             if (project) {
                 document.getElementById('project-title').textContent = project.title;
                 document.getElementById('project-type').textContent = project.type;
+
+                // Show leader status section if current user is owner
+                const ownerId = (typeof project.owner === 'object') ? (project.owner._id || project.owner.id) : project.owner;
+                const isLeader = String(ownerId) === String(currentUser.id || currentUser._id);
+                if (isLeader) {
+                    document.getElementById('leader-status-section').style.display = 'block';
+                    document.getElementById('status-update-input').value = project.currentStatus || '';
+                }
+
                 renderMembers(project);
             } else {
                 document.getElementById('project-title').textContent = "Project Not Found";
                 return;
             }
+
+            window.updateProjectCurrentStatus = async () => {
+                const newStatus = document.getElementById('status-update-input').value;
+                const feedback = document.getElementById('status-update-feedback');
+
+                try {
+                    const response = await fetch(`${API_URL}/api/projects/${projectId}/current-status`, {
+                        method: 'PATCH',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        },
+                        body: JSON.stringify({ currentStatus: newStatus })
+                    });
+
+                    if (response.ok) {
+                        feedback.textContent = 'Status updated successfully!';
+                        feedback.style.color = '#2ecc71';
+                        feedback.style.display = 'block';
+                        setTimeout(() => feedback.style.display = 'none', 3000);
+                    } else {
+                        throw new Error('Failed to update status');
+                    }
+                } catch (err) {
+                    feedback.textContent = 'Error: ' + err.message;
+                    feedback.style.color = '#e74c3c';
+                    feedback.style.display = 'block';
+                }
+            };
 
             async function renderMembers(project) {
                 const membersList = document.getElementById('members-list');

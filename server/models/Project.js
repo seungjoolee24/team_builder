@@ -8,6 +8,7 @@ const ProjectSchema = new mongoose.Schema({
     domain: [{ type: String }], // Web, AI, etc.
     owner: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     status: { type: String, default: 'OPEN' }, // OPEN, IN_PROGRESS, COMPLETED
+    currentStatus: { type: String, default: 'Starting our project!' }, // Leader's custom update
 
     // Roles Requirements
     roles: [{

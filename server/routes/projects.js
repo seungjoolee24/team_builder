@@ -280,6 +280,32 @@ router.patch('/:id/status', auth, async (req, res) => {
     }
 });
 
+// @route   PATCH api/projects/:id/current-status
+// @desc    Update leader's project status update (Only Owner)
+// @access  Private
+router.patch('/:id/current-status', auth, async (req, res) => {
+    try {
+        const { currentStatus } = req.body;
+        const project = await Project.findById(req.params.id);
+
+        if (!project) {
+            return res.status(404).json({ msg: 'Project not found' });
+        }
+
+        // Check ownership
+        if (project.owner.toString() !== req.user.id) {
+            return res.status(401).json({ msg: 'Not authorized' });
+        }
+
+        project.currentStatus = currentStatus;
+        await project.save();
+        res.json(project);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+});
+
 // @route   POST api/projects/:id/leave
 // @desc    Leave a project
 // @access  Private

@@ -292,9 +292,20 @@
                             <span class="badge blue">${(Array.isArray(p.type) ? p.type[0] : p.type) || 'Project'}</span>
                         </div>
                         <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem; line-height: 1.4;">${p.title}</h3>
-                        <p style="color: var(--color-text-secondary); font-size: 0.95rem; margin-bottom: 1.5rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem;">
+                            <span style="font-size: 0.85rem; color: var(--color-text-secondary);">Leader:</span>
+                            <span onclick="event.preventDefault(); showProfileCard('${ownerId}')" style="font-size: 0.85rem; font-weight: 600; color: var(--color-sogang-red); cursor: pointer; text-decoration: underline;">
+                                ${p.owner?.name || 'Unknown'}
+                            </span>
+                        </div>
+                        <p style="color: var(--color-text-secondary); font-size: 0.95rem; margin-bottom: 1rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
                             ${p.oneLineDescription || ''}
                         </p>
+                        <!-- Project current status -->
+                        <div style="background: var(--color-bg-tertiary); padding: 0.75rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 3px solid var(--color-sogang-red);">
+                            <span style="font-size: 0.75rem; color: var(--color-text-secondary); text-transform: uppercase; font-weight: 700; display: block; margin-bottom: 0.25rem;">Latest Update</span>
+                            <p style="font-size: 0.85rem; color: var(--color-text-primary); margin: 0; font-style: italic;">"${p.currentStatus || 'Recruiting starting members!'}"</p>
+                        </div>
                         
                         <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem;">
                             ${(p.roles || []).map(r => `
@@ -321,7 +332,7 @@
                             <span style="font-size: 0.85rem; color: var(--color-text-tertiary);">${p.domain || 'General'}</span>
                             <span style="font-weight: 600; font-size: 0.9rem; color: var(--color-sogang-red);">View &rarr;</span>
                         </div>
-                    </a>
+                    </a >
                 `;
                 }).join('');
 
